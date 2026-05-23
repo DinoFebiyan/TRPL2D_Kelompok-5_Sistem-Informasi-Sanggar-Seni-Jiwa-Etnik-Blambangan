@@ -61,7 +61,7 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
     // Kelola Berita -> folder: views/superadmin/berita
     Route::get('/kelola-berita', [SuperAdminController::class, 'kelolaBerita'])->name('superadmin.kelola-berita');
     Route::get('/tambah-berita', [SuperAdminController::class, 'tambahBerita'])->name('superadmin.tambah-berita');
-    // Route::post('/store-berita', [SuperAdminController::class, 'storeBerita'])->name('superadmin.store-berita');
+    Route::post('/store-berita', [SuperAdminController::class, 'storeBerita'])->name('superadmin.store-berita');
     Route::get('/berita/edit/{id}', [SuperAdminController::class, 'editBerita'])->name('superadmin.berita.edit');
     Route::put('/berita/update/{id}', [SuperAdminController::class, 'updateBerita'])->name('superadmin.berita.update');
     Route::delete('/berita/delete/{id}', [SuperAdminController::class, 'deleteBerita'])->name('superadmin.berita.delete');
