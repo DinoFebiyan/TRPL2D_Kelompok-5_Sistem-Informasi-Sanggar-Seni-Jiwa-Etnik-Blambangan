@@ -114,7 +114,7 @@
         }
 
         .btn-pilih-file {
-            background: #8A4B4B;
+            background: #531919;
             color: white !important;
             padding: 12px 25px;
             cursor: pointer;

@@ -47,4 +47,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Berita::class);
     }
+    public function galeri()
+    {
+         return $this->hasOne(Galeri::class, 'user_id', 'id');
+    }
 }

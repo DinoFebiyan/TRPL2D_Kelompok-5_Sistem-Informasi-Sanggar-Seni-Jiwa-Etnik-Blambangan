@@ -301,7 +301,14 @@
             <tbody>
                 @forelse($admins as $admin)
                 <tr>
-                    <td><div class="adm-foto">{{ strtoupper(substr($admin->name, 0, 2)) }}</div></td>
+                    <td>
+        @if($admin->galeri && $admin->galeri->file_blob)
+    <img src="{{ asset('storage/' . $admin->galeri->file_blob) }}" alt="Foto Admin" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+
+            @else
+            <img src="{{ asset('images/default-avatar.png') }}" alt="Default" style="width: 50px; height: 50px; border-radius: 50%;">
+        @endif
+    </td>
                     <td style="font-weight:600">{{ $admin->name }}</td>
                     <td>{{ $admin->email }}</td>
                     <td>{{ $admin->no_handphone ?? '-' }}</td>
@@ -315,6 +322,7 @@
                     <td class="adm-action-btns">
                         <a href="{{ route('superadmin.edit-admin', $admin->id) }}" class="adm-btn-edit">Edit</a>
                         <button class="adm-btn-hapus" onclick="confirmDelete({{ $admin->id }})">Hapus</button>
+
                         <form id="delete-form-{{ $admin->id }}" action="{{ route('superadmin.hapus-admin', $admin->id) }}" method="POST" style="display: none;">
                             @csrf @method('DELETE')
                         </form>

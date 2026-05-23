@@ -12,7 +12,7 @@ class LogAktivitas extends Model
      * Audit Trail: Mencatat jejak user untuk keamanan sistem.
      * Merekam siapa, melakukan apa, dan dari mana (IP).
      */
-    protected $fillable = ['user_id', 'aktivitas', 'deskripsi', 'ip_address'];
+    protected $fillable = ['user_id', 'aktivitas', 'waktu'];
 
     public function user()
     {

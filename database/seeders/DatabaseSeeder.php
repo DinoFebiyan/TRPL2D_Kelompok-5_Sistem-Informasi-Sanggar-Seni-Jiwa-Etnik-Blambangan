@@ -41,14 +41,14 @@ class DatabaseSeeder extends Seeder
         $galeri1 = Galeri::create([
             'file_blob' => 'dummy_base64_1', // isi dengan file dummy
             'nama_file' => 'logo_sanggar.jpg',
-            'kategori_modul' => 'logo',
+            'kategori' => 'logo',
             'is_watermark' => false,
         ]);
 
         $galeri2 = Galeri::create([
             'file_blob' => 'dummy_base64_2',
             'nama_file' => 'foto_pembina.jpg',
-            'kategori_modul' => 'pembina',
+            'kategori' => 'pembina',
             'is_watermark' => false,
         ]);
 
@@ -92,7 +92,7 @@ class DatabaseSeeder extends Seeder
             $galeri = Galeri::create([
                 'nama_file' => 'katalog_' . $i . '.jpeg',
                 'file_blob' => 'img/images-landing-page/katalog/katalog_' . $i . '.jpeg', 
-                'kategori_modul' => 'katalog',
+                'kategori' => 'katalog',
             ]);
 
             Katalog::create([
@@ -112,7 +112,7 @@ class DatabaseSeeder extends Seeder
     $galeri = Galeri::create([
         'nama_file' => 'berita_' . $i . '.jpeg',
         'file_blob' => 'img/images-landing-page/berita/berita_' . $i . '.jpeg', // Pastikan file ini ada di folder
-        'kategori_modul' => 'berita',
+        'kategori' => 'berita',
     ]);
 
     // 2. Buat berita dan hubungkan dengan $galeri->id yang baru dibuat

@@ -202,7 +202,7 @@
                 <div class="form-group">
                     <label>Password Baru</label>
                     <input type="password" name="password" placeholder="Kosongkan jika tidak ingin mengubah password">
-                    <div class="form-helper">Kosongkan jika tidak ingin mengubah password. Min 8 karakter.</div>
+                    <div class="form-helper">Password Min 8 karakter.</div>
                 </div>
 
                 <div class="form-group">
