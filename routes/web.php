@@ -1,27 +1,33 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
+use App\http\Controllers\AdminController;
 use App\Http\Controllers\LandingPageController;
-use App\Http\Controllers\SuperAdminController;
+use App\Http\Controllers\BeritaController;
+use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\GaleriController;
+use App\Http\Controllers\LogAktivitasController;
+use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\DashboardSuperadminController;
+use App\Http\Controllers\DashboardAdminController;
+use App\Http\Controllers\UmumController;
 use Illuminate\Support\Facades\Route;
 
 // =========================================================================
 // 1. HALAMAN UTAMA & PUBLIK (Folder: views/umum)
 // =========================================================================
 Route::get('/', [LandingPageController::class, 'index'])->name('home');
-    Route::get('/event', [UmumController::class, 'event'])->name('event.index');
-Route::get('/event/{id}', [UmumController::class, 'eventDetail'])->name('event.detail');
-Route::get('/berita', [UmumController::class, 'berita'])->name('berita.index');
-Route::get('/berita/{id}', [UmumController::class, 'beritaDetail'])->name('berita.detail');
-Route::get('/katalog', [KatalogController::class, 'katalog'])->name('katalog.index');
-Route::get('/katalog/{id}', [KatalogController::class, 'katalogDetail'])->name('katalog.detail');
-Route::get('/galeri', [UmumController::class, 'galeri'])->name('galeri.index');
-Route::get('/galeri/{id}', [UmumController::class, 'galeriDetail'])->name('galeri.detail');
-Route::get('/profil', [UmumController::class, 'profil'])->name('profil.sanggar');
+Route::get('/event', [UmumController::class, 'event'])->name('umum.event');
+Route::get('/event/{id}', [UmumController::class, 'eventDetail'])->name('umum.event-detail');
+Route::get('/berita', [UmumController::class, 'berita'])->name('umum.berita');
+Route::get('/berita/{id}', [UmumController::class, 'beritaDetail'])->name('umum.berita-detail');
+Route::get('/katalog', [UmumController::class, 'katalog'])->name('umum.katalog');
+Route::get('/katalog/{id}', [UmumController::class, 'katalogDetail'])->name('umum.katalog-detail');
+Route::get('/galeri', [UmumController::class, 'galeri'])->name('umum.galeri');
+Route::get('/galeri/{id}', [UmumController::class, 'galeriDetail'])->name('umum.galeri-detail');
+Route::get('/profil', [UmumController::class, 'profil'])->name('umum.profil');
 
 // =========================================================================
 // 2. AUTH DEFAULT & OTP (Folder: views/auth)
@@ -49,36 +55,41 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardSuperadminController::class, 'index'])->name('superadmin.dashboard');
 
     // Kelola Admin
-    Route::get('/admin', [SuperAdminController::class, 'kelolaAdmin'])->name('superadmin.kelola-admin');
+    Route::get('/kelola-admin', [AdminController::class, 'index'])->name('superadmin.kelola-admin');
+    Route::get('/kelola-admin/tambah-admin', [AdminController::class, 'create'])->name('superadmin.tambah-admin');
+    Route::post('/kelola-admin/store', [AdminController::class, 'store'])->name('superadmin.store-admin');
+    Route::get('/admin/edit/{id}', [AdminController::class, 'edit'])->name('superadmin.edit-admin');
+    Route::put('/admin/update/{id}', [AdminController::class, 'update'])->name('superadmin.update-admin');
+    Route::delete('/admin/delete/{id}', [AdminController::class, 'destroy'])->name('superadmin.hapus-admin');
 
     // Kelola Katalog
-    Route::get('/katalog', [SuperAdminController::class, 'kelolaKatalog'])->name('superadmin.kelola-katalog');
+    Route::get('/kelola-katalog', [KatalogController::class, 'index'])->name('superadmin.kelola-katalog');
 
     // Kelola Event
-    Route::get('/event', [SuperAdminController::class, 'kelolaEvent'])->name('superadmin.kelola-event');
+    Route::get('/kelola-event', [EventController::class, 'index'])->name('superadmin.kelola-event');
 
     // Kelola Berita 
-    Route::get('/kelola-berita', [SuperAdminController::class, 'kelolaBerita'])->name('superadmin.kelola-berita');
-    Route::get('/tambah-berita', [SuperAdminController::class, 'tambahBerita'])->name('superadmin.tambah-berita');
-    Route::post('/store-berita', [SuperAdminController::class, 'storeBerita'])->name('superadmin.store-berita');
-    Route::get('/berita/edit/{id}', [SuperAdminController::class, 'editBerita'])->name('superadmin.berita.edit');
-    Route::put('/berita/update/{id}', [SuperAdminController::class, 'updateBerita'])->name('superadmin.berita.update');
-    Route::delete('/berita/delete/{id}', [SuperAdminController::class, 'deleteBerita'])->name('superadmin.berita.delete');
+    Route::get('/kelola-berita', [BeritaController::class, 'index'])->name('superadmin.kelola-berita');
+    Route::get('/kelola-berita/tambah-berita', [BeritaController::class, 'create'])->name('superadmin.tambah-berita');
+    // Route::post('/kelola-berita/store-berita', [BeritaController::class, 'store'])->name('superadmin.store-berita');
+    // Route::get('/berita/edit/{id}', [BeritaController::class, 'edit'])->name('superadmin.berita.edit');
+    // Route::put('/berita/update/{id}', [BeritaController::class, 'update'])->name('superadmin.berita.update');
+    // Route::delete('/berita/delete/{id}', [BeritaController::class, 'destroy'])->name('superadmin.berita.delete');
 
     // Kelola Profil Sanggar
-    Route::get('/profil', [SuperAdminController::class, 'kelolaProfil'])->name('superadmin.kelola-profil');
-    Route::get('/edit-profil', [SuperAdminController::class, 'editProfil'])->name('superadmin.edit-profil');
-    Route::put('/profil/update', [SuperAdminController::class, 'updateProfil'])->name('superadmin.profil.update'); 
-    Route::get('/tambah-pengurus', [SuperAdminController::class, 'tambahPengurus'])->name('superadmin.tambah-pengurus');
-    Route::get('/tambah-pelatih', [SuperAdminController::class, 'tambahPelatih'])->name('superadmin.tambah-pelatih');
+    Route::get('/kelola-profil', [ProfilController::class, 'index'])->name('superadmin.kelola-profil');
+    Route::get('/kelola-profil/edit-profil', [ProfilController::class, 'edit'])->name('superadmin.edit-profil');
+    // Route::put('/profil/update', [ProfilController::class, 'updateProfil'])->name('superadmin.profil.update'); 
+    Route::get('/kelola-profil/tambah-pengurus', [ProfilController::class, 'tambahPengurus'])->name('superadmin.tambah-pengurus');
+    Route::get('/kelola-profil/tambah-pelatih', [ProfilController::class, 'tambahPelatih'])->name('superadmin.tambah-pelatih');
 
     // Pengaturan
-    Route::get('/pengaturan', [SuperAdminController::class, 'pengaturan'])->name('superadmin.pengaturan.index');
-    Route::put('/pengaturan/update', [SuperAdminController::class, 'updateProfil'])->name('superadmin.pengaturan.update');
-    Route::put('/pengaturan/update-password', [SuperAdminController::class, 'updatePassword'])->name('superadmin.pengaturan.password');
+    Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('superadmin.pengaturan');
+    Route::put('/pengaturan/update-akun', [PengaturanController::class, 'updateProfil'])->name('superadmin.update-akun');
+    Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('superadmin.update-password');
 
     // Log Aktivitas 
-    Route::get('/log-aktivitas', [SuperAdminController::class, 'logAktivitas'])->name('superadmin.log-aktivitas');
+    Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('superadmin.log-aktivitas');
 });
 
 // =========================================================================

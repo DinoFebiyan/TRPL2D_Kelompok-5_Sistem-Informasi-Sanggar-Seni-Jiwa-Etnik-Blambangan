@@ -873,7 +873,7 @@
       </div>
     </div>
     <div class="center-action">
-      <a href="{{ route('profil') }}" class="btn-dark-pill">Profil Lengkap Sanggar</a>
+      <a href="{{ route('umum.profil') }}" class="btn-dark-pill">Profil Lengkap Sanggar</a>
     </div>
   </section>
 
@@ -934,7 +934,7 @@
       @endforelse
     </div>
     <div class="center-action">
-      <a href="{{ route('katalog.index') }}" class="btn-dark-red-pill">Lihat semua katalog</a>
+      <a href="{{ route('umum.katalog') }}" class="btn-dark-red-pill">Lihat semua katalog</a>
     </div>
   </section>
 
@@ -980,7 +980,7 @@
       </div>
     </div>
     <div class="center-action">
-      <a href="{{ route('berita.index') }}" class="btn-dark-pill">Lihat Semua Berita</a>
+      <a href="{{ route('umum.berita') }}" class="btn-dark-pill">Lihat Semua Berita</a>
     </div>
   </section>
 
@@ -1000,7 +1000,7 @@
       @endforelse
     </div>
     <div class="center-action">
-      <a href="{{ route('galeri.index') }}" class="btn-gray-pill">Lihat selengkapnya</a>
+      <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat selengkapnya</a>
     </div>
   </section>
 
@@ -1045,7 +1045,7 @@
                     </div>
                     <div class="event-info">
                     <h4>
-                            <a href="{{ route('event.detail', $event->id) }}" style="text-decoration:none; color:inherit;">
+                            <a href="{{ route('umum.event-detail', $event->id) }}" style="text-decoration:none; color:inherit;">
                                 {{ $event->nama_event }}
                             </a>
                         </h4>
@@ -1060,7 +1060,7 @@
                 <p>Belum ada event terjadwal.</p>
                 @endforelse
         </div> <div class="center-action" style="text-align: center; margin-top: 4rem; width: 100%; grid-column: 1 / -1;">
-            <a href="{{ route('event.index') }}" class="btn-dark-pill" style="background: #5a1a1a; color: #fff; padding: 0.8rem 3rem; border-radius: 30px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.3s;">
+            <a href="{{ route('umum.event') }}" class="btn-dark-pill" style="background: #5a1a1a; color: #fff; padding: 0.8rem 3rem; border-radius: 30px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.3s;">
                 Lihat Semua Event
             </a>
         </div>

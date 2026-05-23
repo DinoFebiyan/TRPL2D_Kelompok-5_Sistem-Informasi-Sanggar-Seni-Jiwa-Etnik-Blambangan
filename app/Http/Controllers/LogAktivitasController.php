@@ -26,7 +26,7 @@ class LogAktivitasController extends Controller
         $aktivitasHariIni = LogAktivitas::whereDate('created_at', today())->count();
         $aktivitasBulanIni = LogAktivitas::whereMonth('created_at', now()->month)->count();
 
-        return view('superadmin.log-aktivitas.index', compact('logs', 'totalAktivitas', 'aktivitasHariIni', 'aktivitasBulanIni'));
+        return view('superadmin.log_aktivitas.index', compact('logs', 'totalAktivitas', 'aktivitasHariIni', 'aktivitasBulanIni'));
     }
 
     /**

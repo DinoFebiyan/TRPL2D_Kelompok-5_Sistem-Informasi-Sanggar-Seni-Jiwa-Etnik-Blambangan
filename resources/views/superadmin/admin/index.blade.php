@@ -40,6 +40,7 @@
     .adm-icon-blue { background: #eff6ff; color: #3b82f6; }
     .adm-icon-green { background: #f0fdf4; color: #16a34a; }
     .adm-icon-red { background: #fef2f2; color: #ef4444; }
+    .adm-icon-dark-red { background-color: #7a2a214a; color: #411f1f; }
     .adm-stat-text h4 {
         margin: 0;
         font-size: 0.7rem;
@@ -265,12 +266,15 @@
                 <h2>{{ $inactiveAdmins ?? 0 }}</h2>
             </div>
         </div>
-        <a href="{{ route('superadmin.admin.create') }}" class="adm-btn-tambah">
-            <span>+</span> Tambah Admin
+        <a href="{{ route('superadmin.tambah-admin') }}" class="adm-btn-tambah">
+            <div class="adm-icon-box adm-icon-dark-red">
+                <i class="fas fa-plus"></i>
+            </div>
+            <span>Tambah Admin</span>
         </a>
-    </div>
+   </div>
 
-    <form method="GET" action="{{ route('superadmin.admin.index') }}" class="adm-search-row">
+    <form method="GET" action="}" class="adm-search-row">
         <div class="adm-search-box">
             <input type="text" name="search" placeholder="Cari nama Admin..." value="{{ request('search') }}">
             <i class="fas fa-search"></i>
@@ -308,9 +312,9 @@
                         @endif
                     </td>
                     <td class="adm-action-btns">
-                        <a href="{{ route('superadmin.admin.edit', $admin->id) }}" class="adm-btn-edit">Edit</a>
+                        <a href="{{ route('superadmin.edit-admin', $admin->id) }}" class="adm-btn-edit">Edit</a>
                         <button class="adm-btn-hapus" onclick="confirmDelete({{ $admin->id }})">Hapus</button>
-                        <form id="delete-form-{{ $admin->id }}" action="{{ route('superadmin.admin.destroy', $admin->id) }}" method="POST" style="display: none;">
+                        <form id="delete-form-{{ $admin->id }}" action="{{ route('superadmin.hapus-admin', $admin->id) }}" method="POST" style="display: none;">
                             @csrf @method('DELETE')
                         </form>
                     </td>

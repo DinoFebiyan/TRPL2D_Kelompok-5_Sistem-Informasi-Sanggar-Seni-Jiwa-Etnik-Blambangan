@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable(); 
             $table->string('password');
-            $table->string('peran'); // Super Admin / Admin
+            $table->string('peran');
             $table->string('no_handphone');
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->rememberToken(); 
