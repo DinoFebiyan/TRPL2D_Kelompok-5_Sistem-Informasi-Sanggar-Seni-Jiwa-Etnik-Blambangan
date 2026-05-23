@@ -1,4 +1,4 @@
-@extends('layouts.superadmin-clean')
+@extends('layouts.form')
 
 @section('title', 'Edit Admin — JEB')
 

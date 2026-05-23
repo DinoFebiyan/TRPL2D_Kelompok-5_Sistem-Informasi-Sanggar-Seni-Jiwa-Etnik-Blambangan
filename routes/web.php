@@ -64,6 +64,11 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
 
     // Kelola Katalog
     Route::get('/kelola-katalog', [KatalogController::class, 'index'])->name('superadmin.kelola-katalog');
+    Route::get('/kelola-katalog/tambah-katalog', [KatalogController::class, 'create'])->name('superadmin.tambah-katalog');
+    Route::post('/kelola-katalog/store', [KatalogController::class, 'store'])->name('superadmin.store-katalog');
+    Route::get('/katalog/edit/{id}', [KatalogController::class, 'edit'])->name('superadmin.edit-katalog');
+    Route::put('/katalog/update/{id}', [KatalogController::class, 'update'])->name('superadmin.update-katalog');
+    Route::delete('/katalog/delete/{id}', [KatalogController::class, 'destroy'])->name('superadmin.hapus-katalog');
 
     // Kelola Event
     Route::get('/kelola-event', [EventController::class, 'index'])->name('superadmin.kelola-event');

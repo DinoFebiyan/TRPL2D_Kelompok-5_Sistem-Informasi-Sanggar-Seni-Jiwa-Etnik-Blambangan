@@ -274,15 +274,16 @@
         </a>
    </div>
 
-    <form method="GET" action="}" class="adm-search-row">
-        <div class="adm-search-box">
-            <input type="text" name="search" placeholder="Cari nama Admin..." value="{{ request('search') }}">
-            <i class="fas fa-search"></i>
-        </div>
-        <button type="submit" class="adm-btn-filter">
-            <i class="fas fa-filter"></i> Filter
-        </button>
+    <form method="GET" action="{{ route('superadmin.kelola-admin') }}" class="adm-search-row">
+    <div class="adm-search-box">
+        <input type="text" name="search" placeholder="Cari nama Admin..." value="{{ request('search') }}">
+        <i class="fas fa-search"></i>
+    </div>
+    <button type="submit" class="adm-btn-filter">
+        <i class="fas fa-filter"></i> Filter
+    </button>
     </form>
+
 
     <div class="adm-table-card">
         <h3>Daftar Admin</h3>

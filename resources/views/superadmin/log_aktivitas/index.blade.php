@@ -20,6 +20,12 @@
         align-items: stretch;
     }
     
+    .log-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 15px;
+        margin-bottom: 24px;
+    }
     .log-stat-card {
         background: #ffffff;
         border-radius: 12px;
@@ -29,7 +35,6 @@
         gap: 15px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         border: 1px solid #f0f0f0;
-        min-width: 260px; /* Lebar stat card disesuaikan */
     }
     .log-icon-box {
         width: 45px;
@@ -57,10 +62,28 @@
         font-weight: 700;
     }
 
-    .log-search-box {
-        flex: 1; /* Mengisi sisa ruang kosong di tengah */
-        position: relative;
+    .log-icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
         display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    .log-icon-blue { background: #eff6ff; color: #3b82f6; }
+    .log-icon-green { background: #f0fdf4; color: #16a34a; }
+    .log-icon-yellow { background: #fefce8; color: #eab308; }
+    .log-icon-red { background: #fef2f2; color: #ef4444; }
+
+        .log-search-row {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 24px;
+    }
+    .log-search-box {
+        flex: 1;
+        position: relative;
     }
     .log-search-box input {
         width: 100%;
@@ -78,9 +101,8 @@
         top: 50%;
         transform: translateY(-50%);
         color: #eab308;
-        font-size: 1.3rem;
+        font-size: 1.2rem;
     }
-    
     .log-btn-filter {
         background: #b91c1c;
         color: #ffffff;
@@ -186,24 +208,46 @@
 
 <div class="log-wrapper">
 
-    <div class="log-top-row">
+    <div class="log-stats-grid">
         <div class="log-stat-card">
-            <div class="log-icon-box"><i class="fas fa-user"></i></div>
+            <div class="log-icon-box log-icon-blue"><i class="fas fa-wave-square"></i></div>
             <div class="log-stat-text">
                 <h4>Total Aktivitas</h4>
-                <h2>{{ $totalAktivitas ?? 0 }}</h2>
+                <h2>{{ $totalaktivitas ?? 0 }}</h2>
             </div>
         </div>
+        <div class="log-stat-card">
+            <div class="log-icon-box log-icon-green"><i class="fas fa-plus-circle"></i></div>
+            <div class="log-stat-text">
+                <h4>Tambah</h4>
+                <h2>{{ $tambahaktivitas ?? 0 }}</h2>
+            </div>
+        </div>
+        <div class="log-stat-card">
+            <div class="log-icon-box log-icon-yellow"><i class="fas fa-edit"></i></div>
+            <div class="log-stat-text">
+                <h4>edit</h4>
+                <h2>{{ $editaktivitas ?? 0 }}</h2>
+            </div>
+        </div>
+           <div class="log-stat-card">
+            <div class="log-icon-box log-icon-red"><i class="fas fa-trash"></i></div>
+            <div class="log-stat-text">
+                <h4>hapus</h4>
+                <h2>{{ $hapusaktivitas ?? 0 }}</h2>
+            </div>
+        </div>
+   </div>
 
-        <form method="GET" action="{{ route('superadmin.log-aktivitas') ?? '#' }}" class="log-search-box">
-            <input type="text" name="search" placeholder="Cari aktivitas...." value="{{ request('search') }}" id="searchLog">
-            <i class="fas fa-search"></i>
-        </form>
-
-        <button type="submit" class="log-btn-filter">
-            <i class="fas fa-filter"></i> Filter
-        </button>
+    <form method="GET" action="{{ route('superadmin.log-aktivitas') }}" class="log-search-row">
+    <div class="log-search-box">
+        <input type="text" name="search" placeholder="Cari nama login..." value="{{ request('search') }}">
+        <i class="fas fa-search"></i>
     </div>
+    <button type="submit" class="log-btn-filter">
+        <i class="fas fa-filter"></i> Filter
+    </button>
+    </form>
 
     <div class="log-table-card">
         <h3>Daftar Aktivitas</h3>
@@ -221,7 +265,7 @@
                 <tr>
                     {{-- Sesuaikan properti objek ini dengan struktur database-mu --}}
                     <td>{{ $log->aktivitas ?? 'Menambahkan Data' }}</td>
-                    <td><strong style="color:#000;">{{ $log->aktor ?? ($log->user->name ?? 'Admin 1') }}</strong></td>
+                    <td><strong style="color:#000;">{{ $log->aktor ?? ($log->user->name ?? 'login 1') }}</strong></td>
                     
                     {{-- Format waktu sesuai di desain: Senin/1/Januari-00:00:00 --}}
                     <td>{{ \Carbon\Carbon::parse($log->created_at)->translatedFormat('l/j/F-H:i:s') }}</td>

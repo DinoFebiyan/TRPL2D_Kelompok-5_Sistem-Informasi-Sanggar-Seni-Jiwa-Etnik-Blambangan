@@ -1,4 +1,4 @@
-@extends('layouts.superadmin-clean')
+@extends('layouts.form')
 
 @section('title', 'Tambah Admin — JEB')
 
@@ -149,6 +149,25 @@
             background-repeat: no-repeat;
             background-position: calc(100% - 20px) center;
         }
+        .select-status {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: 1px solid #e8dede;
+    font-family: 'Poppins', sans-serif;
+    font-size: 0.95rem;
+    background: #fff;
+    color: #333; /* warna default untuk pilihan normal */
+}
+
+/* Placeholder option */
+
+.select-status:invalid {
+    color: #999;       /* abu-abu buram */
+}
+
+
+
     </style>
 @endsection
 
@@ -204,6 +223,11 @@
                     <input type="password" name="password" placeholder="Masukkan password yang akan digunakan admin untuk masuk..." required>
                     <div class="form-helper">Format password: Min 8 karakter tanpa simbol</div>
                 </div>
+
+                <div class="form-group">
+                    <label>Ulangi Password</label>
+                    <input type="password" name="password_confirmation" placeholder="Konfirmasi password yang akan digunakan admin untuk masuk..." required>
+                </div>
                 
                 <div class="form-group">
                     <label>No Handphone</label>
@@ -212,11 +236,12 @@
                 
                 <div class="form-group">
                     <label>Status</label>
-                    <select name="status" required>
+                    <select name="status" required class="select-status">
                         <option value="" disabled selected hidden>Masukkan status admin...</option>
                         <option value="aktif" {{ old('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
                         <option value="nonaktif" {{ old('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                     </select>
+
                 </div>
             </form>
         </div>

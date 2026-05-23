@@ -268,7 +268,7 @@
                 <h2>{{ $tidakTersedia ?? 0 }}</h2>
             </div>
         </div>
-        <a href="{{ route('superadmin.katalog.create') }}" class="katalog-btn-tambah">
+        <a href="{{ route('superadmin.tambah-katalog') }}" class="katalog-btn-tambah">
             <span>+</span> Tambah Katalog
         </a>
     </div>
@@ -319,9 +319,9 @@
                         @endif
                     </td>
                     <td class="katalog-actions">
-                        <a href="{{ route('superadmin.katalog.edit', $katalog->id) }}" class="btn-edit-katalog">Edit</a>
+                        <a href="{{ route('superadmin.edit-katalog', $katalog->id) }}" class="btn-edit-katalog">Edit</a>
                         <button class="btn-hapus-katalog" onclick="confirmDelete({{ $katalog->id }})">Hapus</button>
-                        <form id="delete-form-{{ $katalog->id }}" action="{{ route('superadmin.katalog.destroy', $katalog->id) }}" method="POST" style="display:none;">
+                        <form id="delete-form-{{ $katalog->id }}" action="{{ route('superadmin.hapus-katalog', $katalog->id) }}" method="POST" style="display:none;">
                             @csrf @method('DELETE')
                         </form>
                     </td>
