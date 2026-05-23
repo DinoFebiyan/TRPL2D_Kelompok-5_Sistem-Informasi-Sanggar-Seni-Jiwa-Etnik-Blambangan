@@ -9,6 +9,7 @@ use App\Models\Katalog;
 use App\Models\Galeri;
 use App\Models\Personel;
 use App\Models\ProfilSanggar;
+use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -85,37 +86,57 @@ class DatabaseSeeder extends Seeder
             'galeri_id' => null,
         ]);
 
-        // 6. Buat Katalog (Kostum)
-        Katalog::create([
-            'nama_tari' => 'Baju Tari Gandrung',
-            'kategori' => 'Tradisional',
-            'stok' => 10,
-            'deskripsi' => 'Baju tari gandrung khas Banyuwangi dengan bahan kain halus',
-            'status' => 'tersedia',
-            'galeri_id' => null,
-            'user_id' => $superAdmin->id,
-        ]);
+        // 4. Katalog (10 Data)
+        for ($i = 1; $i <= 10; $i++) {
+            // Buat entri galeri dulu untuk setiap foto
+            $galeri = Galeri::create([
+                'nama_file' => 'katalog_' . $i . '.jpeg',
+                'file_blob' => 'img/images-landing-page/katalog/katalog_' . $i . '.jpeg', 
+                'kategori_modul' => 'katalog',
+            ]);
 
-        // 7. Buat Event
-        Event::create([
-            'nama_event' => 'Pentas Tari Gandrung',
-            'tanggal' => '2026-12-10',
-            'jam' => '19:00:00',
-            'lokasi' => 'Pendopo Banyuwangi',
-            'kategori' => 'Pertunjukan',
-            'status' => 'belum selesai',
-            'user_id' => $admin->id,
-            'galeri_id' => null,
-        ]);
+            Katalog::create([
+                'nama_tari' => 'Kostum Tari ' . $i,
+                'kategori' => 'Tradisional',
+                'stok' => 5,
+                'deskripsi' => 'Deskripsi kostum tari ke-' . $i . '.',
+                'status' => 'tersedia',
+                'galeri_id' => $galeri->id, // Hubungkan ID galeri baru ini ke katalog
+                'user_id' => $superAdmin->id,
+            ]);
+        }
 
-        // 8. Buat Berita
-        Berita::create([
-            'judul' => 'Latihan Perdana Anggota Baru 2026',
-            'isi_berita' => '<p>Sanggar JEB membuka latihan perdana untuk anggota baru...</p>',
-            'tgl_terbit' => now(),
-            'status' => 'tayang',
-            'user_id' => $admin->id,
-            'galeri_id' => null,
-        ]);
+        // 5. Berita (10 Data)
+       for ($i = 1; $i <= 10; $i++) {
+    // 1. Buat data galeri baru untuk setiap berita agar gambarnya unik
+    $galeri = Galeri::create([
+        'nama_file' => 'berita_' . $i . '.jpeg',
+        'file_blob' => 'img/images-landing-page/berita/berita_' . $i . '.jpeg', // Pastikan file ini ada di folder
+        'kategori_modul' => 'berita',
+    ]);
+
+    // 2. Buat berita dan hubungkan dengan $galeri->id yang baru dibuat
+    Berita::create([
+        'judul' => 'Update Berita Seni #' . $i,
+        'isi_berita' => 'Konten berita ke-' . $i . ' tentang kegiatan sanggar.',
+        'tgl_terbit' => now(),
+        'status' => 'tayang',
+        'user_id' => $admin->id,
+        'galeri_id' => $galeri->id, // Menggunakan ID galeri yang baru dibuat
+    ]);
+}
+
+        // 6. Event (10 Data)
+        for ($i = 1; $i <= 10; $i++) {
+            Event::create([
+                'nama_event' => 'Pentas Seni #' . $i,
+                'tanggal' => Carbon::now()->addDays($i),
+                'jam' => '19:00:00',
+                'lokasi' => 'Lokasi ' . $i,
+                'kategori' => 'Pertunjukan',
+                'status' => 'belum selesai',
+                'user_id' => $admin->id,
+            ]);
+        }
     }
 }

@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 // =========================================================================
 // 1. HALAMAN UTAMA & PUBLIK (Folder: views/umum)
 // =========================================================================
-Route::get('/', [LandingPageController::class, 'index'])->name('home');
+Route::get('/', [UmumController::class, 'index'])->name('home');
 Route::get('/event', [UmumController::class, 'event'])->name('umum.event');
 Route::get('/event/{id}', [UmumController::class, 'eventDetail'])->name('umum.event-detail');
 Route::get('/berita', [UmumController::class, 'berita'])->name('umum.berita');

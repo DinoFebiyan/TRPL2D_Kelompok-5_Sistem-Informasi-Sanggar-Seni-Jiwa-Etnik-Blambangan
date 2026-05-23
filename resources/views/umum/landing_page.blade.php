@@ -532,7 +532,7 @@
     /* 2. Layout Grid (Kiri: Kalender, Kanan: List Event) */
     .kalender-grid {
         display: grid;
-        grid-template-columns: 350px 1fr; /* Kolom kiri tetap 350px, kanan fleksibel */
+        grid-template-columns: 350px 1fr;
         gap: 3rem;
         align-items: start;
     }
@@ -547,7 +547,7 @@
     }
 
     .cal-header {
-        background: #5a1a1a; /* Maroon Dark */
+        background: #5a1a1a;
         color: #ffffff !important;
         padding: 1.2rem;
         text-align: center;
@@ -588,7 +588,7 @@
 
     /* 4. State Tanggal (Merah & Hari Ini) */
     .cal-grid .event-day {
-        background-color: #b91c1c !important; /* Merah untuk tanggal event */
+        background-color: #b91c1c !important;
         color: #ffffff !important;
         border-radius: 50%;
         font-weight: 700;
@@ -598,7 +598,7 @@
     }
 
     .cal-grid .active-today {
-        border: 2px solid #b91c1c; /* Border untuk hari ini */
+        border: 2px solid #b91c1c;
         border-radius: 50%;
         width: 35px;
         height: 35px;
@@ -655,7 +655,7 @@
 
     /* Info Text (Judul & Deskripsi) */
     #kalender .event-info h4 {
-        color: #222222 !important; /* Hitam pekat agar terbaca */
+        color: #222222 !important;
         font-size: 1.3rem;
         font-weight: 700;
         margin-bottom: 8px;
@@ -663,25 +663,27 @@
     }
 
     #kalender .event-info p {
-        color: #555555 !important; /* Abu gelap untuk deskripsi */
+        color: #555555 !important;
         font-size: 0.95rem;
         line-height: 1.6;
         margin-bottom: 12px;
     }
     
     #kalender .event-info .meta i {
-    color: #b91c1c;
-    font-size: 0.9rem;
-}
+        color: #b91c1c;
+        font-size: 0.9rem;
+    }
+
     #kalender .event-info .meta span {
-    background: transparent !important; 
-    color: #b91c1c !important;       
-    padding: 0 !important;            
-    font-weight: 600 !important;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
+        background: transparent !important; 
+        color: #b91c1c !important;       
+        padding: 0 !important;            
+        font-weight: 600 !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
     /* 6. Responsive (Untuk HP) */
     @media (max-width: 992px) {
         .kalender-grid {
@@ -692,6 +694,7 @@
             margin: 0 auto;
         }
     }
+
     /* ══ GALERI ══ */
     #galeri {
       background: var(--red-bg);
@@ -717,7 +720,6 @@
 
     /* RESPONSIVE */
     @media (max-width: 900px) {
-
       .hero-grid,
       .profile-grid,
       .berita-grid,
@@ -757,7 +759,7 @@
 
     /* ══ SECTION CTA BERGABUNG ══ */
     #cta-join {
-        background-color: #3D0C0C; /* Warna cokelat gelap sesuai gambar */
+        background-color: #3D0C0C;
         color: var(--white);
         padding: 5rem 10%;
     }
@@ -770,7 +772,7 @@
     }
 
     .cta-badge {
-        background-color: #D4AF37; /* Warna emas badge */
+        background-color: #D4AF37;
         color: white;
         padding: 0.4rem 1.2rem;
         border-radius: 4px;
@@ -800,7 +802,7 @@
     }
 
     .btn-daftar-cta {
-        background-color: #A8762E; /* Warna tombol cokelat keemasan */
+        background-color: #A8762E;
         color: white;
         padding: 1.2rem 3.5rem;
         border-radius: 50px;
@@ -817,7 +819,6 @@
         transform: translateY(-5px);
     }
 
-    /* Responsive untuk HP */
     @media (max-width: 968px) {
         .cta-container {
             grid-template-columns: 1fr;
@@ -834,13 +835,11 @@
 @endpush
 
 @section('content')
-  <!-- HERO SECTION (tetap statis) -->
   <section id="beranda">
     <div class="hero-grid">
       <div class="hero-text">
         <h1>Sanggar Tari <span class="script">Jiwa Etnik Blambangan</span></h1>
-        <p>Pusat pelestarian seni dan budaya tari tradisional Banyuwangi. Menggerakkan jiwa, merayakan budaya,
-          melestarikan warisan Nusantara.</p>
+        <p>Pusat pelestarian seni dan budaya tari tradisional Banyuwangi. Menggerakkan jiwa, merayakan budaya, melestarikan warisan Nusantara.</p>
         <a href="#galeri" class="btn-gray-pill">Lihat Galeri</a>
       </div>
       <div class="hero-logo-wrap">
@@ -849,7 +848,6 @@
     </div>
   </section>
 
-   <!-- PROFILE SECTION (statis, bisa diambil dari database nanti) -->
   <section id="profile">
     <div class="section-header">
       <span class="badge-pill">TENTANG KAMI</span>
@@ -877,7 +875,6 @@
     </div>
   </section>
 
-  <!-- VISI MISI (statis atau dari database) -->
   <section id="visi-misi">
     <div class="section-header">
       <p style="font-size: 0.8rem; letter-spacing: 2px; color: var(--text-gray); margin-bottom: 0.5rem;">✦ Landasan Kami ✦</p>
@@ -887,7 +884,7 @@
     <div class="vm-container">
       <div class="visi-box">
         <h3>VISI</h3>
-        <p>{{ $profil->visi ?? 'Menjadi sanggar seni yang unggul, berkarakter, dan memiliki keunikan tersendiri serta mampu menghasilkan karya nyata dalam pelestarian dan pengembangan seni budaya Blambangan di Banyuwangi.' }}</p>
+        <p>{{ $profil->visi ?? 'Menjadi sanggar seni yang unggul, berkarakter, and memiliki keunikan tersendiri serta mampu menghasilkan karya nyata dalam pelestarian dan pengembangan seni budaya Blambangan di Banyuwangi.' }}</p>
       </div>
       <div class="misi-box">
         <h3>MISI</h3>
@@ -896,7 +893,6 @@
     </div>
   </section>
 
-  <!-- KATALOG KOSTUM (DINAMIS) -->
   <section id="katalog">
     <div class="section-header">
       <h2 class="section-title white">Katalog Kostum</h2>
@@ -907,9 +903,9 @@
       <div class="katalog-card">
         <div class="katalog-img">
           @if($item->galeri && $item->galeri->file_blob)
-            <img src="data:image/jpeg;base64,{{ base64_encode($item->galeri->file_blob) }}" alt="{{ $item->nama_tari }}" style="width:100%; height:100%; object-fit:cover;">
+              <img src="{{ asset($item->galeri->file_blob) }}" alt="{{ $item->nama_tari }}" style="width:100%; height:100%; object-fit:cover;">
           @else
-            <div style="background:#ddd; height:100%; display:flex; align-items:center; justify-content:center;">No Image</div>
+              <div style="background:#ddd; height:100%; display:flex; align-items:center; justify-content:center;">No Image</div>
           @endif
           <span class="badge">{{ $item->kategori }}</span>
         </div>
@@ -938,9 +934,6 @@
     </div>
   </section>
 
-
-
-  <!-- BERITA & ARTIKEL (DINAMIS) -->
   <section id="berita">
     <div class="section-header">
       <span class="badge-pill">INFORMASI</span>
@@ -948,27 +941,36 @@
       <p class="section-subtitle">Kabar terbaru kegiatan dan prestasi sanggar JEB</p>
     </div>
     <div class="berita-grid">
-      <!-- Berita Utama -->
-      <div class="berita-main">
+      @if($beritaUtama)
+      <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ asset($beritaUtama->galeri->file_blob ?? 'default.jpg') }}'); background-size: cover; background-position: center;">
         <span class="badge-yellow">BERITA UTAMA</span>
-        <h3>{{ $beritaUtama->judul ?? 'Sanggar Tari JEB Raih Penghargaan Terbaik di Festival Seni Budaya Jawa Timur 2026' }}</h3>
-        <p>{{ Str::limit($beritaUtama->isi_berita ?? 'Sanggar Tari Jiwa Etnik Blambangan kembali mengharumkan nama Banyuwangi...', 150) }}</p>
+        <h3>{{ $beritaUtama->judul }}</h3>
+        <p>{{ Str::limit(strip_tags($beritaUtama->isi_berita), 150) }}</p>
         <div class="meta">
-          <span>Berita • {{ $beritaUtama ? $beritaUtama->created_at->format('d M Y') : '22 Feb 2026' }} • {{ $beritaUtama->user->name ?? 'Admin' }}</span>
-          <a href="#" class="btn-red-pill">Baca Selengkapnya</a>
+          <span>Berita • {{ \Carbon\Carbon::parse($beritaUtama->tgl_terbit)->format('d M Y') }} • {{ $beritaUtama->user->name ?? 'Admin' }}</span>
+          <a href="{{ route('umum.berita-detail', $beritaUtama->id) }}" class="btn-red-pill">Baca Selengkapnya</a>
         </div>
       </div>
-      <!-- List Berita Lainnya -->
+      @else
+      <div class="berita-main">
+        <span class="badge-yellow">BERITA UTAMA</span>
+        <h3>Belum ada berita utama</h3>
+        <p>Silakan isi konten berita melalui dashboard admin.</p>
+      </div>
+      @endif
+
       <div class="berita-list">
         @forelse($beritaTerbaru as $item)
-        <div class="berita-item">
-          <div class="berita-img-placeholder"></div>
-          <div class="berita-item-content">
-            <span class="tag">Berita</span>
-            <h5>{{ $item->judul }}</h5>
-            <span>{{ $item->created_at->format('d M Y') }} - {{ $item->user->name ?? 'Admin' }}</span>
+        <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
+          <div class="berita-item">
+            <div class="berita-img-placeholder" style="background: url('{{ asset($item->galeri->file_blob ?? 'default.jpg') }}'); background-size: cover; background-position: center; width: 120px; min-width: 120px; height: 100px;"></div>
+            <div class="berita-item-content">
+              <span class="tag">Berita</span>
+              <h5>{{ Str::limit($item->judul, 60) }}</h5>
+              <span>{{ \Carbon\Carbon::parse($item->tgl_terbit)->format('d M Y') }} - {{ $item->user->name ?? 'Admin' }}</span>
+            </div>
           </div>
-        </div>
+        </a>
         @empty
         <div class="berita-item">
           <div class="berita-item-content">
@@ -984,7 +986,6 @@
     </div>
   </section>
 
-  <!-- GALERI (DINAMIS) -->
   <section id="galeri">
     <div class="section-header">
       <span class="badge-pill" style="background:transparent; border:1px solid var(--gold); color:var(--gold);">DOKUMENTASI</span>
@@ -1004,8 +1005,7 @@
     </div>
   </section>
 
-  <!-- KALENDER EVENT (DINAMIS) -->
- <section id="kalender">
+  <section id="kalender">
     <div class="section-header">
         <span class="badge-pill">KEGIATAN</span>
         <h2 class="section-title">Kalender Event</h2>
@@ -1014,7 +1014,6 @@
 
     <div class="kalender-container">
         <div class="kalender-grid">
-            
             <div class="cal-widget">
                 <div class="cal-header">{{ $currentMonthName ?? 'Mei' }} 2026</div>
                 <div class="cal-body">
@@ -1036,7 +1035,9 @@
                         @endfor
                     </div>
                 </div>
-            </div> <div class="event-list">
+            </div> 
+            
+            <div class="event-list">
                 @forelse($events as $event)
                 <div class="event-card">
                     <div class="event-date">
@@ -1044,7 +1045,7 @@
                         <span>{{ strtoupper(\Carbon\Carbon::parse($event->tanggal)->format('M')) }}</span>
                     </div>
                     <div class="event-info">
-                    <h4>
+                        <h4>
                             <a href="{{ route('umum.event-detail', $event->id) }}" style="text-decoration:none; color:inherit;">
                                 {{ $event->nama_event }}
                             </a>
@@ -1059,16 +1060,16 @@
                 @empty
                 <p>Belum ada event terjadwal.</p>
                 @endforelse
-        </div> <div class="center-action" style="text-align: center; margin-top: 4rem; width: 100%; grid-column: 1 / -1;">
-            <a href="{{ route('umum.event') }}" class="btn-dark-pill" style="background: #5a1a1a; color: #fff; padding: 0.8rem 3rem; border-radius: 30px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.3s;">
-                Lihat Semua Event
-            </a>
-        </div>
-        </div> </div> </section>
             </div> 
-           </div> 
-      </div>
-</section>
+            
+            <div class="center-action" style="text-align: center; margin-top: 4rem; width: 100%; grid-column: 1 / -1;">
+                <a href="{{ route('umum.event') }}" class="btn-dark-pill" style="background: #5a1a1a; color: #fff; padding: 0.8rem 3rem; border-radius: 30px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.3s;">
+                    Lihat Semua Event
+                </a>
+            </div>
+        </div> 
+    </div> 
+  </section>
 
   <section id="cta-join">
     <div class="cta-container">
@@ -1085,5 +1086,5 @@
             <a href="#" class="btn-daftar-cta">DAFTAR SEKARANG</a>
         </div>
     </div>
-</section>
+  </section>
 @endsection
