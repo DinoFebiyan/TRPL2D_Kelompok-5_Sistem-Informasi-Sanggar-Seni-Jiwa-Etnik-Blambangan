@@ -71,11 +71,11 @@ if ($request->hasFile('foto')) {
     $path = $request->file('foto')->store('admin_fotos', 'public');
 
     Galeri::create([
-        'user_id'    => $user->id,
-        'file_blob'  => $path,
-        'nama_file'  => uniqid().'_'.$request->file('foto')->getClientOriginalName(),
-        'kategori'   => 'admin',
-        'is_watermark' => false,
+        'sumber_id'    => $user->id,
+        'path'           => $path,
+        'nama_file'      => uniqid().'_'.$request->file('foto')->getClientOriginalName(),
+        'kategori'       => 'admin',
+        'is_watermark'   => false,
     ]);
 }
 
@@ -132,23 +132,23 @@ if ($request->hasFile('foto')) {
 
         if ($admin->galeri) {
             // Hapus file foto yang lama dari storage agar menghemat ruang penyimpanan
-            if (Storage::disk('public')->exists($admin->galeri->file_blob)) {
-                Storage::disk('public')->delete($admin->galeri->file_blob);
+            if (Storage::disk('public')->exists($admin->galeri->path)) {
+                Storage::disk('public')->delete($admin->galeri->path);
             }
 
             // Perbarui data path 
             $admin->galeri->update([
-                'file_blob' => $path,
+                'path' => $path,
                 'nama_file' => $namaFileBaru,
             ]);
         } else {
             // Jika sebelumnya admin tidak memiliki foto, buat data baru di tabel galeri
             Galeri::create([
-                'user_id'      => $admin->id,
-                'file_blob'    => $path,
-                'nama_file'    => $namaFileBaru,
-                'kategori'     => 'admin',
-                'is_watermark' => false,
+                'sumber_id'    => $admin->id,
+                'path'           => $path,
+                'nama_file'      => $namaFileBaru,
+                'kategori'       => 'admin',
+                'is_watermark'   => false,
             ]);
         }
     }

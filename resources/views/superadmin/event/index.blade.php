@@ -267,7 +267,7 @@
                 <h2>{{ $belumSelesai ?? 0 }}</h2>
             </div>
         </div>
-        <a href="{{ route('superadmin.event.create') }}" class="event-btn-tambah">
+        <a href="{{ route('superadmin.tambah-event') }}" class="event-btn-tambah">
             <span>+</span> Tambah Event
         </a>
     </div>
@@ -321,9 +321,9 @@
                         @endif
                     </td>
                     <td class="event-actions">
-                        <a href="{{ route('superadmin.event.edit', $event->id) }}" class="btn-edit-event">Edit</a>
+                        <a href="{{ route('superadmin.edit-event', $event->id) }}" class="btn-edit-event">Edit</a>
                         <button class="btn-hapus-event" onclick="confirmDelete({{ $event->id }})">Hapus</button>
-                        <form id="delete-form-{{ $event->id }}" action="{{ route('superadmin.event.destroy', $event->id) }}" method="POST" style="display:none;">
+                        <form id="delete-form-{{ $event->id }}" action="{{ route('superadmin.hapus-event', $event->id) }}" method="POST" style="display:none;">
                             @csrf @method('DELETE')
                         </form>
                     </td>

@@ -12,7 +12,7 @@ return new class extends Migration
             $table->id();
             $table->string('judul');
             $table->longText('isi_berita');
-            $table->date('tgl_terbit')->nullable();
+            $table->date('jenis_berita', ['Pengumuman', 'Prestasi', 'Kolaborasi', 'Event', 'Lainnya'])->default('Lainnya');
             $table->enum('status', ['tayang', 'tidak ditayangkan'])->default('tidak ditayangkan');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('galeri_id')->nullable()->constrained('galeri')->nullOnDelete();

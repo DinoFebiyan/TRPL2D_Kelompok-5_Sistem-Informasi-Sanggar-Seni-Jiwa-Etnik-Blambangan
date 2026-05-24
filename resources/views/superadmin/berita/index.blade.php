@@ -120,8 +120,9 @@
     .news-table-card {
         background: #fff;
         border-radius: 12px;
-        padding: 25px;
+        padding: 25px 0; 
         border: 1px solid #f0f0f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         overflow-x: auto;
     }
     .news-table {
@@ -129,17 +130,29 @@
         border-collapse: collapse;
         min-width: 1000px;
     }
+    .news-table thead {
+        background-color: #F5EBEB; 
+    }
+    .news-table-card h3 {
+        margin: 0 0 20px 0;
+        padding: 0 25px; 
+        font-size: 1.1rem;
+        color: #333;
+    }
     .news-table th {
         text-align: left;
-        padding: 12px 10px;
+        padding: 14px 25px;
         color: #b07d7d;
         font-weight: 600;
-        border-bottom: 2px solid #f9f9f9;
+        font-size: 0.85rem;
+        border-bottom: none;
+        text-transform: uppercase; 
     }
     .news-table td {
-        padding: 15px 10px;
-        border-bottom: 1px solid #f9f9f9;
+        padding: 15px 25px;
+        border-bottom: 1px solid #E0E0E0; 
         vertical-align: middle;
+        font-size: 0.85rem;
     }
     .news-foto {
         width: 60px;
@@ -152,11 +165,20 @@
         font-size: 0.7rem;
         color: #999;
         overflow: hidden;
+        position: relative;
     }
     .news-foto img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out; /* Efek transisi halus saat ganti foto */
+    }
+    .news-foto img.active {
+        opacity: 1;
     }
     .badge-tayang {
         background: #dcfce7;
@@ -192,15 +214,36 @@
         display: flex;
         justify-content: flex-end;
     }
+    .adm-btn-tambah {
+        background: #e2c0c0;
+        color: #5a1a1a;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid #e8dede;
+    }
+    .adm-btn-tambah:hover {
+        background: #d4aeae;
+    }
+    .adm-icon-dark-red { background-color: #7a2a214a; color: #411f1f; }
+    .adm-icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
 </style>
 
 <div class="news-wrapper">
-    <div class="news-header">
-        <h2>Kelola Berita</h2>
-        <p>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }} - Kelola artikel dan informasi</p>
-    </div>
-
-    <!-- statistik + tombol tambah -->
     <div class="news-stats-grid">
         <div class="news-stat-card">
             <div class="news-icon-box news-icon-blue"><i class="fas fa-newspaper"></i></div>
@@ -223,12 +266,14 @@
                 <h2>{{ $tidakDitayangkan ?? 0 }}</h2>
             </div>
         </div>
-        <a href="{{ route('superadmin.tambah-berita') }}" class="news-btn-tambah">
-            <span>+</span> Tambah Berita
+        <a href="{{ route('superadmin.tambah-berita') }}" class="adm-btn-tambah">
+            <div class="adm-icon-box adm-icon-dark-red">
+                <i class="fas fa-plus"></i>
+            </div>
+            <span>Tambah Berita</span>
         </a>
     </div>
 
-    <!-- search & filter -->
     <div class="news-search-row">
         <div class="news-search-box">
             <input type="text" id="searchBerita" placeholder="Cari berita..." value="{{ request('search') }}">
@@ -237,10 +282,9 @@
         <button class="news-btn-filter" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
     </div>
 
-    <!-- tabel berita -->
     <div class="news-table-card">
         <h3>Daftar Berita</h3>
-        <table class="news-table">
+        <table class="news-table" id="newsTable">
             <thead>
                 <tr>
                     <th>Gambar</th>
@@ -255,14 +299,18 @@
                 @forelse($beritas as $berita)
                 <tr>
                     <td>
-                        <div class="news-foto">
-                            @if($berita->galeri && $berita->galeri->file_blob)
-                                <img src="data:image/jpeg;base64,{{ base64_encode($berita->galeri->file_blob) }}" alt="Gambar Berita">
+                        <div class="news-foto slideshow-container">
+                            @if($berita->galeri && $berita->galeri->isNotEmpty())
+                                @foreach($berita->galeri as $index => $foto)
+                                    <img src="{{ asset('storage/' . $foto->path) }}" 
+                                         alt="Foto Berita" 
+                                         class="{{ $index === 0 ? 'active' : '' }}">
+                                @endforeach
                             @else
-                                <i class="fas fa-image"></i>
+                                <span>No Img</span>
                             @endif
                         </div>
-                    </div>
+                    </td>
                     <td><strong>{{ $berita->judul }}</strong><br>
                         <span style="font-size:0.7rem; color:#888;">{{ \Illuminate\Support\Str::limit($berita->isi_berita, 60) }}</span>
                     </td>
@@ -276,9 +324,9 @@
                         @endif
                     </td>
                     <td class="news-actions">
-                        <a href="{{ route('superadmin.berita.edit', $berita->id) }}" class="btn-edit-news">Edit</a>
+                        <a href="{{ route('superadmin.edit-berita', $berita->id) }}" class="btn-edit-news">Edit</a>
                         <button class="btn-hapus-news" onclick="confirmDelete({{ $berita->id }})">Hapus</button>
-                        <form id="delete-form-{{ $berita->id }}" action="{{ route('superadmin.berita.delete', $berita->id) }}" method="POST" style="display:none;">
+                        <form id="delete-form-{{ $berita->id }}" action="{{ route('superadmin.hapus-berita', $berita->id) }}" method="POST" style="display:none;">
                             @csrf @method('DELETE')
                         </form>
                     </td>
@@ -300,9 +348,36 @@
             document.getElementById('delete-form-'+id).submit();
         }
     }
+
     document.getElementById('filterBtn')?.addEventListener('click', function() {
         let search = document.getElementById('searchBerita').value;
         window.location.href = "{{ route('superadmin.kelola-berita') }}?search=" + encodeURIComponent(search);
+    });
+
+    // =========================================================================
+    // JAVASCRIPT: AUTOMATIC SLIDESHOW 5 DETIK PER KOTAK GAMBAR
+    // =========================================================================
+    document.addEventListener("DOMContentLoaded", function() {
+        const containers = document.querySelectorAll('.slideshow-container');
+
+        containers.forEach(container => {
+            const images = container.querySelectorAll('img');
+            // Jalankan rotasi hanya jika jumlah gambarnya lebih dari 1
+            if (images.length > 1) {
+                let currentIndex = 0;
+
+                setInterval(() => {
+                    // Hilangkan class active dari gambar saat ini
+                    images[currentIndex].classList.remove('active');
+
+                    // Pindah ke index berikutnya (reset ke 0 jika sudah gambar terakhir)
+                    currentIndex = (currentIndex + 1) % images.length;
+
+                    // Tambahkan class active ke gambar yang baru
+                    images[currentIndex].classList.add('active');
+                }, 5000); // 5000 milidetik = 5 detik
+            }
+        });
     });
 </script>
 @endsection

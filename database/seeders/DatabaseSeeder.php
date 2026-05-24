@@ -39,14 +39,14 @@ class DatabaseSeeder extends Seeder
 
         // 3. Buat data Galeri (foto)
         $galeri1 = Galeri::create([
-            'file_blob' => 'dummy_base64_1', // isi dengan file dummy
+            'path' => 'dummy_base64_1', // isi dengan file dummy
             'nama_file' => 'logo_sanggar.jpg',
             'kategori' => 'logo',
             'is_watermark' => false,
         ]);
 
         $galeri2 = Galeri::create([
-            'file_blob' => 'dummy_base64_2',
+            'path' => 'dummy_base64_2',
             'nama_file' => 'foto_pembina.jpg',
             'kategori' => 'pembina',
             'is_watermark' => false,
@@ -91,7 +91,7 @@ class DatabaseSeeder extends Seeder
             // Buat entri galeri dulu untuk setiap foto
             $galeri = Galeri::create([
                 'nama_file' => 'katalog_' . $i . '.jpeg',
-                'file_blob' => 'img/images-landing-page/katalog/katalog_' . $i . '.jpeg', 
+                'path' => 'img/images-landing-page/katalog/katalog_' . $i . '.jpeg', 
                 'kategori' => 'katalog',
             ]);
 
@@ -111,7 +111,7 @@ class DatabaseSeeder extends Seeder
     // 1. Buat data galeri baru untuk setiap berita agar gambarnya unik
     $galeri = Galeri::create([
         'nama_file' => 'berita_' . $i . '.jpeg',
-        'file_blob' => 'img/images-landing-page/berita/berita_' . $i . '.jpeg', // Pastikan file ini ada di folder
+        'path' => 'img/images-landing-page/berita/berita_' . $i . '.jpeg', // Pastikan file ini ada di folder
         'kategori' => 'berita',
     ]);
 
@@ -119,7 +119,6 @@ class DatabaseSeeder extends Seeder
     Berita::create([
         'judul' => 'Update Berita Seni #' . $i,
         'isi_berita' => 'Konten berita ke-' . $i . ' tentang kegiatan sanggar.',
-        'tgl_terbit' => now(),
         'status' => 'tayang',
         'user_id' => $admin->id,
         'galeri_id' => $galeri->id, // Menggunakan ID galeri yang baru dibuat

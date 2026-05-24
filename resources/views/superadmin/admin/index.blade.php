@@ -302,8 +302,8 @@
                 @forelse($admins as $admin)
                 <tr>
                     <td>
-        @if($admin->galeri && $admin->galeri->file_blob)
-    <img src="{{ asset('storage/' . $admin->galeri->file_blob) }}" alt="Foto Admin" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+        @if($admin->galeri && $admin->galeri->path)
+    <img src="{{ asset('storage/' . $admin->galeri->path) }}" alt="Foto Admin" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
 
             @else
             <img src="{{ asset('images/default-avatar.png') }}" alt="Default" style="width: 50px; height: 50px; border-radius: 50%;">

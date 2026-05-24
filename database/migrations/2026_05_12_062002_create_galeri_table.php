@@ -13,16 +13,14 @@ return new class extends Migration
     {
         Schema::create('galeri', function (Blueprint $table) {
         $table->id();
-        $table->unsignedBigInteger('user_id')->nullable();
-        $table->string('judul')->nullable(); 
-        $table->longText('file_blob'); 
+        $table->unsignedBigInteger('sumber_id')->nullable();
+        $table->longText('path'); 
         $table->string('nama_file');
         $table->string('kategori'); 
-        $table->string('sumber')->nullable(); 
         $table->boolean('is_watermark')->default(false);
         $table->timestamps();
 
-        $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+        // $table->foreign('sumber_id')->references('id')->on('users')->onDelete('cascade');
     });
     }
 

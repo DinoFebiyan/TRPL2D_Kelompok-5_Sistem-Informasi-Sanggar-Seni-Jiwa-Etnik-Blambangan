@@ -8,14 +8,10 @@ class LogAktivitas extends Model
 {
     protected $table = 'log_aktivitas';
 
-    /**
-     * Audit Trail: Mencatat jejak user untuk keamanan sistem.
-     * Merekam siapa, melakukan apa, dan dari mana (IP).
-     */
     protected $fillable = ['user_id', 'aktivitas', 'waktu'];
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

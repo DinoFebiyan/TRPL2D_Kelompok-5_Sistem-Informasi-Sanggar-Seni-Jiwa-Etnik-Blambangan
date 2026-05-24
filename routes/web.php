@@ -60,7 +60,7 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
     Route::post('/kelola-admin/store', [AdminController::class, 'store'])->name('superadmin.store-admin');
     Route::get('/admin/edit/{id}', [AdminController::class, 'edit'])->name('superadmin.edit-admin');
     Route::put('/admin/update/{id}', [AdminController::class, 'update'])->name('superadmin.update-admin');
-    Route::delete('/admin/delete/{id}', [AdminController::class, 'destroy'])->name('superadmin.hapus-admin');
+    Route::delete('/admin/hapus/{id}', [AdminController::class, 'destroy'])->name('superadmin.hapus-admin');
 
     // Kelola Katalog
     Route::get('/kelola-katalog', [KatalogController::class, 'index'])->name('superadmin.kelola-katalog');
@@ -68,25 +68,38 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
     Route::post('/kelola-katalog/store', [KatalogController::class, 'store'])->name('superadmin.store-katalog');
     Route::get('/katalog/edit/{id}', [KatalogController::class, 'edit'])->name('superadmin.edit-katalog');
     Route::put('/katalog/update/{id}', [KatalogController::class, 'update'])->name('superadmin.update-katalog');
-    Route::delete('/katalog/delete/{id}', [KatalogController::class, 'destroy'])->name('superadmin.hapus-katalog');
+    Route::delete('/katalog/hapus/{id}', [KatalogController::class, 'destroy'])->name('superadmin.hapus-katalog');
 
     // Kelola Event
     Route::get('/kelola-event', [EventController::class, 'index'])->name('superadmin.kelola-event');
+    Route::get('/kelola-event/tambah-event', [EventController::class, 'create'])->name('superadmin.tambah-event');
+    Route::post('/kelola-event/store', [EventController::class, 'store'])->name('superadmin.store-event');
+    Route::get('/event/edit/{id}', [EventController::class, 'edit'])->name('superadmin.edit-event');
+    Route::put('/event/update/{id}', [EventController::class, 'update'])->name('superadmin.update-event');
+    Route::delete('/event/hapus/{id}', [EventController::class, 'destroy'])->name('superadmin.hapus-event');
 
     // Kelola Berita 
     Route::get('/kelola-berita', [BeritaController::class, 'index'])->name('superadmin.kelola-berita');
     Route::get('/kelola-berita/tambah-berita', [BeritaController::class, 'create'])->name('superadmin.tambah-berita');
-    // Route::post('/kelola-berita/store-berita', [BeritaController::class, 'store'])->name('superadmin.store-berita');
-    // Route::get('/berita/edit/{id}', [BeritaController::class, 'edit'])->name('superadmin.berita.edit');
-    // Route::put('/berita/update/{id}', [BeritaController::class, 'update'])->name('superadmin.berita.update');
-    // Route::delete('/berita/delete/{id}', [BeritaController::class, 'destroy'])->name('superadmin.berita.delete');
+    Route::post('/kelola-berita/store', [BeritaController::class, 'store'])->name('superadmin.store-berita');
+    Route::get('/berita/edit/{id}', [BeritaController::class, 'edit'])->name('superadmin.edit-berita');
+    Route::put('/berita/update/{id}', [BeritaController::class, 'update'])->name('superadmin.update-berita');
+    Route::delete('/berita/hapus/{id}', [BeritaController::class, 'destroy'])->name('superadmin.hapus-berita');
 
     // Kelola Profil Sanggar
     Route::get('/kelola-profil', [ProfilController::class, 'index'])->name('superadmin.kelola-profil');
     Route::get('/kelola-profil/edit-profil', [ProfilController::class, 'edit'])->name('superadmin.edit-profil');
-    // Route::put('/profil/update', [ProfilController::class, 'updateProfil'])->name('superadmin.profil.update'); 
+    Route::put('/kelola-profil/update-profil', [ProfilController::class, 'update'])->name('superadmin.update-profil');
     Route::get('/kelola-profil/tambah-pengurus', [ProfilController::class, 'tambahPengurus'])->name('superadmin.tambah-pengurus');
+    Route::post('/kelola-profil/store-pengurus', [ProfilController::class, 'storePengurus'])->name('superadmin.store-pengurus');
+    Route::delete('/kelola-profil/hapus-pengurus/{id}', [ProfilController::class, 'hapusPengurus'])->name('superadmin.hapus-pengurus');
+    Route::get('/kelola-profil/edit-pengurus/{id}', [ProfilController::class, 'editPengurus'])->name('superadmin.edit-pengurus');
+    Route::put('/kelola-profil/update-pengurus/{id}', [ProfilController::class, 'updatePengurus'])->name('superadmin.update-pengurus');
     Route::get('/kelola-profil/tambah-pelatih', [ProfilController::class, 'tambahPelatih'])->name('superadmin.tambah-pelatih');
+    Route::post('/kelola-profil/store-pelatih', [ProfilController::class, 'storePelatih'])->name('superadmin.store-pelatih');
+    Route::delete('/kelola-profil/hapus-pelatih/{id}', [ProfilController::class, 'hapusPelatih'])->name('superadmin.hapus-pelatih');
+    Route::get('/kelola-profil/edit-pelatih/{id}', [ProfilController::class, 'editPelatih'])->name('superadmin.edit-pelatih');
+    Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('superadmin.update-pelatih');
 
     // Pengaturan
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('superadmin.pengaturan');
