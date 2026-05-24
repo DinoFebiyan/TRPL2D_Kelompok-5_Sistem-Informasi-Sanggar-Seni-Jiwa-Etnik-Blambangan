@@ -62,7 +62,20 @@
             <button class="sewa-btn">Sewa Kostum</button>
         </div>
         
-        <img src="{{ asset($katalog->galeri->file_blob ?? 'default.jpg') }}" style="width:100%; height: 500px; object-fit: cover; border-radius: 15px;">
+        @php
+            // 1. Logika pengecekan untuk gambar katalog UTAMA
+            $pathUtama = 'img/images-landing-page/banner_katalog.jpeg'; // default placeholder
+            
+            if ($katalog->galeri) {
+                if ($katalog->galeri instanceof \Illuminate\Support\Collection) {
+                    $pathUtama = $katalog->galeri->first()->path ?? $pathUtama;
+                } else {
+                    $pathUtama = $katalog->galeri->path ?? $pathUtama;
+                }
+            }
+        @endphp
+        
+        <img src="{{ asset($pathUtama) }}" alt="{{ $katalog->nama_tari }}" style="width:100%; height: 500px; object-fit: cover; border-radius: 15px;">
         
         <div style="margin-top: 30px;">
             <h3>{{ $katalog->nama_tari }}</h3>
@@ -77,13 +90,26 @@
     <h2 style="margin-bottom: 25px;">Katalog Lain</h2>
     <div class="katalog-lain-grid">
         @foreach($katalogLain as $lain)
-        <a href="{{ route('umum.katalog-detail', $lain->id) }}" style="text-decoration: none; color: inherit;">
-            <div class="lain-card">
-                <img src="{{ asset($lain->galeri->file_blob ?? 'default.jpg') }}" style="width:100%; height: 160px; object-fit: cover; border-radius: 8px;">
-                <h4 style="margin: 10px 0 5px 0;">{{ $lain->nama_tari }}</h4>
-                <p style="font-size: 11px; color: #888;">{{ Str::limit($lain->deskripsi, 50) }}</p>
-            </div>
-        </a>
+            @php
+                // 2. Logika pengecekan untuk gambar katalog LAIN (rekomendasi bawah)
+                $pathLain = 'img/images-landing-page/banner_katalog.jpeg'; // default placeholder
+                
+                if ($lain->galeri) {
+                    if ($lain->galeri instanceof \Illuminate\Support\Collection) {
+                        $pathLain = $lain->galeri->first()->path ?? $pathLain;
+                    } else {
+                        $pathLain = $lain->galeri->path ?? $pathLain;
+                    }
+                }
+            @endphp
+            
+            <a href="{{ route('umum.katalog-detail', $lain->id) }}" style="text-decoration: none; color: inherit;">
+                <div class="lain-card">
+                    <img src="{{ asset($pathLain) }}" alt="{{ $lain->nama_tari }}" style="width:100%; height: 160px; object-fit: cover; border-radius: 8px;">
+                    <h4 style="margin: 10px 0 5px 0;">{{ $lain->nama_tari }}</h4>
+                    <p style="font-size: 11px; color: #888;">{{ Str::limit($lain->deskripsi, 50) }}</p>
+                </div>
+            </a>
         @endforeach
     </div>
 </div>

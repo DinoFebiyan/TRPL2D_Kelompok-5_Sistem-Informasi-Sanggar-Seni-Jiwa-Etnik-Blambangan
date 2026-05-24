@@ -43,11 +43,10 @@
 
     .search-filter-wrapper {
         background: transparent; /* Atau ganti dengan #E7DCDA jika ingin sama persis */
-        padding: 20px 8%;
+        padding: 20px 0; /* Disesuaikan agar sejajar dengan wrapper grid di bawahnya */
         display: flex;
         gap: 15px;
         align-items: center;
-        margin-top: -30px; /* Opsional: sedikit naik ke atas banner jika mau */
     }
 
     .search-input {
@@ -57,7 +56,6 @@
         border: 1px solid #ccc;
         background: white; /* Search bar tetap putih agar kontras */
     }
-
 </style>
 
 <div class="berita-banner">
@@ -74,24 +72,39 @@
     </div>
 
     <div class="search-filter-wrapper">
-    <input type="text" class="search-input" placeholder="Cari nama tari....">
-    <button style="padding: 15px 30px; background: #C0392B; color: white; border: none; border-radius: 10px; cursor: pointer;">
-        Filter
-    </button>
-</div>
+        <input type="text" class="search-input" placeholder="Cari berita....">
+        <button style="padding: 15px 30px; background: #C0392B; color: white; border: none; border-radius: 10px; cursor: pointer;">
+            Filter
+        </button>
+    </div>
 
     <div class="berita-grid">
         @foreach($beritas as $item)
-        <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
-            <div class="berita-card">
-                <img src="{{ asset($item->galeri->file_blob ?? 'default.jpg') }}" style="width:100%; height: 200px; object-fit: cover;">
-                <div style="padding: 20px;">
-                    <span style="font-size: 12px; color: #888;">{{ \Carbon\Carbon::parse($item->tgl_terbit)->format('d M Y') }}</span>
-                    <h4 style="margin: 10px 0;">{{ $item->judul }}</h4>
-                    <p style="font-size: 14px; color: #666;">{{ Str::limit(strip_tags($item->isi_berita), 100) }}</p>
+            @php
+                // Tentukan gambar default sebagai cadangan jika tidak ada foto
+                $fotoBeritaPath = 'img/images-landing-page/banner_berita.jpeg'; 
+                
+                if ($item->galeri) {
+                    if ($item->galeri instanceof \Illuminate\Support\Collection) {
+                        // Jika relasinya HasMany, ambil path dari item pertama dalam koleksi
+                        $fotoBeritaPath = $item->galeri->first()->path ?? $fotoBeritaPath;
+                    } else {
+                        // Jika relasinya BelongsTo/HasOne, langsung ambil properti path
+                        $fotoBeritaPath = $item->galeri->path ?? $fotoBeritaPath;
+                    }
+                }
+            @endphp
+
+            <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
+                <div class="berita-card">
+                    <img src="{{ asset($fotoBeritaPath) }}" alt="{{ $item->judul }}" style="width:100%; height: 200px; object-fit: cover;">
+                    <div style="padding: 20px;">
+                        <span style="font-size: 12px; color: #888;">{{ \Carbon\Carbon::parse($item->tgl_terbit)->format('d M Y') }}</span>
+                        <h4 style="margin: 10px 0;">{{ $item->judul }}</h4>
+                        <p style="font-size: 14px; color: #666;">{{ Str::limit(strip_tags($item->isi_berita), 100) }}</p>
+                    </div>
                 </div>
-            </div>
-        </a>
+            </a>
         @endforeach
     </div>
 </div>

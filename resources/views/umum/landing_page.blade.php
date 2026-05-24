@@ -475,27 +475,10 @@
       gap: 0.5rem;
     }
 
-    /* Penyesuaian tombol Edit & Hapus */
-    .katalog-actions button {
-      background: var(--white);
-      border: 1px solid #ddd;
-      padding: 0.35rem 0.8rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 500;
+    .katalog-actions span {
+      font-size: 0.8rem;
       font-family: 'Poppins', sans-serif;
-      cursor: pointer;
       color: #555;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-
-    .katalog-actions button:hover {
-      background: #f5f5f5;
-      color: var(--maroon-dark);
-      border-color: #bbb;
     }
 
     .btn-dark-red-pill {
@@ -513,9 +496,7 @@
       background: #5c0d0d;
     }
 
-    /* ══ KALENDER EVENT FIX ══ */
-
-    /* 1. Container Utama */
+    /* ══ KALENDER EVENT ══ */
     #kalender {
         background: #ffffff !important;
         padding: 80px 0;
@@ -529,7 +510,6 @@
         padding: 0 20px;
     }
 
-    /* 2. Layout Grid (Kiri: Kalender, Kanan: List Event) */
     .kalender-grid {
         display: grid;
         grid-template-columns: 350px 1fr;
@@ -537,7 +517,6 @@
         align-items: start;
     }
 
-    /* 3. Widget Kalender (Sisi Kiri) */
     .cal-widget {
         background: #fff;
         border: 1px solid #eee;
@@ -586,7 +565,6 @@
         margin-bottom: 5px;
     }
 
-    /* 4. State Tanggal (Merah & Hari Ini) */
     .cal-grid .event-day {
         background-color: #b91c1c !important;
         color: #ffffff !important;
@@ -605,7 +583,6 @@
         margin: auto;
     }
 
-    /* 5. List Event (Sisi Kanan) */
     .event-list {
         display: flex;
         flex-direction: column;
@@ -628,7 +605,6 @@
         box-shadow: 0 5px 20px rgba(0,0,0,0.05);
     }
 
-    /* Kotak Tanggal di dalam Card */
     #kalender .event-date {
         background: #5a1a1a !important;
         color: #ffffff !important;
@@ -653,7 +629,6 @@
         color: #ffffff !important;
     }
 
-    /* Info Text (Judul & Deskripsi) */
     #kalender .event-info h4 {
         color: #222222 !important;
         font-size: 1.3rem;
@@ -676,7 +651,7 @@
 
     #kalender .event-info .meta span {
         background: transparent !important; 
-        color: #b91c1c !important;       
+        color: #b91c1c !important;      
         padding: 0 !important;            
         font-weight: 600 !important;
         display: inline-flex;
@@ -684,7 +659,6 @@
         gap: 5px;
     }
 
-    /* 6. Responsive (Untuk HP) */
     @media (max-width: 992px) {
         .kalender-grid {
             grid-template-columns: 1fr;
@@ -857,14 +831,18 @@
     <div class="profile-grid">
       <div class="profile-text">
         <h3>{{ $profil->deskripsi ?? 'Melestarikan Budaya Banyuwangi' }}</h3>
-        <p>{{ $profil->deskripsi ?? 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional yang berdedikasi untuk melestarikan kekayaan budaya Banyuwangi dan Nusantara.' }}</p>
+        <p>{{ $profil->deskripsi ?? 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional yang berdedikasi untuk melestarikan kekayaan budaya Banyuwangi.' }}</p>
         <p>{{ $profil->sejarah ?? 'Kami membina generasi muda untuk mencintai dan menguasai seni tari tradisional, mulai dari tari Gandrung, hingga tari kreasi baru berbasis budaya lokal Blambangan.' }}</p>
       </div>
       <div class="profile-card">
         @if($profil && $profil->logo)
-          <img src="data:image/jpeg;base64,{{ base64_encode($profil->logo->file_blob) }}" alt="Logo" class="profile-card-img">
+          @if($profil->logo instanceof \Illuminate\Support\Collection)
+            <img src="{{ asset($profil->logo->first()->path ?? 'img/logo-jeb.jpg') }}" alt="Logo" class="profile-card-img">
+          @else
+            <img src="{{ asset($profil->logo->path ?? 'img/logo-jeb.jpg') }}" alt="Logo" class="profile-card-img">
+          @endif
         @else
-          <img src="{{ asset('img/icon.png') }}" alt="Ilustrasi Penari" class="profile-card-img">
+          <img src="{{ asset('img/logo-jeb.jpg') }}" alt="Ilustrasi Penari" class="profile-card-img">
         @endif
         <h4>Warisan Budaya Blambangan</h4>
         <p>Tari Tradisional adalah jiwa dari identitas budaya kita. Bersama kami, lestarikan dan rayakan kekayaan seni Nusantara.</p>
@@ -874,24 +852,33 @@
       <a href="{{ route('umum.profil') }}" class="btn-dark-pill">Profil Lengkap Sanggar</a>
     </div>
   </section>
+  
+  <section class="section-visi-misi" style="padding: 60px 0; background-color: #fff;">
+    <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
+        
+        <h2 style="font-family: 'Playfair Display', serif; color: #3D0C0C; margin-bottom: 40px;">VISI & MISI</h2>
 
-  <section id="visi-misi">
-    <div class="section-header">
-      <p style="font-size: 0.8rem; letter-spacing: 2px; color: var(--text-gray); margin-bottom: 0.5rem;">✦ Landasan Kami ✦</p>
-      <h2 class="section-title">VISI <em>&</em> MISI</h2>
-      <p class="section-subtitle">Nilai-nilai yang mendasari setiap langkah dan gerakan Sanggar Tari JEB</p>
+        <div class="visi-card" style="background: #a51c1c; color: white; padding: 40px; border-radius: 15px; margin-bottom: 20px;">
+            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif;">VISI</h3>
+            <p style="font-size: 1.1rem; line-height: 1.6;">
+                Menjadi sanggar seni yang unggul, berkarakter, (bisa) dan memiliki keunikan tersendiri (berbeda) serta mampu menghasilkan karya nyata dalam pelestarian dan pengembangan seni budaya Blambangan di Banyuwangi.
+            </p>
+        </div>
+
+        <div class="misi-card" style="background: #fdf5e6; color: #3D0C0C; padding: 40px; border-radius: 15px; border: 1px solid #e0d0c0;">
+            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif;">MISI</h3>
+            <ul style="text-align: left; line-height: 1.8; list-style-position: inside;">
+                <li>Mengembangkan potensi anggota agar memiliki kemampuan (bisa) yang terampil dan profesional di bidang seni budaya.</li>
+                <li>Menciptakan karya seni yang inovatif, kreatif, dan memiliki ciri khas (beda) tanpa meninggalkan nilai-nilai budaya Blambangan.</li>
+                <li>Menghasilkan karya nyata melalui pertunjukan, karya cipta, dan partisipasi aktif dalam berbagai kegiatan seni.</li>
+                <li>Menyelenggarakan pelatihan dan pembinaan seni secara berkelanjutan dan berkualitas.</li>
+                <li>Menanamkan sikap disiplin, tanggung jawab, dan kecintaan terhadap seni budaya kepada seluruh anggota.</li>
+                <li>Membangun kerja sama dengan berbagai pihak untuk mendukung perkembangan dan eksistensi sanggar.</li>
+            </ul>
+        </div>
+
     </div>
-    <div class="vm-container">
-      <div class="visi-box">
-        <h3>VISI</h3>
-        <p>{{ $profil->visi ?? 'Menjadi sanggar seni yang unggul, berkarakter, and memiliki keunikan tersendiri serta mampu menghasilkan karya nyata dalam pelestarian dan pengembangan seni budaya Blambangan di Banyuwangi.' }}</p>
-      </div>
-      <div class="misi-box">
-        <h3>MISI</h3>
-        <p>{{ $profil->misi ?? 'Mengembangkan potensi anggota agar memiliki kemampuan terampil dan profesional di bidang seni budaya.' }}</p>
-      </div>
-    </div>
-  </section>
+</section>
 
   <section id="katalog">
     <div class="section-header">
@@ -902,10 +889,14 @@
       @forelse($katalogs as $item)
       <div class="katalog-card">
         <div class="katalog-img">
-          @if($item->galeri && $item->galeri->file_blob)
-              <img src="{{ asset($item->galeri->file_blob) }}" alt="{{ $item->nama_tari }}" style="width:100%; height:100%; object-fit:cover;">
+          @if($item->galeri)
+              @if($item->galeri instanceof \Illuminate\Support\Collection)
+                  <img src="{{ asset($item->galeri->first()->path ?? 'img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}" style="width:100%; height:100%; object-fit:cover;">
+              @else
+                  <img src="{{ asset($item->galeri->path ?? 'img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}" style="width:100%; height:100%; object-fit:cover;">
+              @endif
           @else
-              <div style="background:#ddd; height:100%; display:flex; align-items:center; justify-content:center;">No Image</div>
+              <div style="background:#ddd; height:100%; display:flex; align-items:center; justify-content:center; color:#555;">No Image</div>
           @endif
           <span class="badge">{{ $item->kategori }}</span>
         </div>
@@ -942,7 +933,18 @@
     </div>
     <div class="berita-grid">
       @if($beritaUtama)
-      <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ asset($beritaUtama->galeri->file_blob ?? 'default.jpg') }}'); background-size: cover; background-position: center;">
+      @php
+        $pathBeritaUtama = 'img/images-landing-page/banner_berita.jpeg';
+        if ($beritaUtama->galeri) {
+            if ($beritaUtama->galeri instanceof \Illuminate\Support\Collection) {
+                $pathBeritaUtama = $beritaUtama->galeri->first()->path ?? $pathBeritaUtama;
+            } else {
+                $pathBeritaUtama = $beritaUtama->galeri->path ?? $pathBeritaUtama;
+            }
+        }
+        $coverUtama = asset($pathBeritaUtama);
+      @endphp
+      <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ $coverUtama }}'); background-size: cover; background-position: center;">
         <span class="badge-yellow">BERITA UTAMA</span>
         <h3>{{ $beritaUtama->judul }}</h3>
         <p>{{ Str::limit(strip_tags($beritaUtama->isi_berita), 150) }}</p>
@@ -961,9 +963,20 @@
 
       <div class="berita-list">
         @forelse($beritaTerbaru as $item)
+        @php
+          $pathBeritaTerbaru = 'img/images-landing-page/banner_berita.jpeg';
+          if ($item->galeri) {
+              if ($item->galeri instanceof \Illuminate\Support\Collection) {
+                  $pathBeritaTerbaru = $item->galeri->first()->path ?? $pathBeritaTerbaru;
+              } else {
+                  $pathBeritaTerbaru = $item->galeri->path ?? $pathBeritaTerbaru;
+              }
+          }
+          $coverTerbaru = asset($pathBeritaTerbaru);
+        @endphp
         <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
           <div class="berita-item">
-            <div class="berita-img-placeholder" style="background: url('{{ asset($item->galeri->file_blob ?? 'default.jpg') }}'); background-size: cover; background-position: center; width: 120px; min-width: 120px; height: 100px;"></div>
+            <div class="berita-img-placeholder" style="background: url('{{ $coverTerbaru }}'); background-size: cover; background-position: center; width: 120px; min-width: 120px; height: 100px;"></div>
             <div class="berita-item-content">
               <span class="tag">Berita</span>
               <h5>{{ Str::limit($item->judul, 60) }}</h5>
@@ -994,10 +1007,14 @@
     </div>
     <div class="galeri-mosaik">
       @forelse($galeri as $item)
-      <div class="g-box" style="background-image: url('data:image/jpeg;base64,{{ base64_encode($item->file_blob) }}'); background-size: cover; background-position: center;"></div>
+        <div class="g-box" style="background-image: url('{{ asset($item->path) }}'); background-size: cover; background-position: center;"></div>
       @empty
-      <div class="g-box large" style="display: flex; align-items: center; justify-content: center; color: white;">Belum ada foto</div>
-      <div class="g-box"></div><div class="g-box"></div><div class="g-box"></div><div class="g-box"></div>
+        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/berita/berita_4.jpeg') }}'); background-size: cover; background-position: center;"></div>
+        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/berita/berita_5.jpeg') }}'); background-size: cover; background-position: center;"></div>
+        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/katalog/katalog_4.jpeg') }}'); background-size: cover; background-position: center;"></div>
+        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/katalog/katalog_5.jpeg') }}'); background-size: cover; background-position: center;"></div>
+        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/katalog/katalog_6.jpeg') }}'); background-size: cover; background-position: center;"></div>
+        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/katalog/katalog_7.jpeg') }}'); background-size: cover; background-position: center;"></div>
       @endforelse
     </div>
     <div class="center-action">
@@ -1015,21 +1032,21 @@
     <div class="kalender-container">
         <div class="kalender-grid">
             <div class="cal-widget">
-                <div class="cal-header">{{ $currentMonthName ?? 'Mei' }} 2026</div>
+                <div class="cal-header">Mei 2026</div>
                 <div class="cal-body">
                     <div class="cal-grid">
                         <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
                         
-                        @for($x = 0; $x < $blankDays; $x++)
+                        @for($x = 0; $x < ($blankDays ?? 5); $x++)
                             <span></span>
                         @endfor
 
-                        @for($i = 1; $i <= $daysInMonth; $i++)
+                        @for($i = 1; $i <= ($daysInMonth ?? 31); $i++)
                             @php 
                                 $isEvent = in_array($i, $eventDays ?? []); 
                                 $isToday = ($i == date('d'));
                             @endphp
-                            <span class="{{ $isEvent ? 'event-day' : '' }} {{ $isToday ? 'active' : '' }}">
+                            <span class="{{ $isEvent ? 'event-day' : '' }} {{ $isToday ? 'active-today' : '' }}">
                                 {{ $i }}
                             </span>
                         @endfor

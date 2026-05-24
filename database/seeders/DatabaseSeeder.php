@@ -126,16 +126,18 @@ class DatabaseSeeder extends Seeder
 }
 
         // 6. Event (10 Data)
+       
         for ($i = 1; $i <= 10; $i++) {
             Event::create([
-                'nama_event' => 'Pentas Seni #' . $i,
-                'tanggal' => Carbon::now()->addDays($i),
-                'jam' => '19:00:00',
-                'lokasi' => 'Lokasi ' . $i,
-                'kategori' => 'Pertunjukan',
-                'status' => 'belum selesai',
-                'user_id' => $admin->id,
-            ]);
+        'nama_event' => 'Pentas Seni #' . $i,
+        'tanggal'    => Carbon::now()->startOfMonth()->addDays($i + 10),
+        'jam'        => '07:13:00',
+        'lokasi'     => 'Pendopo Sabha Swagata Blambangan',
+        'deskripsi'  => 'Penampilan dalam rangka Hari Jadi Kabupaten Banyuwangi ke-254. Menyajikan ragam tari tradisional khas Bumi Blambangan yang memukau.', // Wajib ada!
+        'kategori'   => 'Pertunjukan',
+        'status'     => 'belum selesai',
+        'user_id'    => $admin->id,
+]);          
         }
     }
 }

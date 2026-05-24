@@ -159,7 +159,6 @@
     }
 
     /* ══ 3. SECTION BERITA LAIN (BAWAH) ══ */
-    /* Menggunakan base background #E7DCDA murni dari artboard Figma kamu */
     .berita-lain-section {
       background-color: #E7DCDA;
       padding: 6rem 8%;
@@ -287,7 +286,20 @@
 
 @section('content')
 
-  <div class="news-detail-hero" style="background-image: url('{{ asset($berita->galeri->file_blob ?? 'img/default-banner.jpg') }}');">
+  @php
+    // 1. Logika pengamanan gambar utama berita
+    $pathUtama = 'img/images-landing-page/banner_berita.jpeg'; // default fallback
+    
+    if ($berita->galeri) {
+        if ($berita->galeri instanceof \Illuminate\Support\Collection) {
+            $pathUtama = $berita->galeri->first()->path ?? $pathUtama;
+        } else {
+            $pathUtama = $berita->galeri->path ?? $pathUtama;
+        }
+    }
+  @endphp
+
+  <div class="news-detail-hero" style="background-image: url('{{ asset($pathUtama) }}');">
     <div class="hero-content-wrap">
       <span class="badge-news">Berita Sanggar</span>
       <h1>{{ $berita->judul }}</h1>
@@ -301,7 +313,7 @@
 
   <div class="article-container">
     <div class="article-body">
-      {{-- {!! !!} Digunakan agar format tag HTML dari text editor admin (seperti p, h3, blockquote) bisa dirender sempurna --}}
+      {{-- {!! !!} Digunakan agar format tag HTML dari text editor admin bisa dirender sempurna --}}
       {!! $berita->isi_berita !!}
     </div>
   </div>
@@ -311,21 +323,34 @@
     
     <div class="berita-lain-grid">
       @forelse($beritaLainnya as $lain)
-      <a href="{{ route('umum.berita-detail', $lain->id) }}" class="lain-card">
-        <div class="lain-img-wrapper">
-          <img src="{{ asset($lain->galeri->file_blob ?? 'img/default-thumb.jpg') }}" alt="{{ $lain->judul }}">
-          <span class="lain-tag">Kegiatan</span>
-        </div>
-        <div class="lain-content">
-          <h5>{{ $lain->judul }}</h5>
-          <p>{{ Str::limit(strip_tags($lain->isi_berita), 85) }}</p>
-          <div class="lain-meta">
-            {{ \Carbon\Carbon::parse($lain->tgl_terbit)->format('d M Y') }} • {{ $lain->user->name ?? 'Admin' }}
+        @php
+          // 2. Logika pengamanan gambar perulangan berita lainnya
+          $pathLain = 'img/images-landing-page/banner_berita.jpeg'; // default fallback
+          
+          if ($lain->galeri) {
+              if ($lain->galeri instanceof \Illuminate\Support\Collection) {
+                  $pathLain = $lain->galeri->first()->path ?? $pathLain;
+              } else {
+                  $pathLain = $lain->galeri->path ?? $pathLain;
+              }
+          }
+        @endphp
+
+        <a href="{{ route('umum.berita-detail', $lain->id) }}" class="lain-card">
+          <div class="lain-img-wrapper">
+            <img src="{{ asset($pathLain) }}" alt="{{ $lain->judul }}">
+            <span class="lain-tag">Kegiatan</span>
           </div>
-        </div>
-      </a>
+          <div class="lain-content">
+            <h5>{{ $lain->judul }}</h5>
+            <p>{{ Str::limit(strip_tags($lain->isi_berita), 85) }}</p>
+            <div class="lain-meta">
+              {{ \Carbon\Carbon::parse($lain->tgl_terbit)->format('d M Y') }} • {{ $lain->user->name ?? 'Admin' }}
+            </div>
+          </div>
+        </a>
       @empty
-      <p style="grid-column: 1/-1; text-align: center; color: #555;">Tidak ada berita lainnya saat ini.</p>
+        <p style="grid-column: 1/-1; text-align: center; color: #555;">Tidak ada berita lainnya saat ini.</p>
       @endforelse
     </div>
   </section>
