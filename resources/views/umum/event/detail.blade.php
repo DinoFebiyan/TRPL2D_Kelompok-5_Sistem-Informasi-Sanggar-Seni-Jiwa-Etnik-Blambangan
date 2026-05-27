@@ -1,90 +1,252 @@
 @extends('layouts.umum')
 
-@section('title', $event->nama_event . ' — JEB')
+@section('title', $event->nama_event . ' - Sanggar Tari JEB')
 
 @push('styles')
 <style>
-    .detail-container { padding: 4rem 8%; background: #fff; font-family: 'Poppins', sans-serif; }
-
-    /* ══ MAIN CARD ══ */
-    .main-event-card {
-        background: #fff; border-radius: 20px; overflow: hidden;
-        box-shadow: 0 15px 40px rgba(0,0,0,0.08); margin-bottom: 4rem;
-    }
-    .hero-wrapper { position: relative; width: 100%; height: 500px; }
-    .hero-wrapper img { width: 100%; height: 100%; object-fit: cover; }
-    
-    .cat-badge {
-        position: absolute; top: 20px; left: 20px;
-        background: #EFFF00; color: #000; padding: 5px 20px;
-        border-radius: 50px; font-weight: 700; font-size: 0.8rem;
+    body {
+        background-color: #ffffff;
+        margin: 0;
+        padding: 0;
     }
 
-    .info-area { padding: 3rem; display: grid; grid-template-columns: 1fr 250px; gap: 30px; }
-    .info-area h1 { font-family: 'Playfair Display', serif; font-size: 2.5rem; margin-bottom: 15px; color: #000; }
-    .info-area p { color: #555; line-height: 1.8; font-size: 1.1rem; }
-    
-    .meta-side { text-align: right; border-left: 1px solid #eee; padding-left: 30px; }
-    .meta-side h3 { font-size: 1.2rem; margin-bottom: 5px; }
-    .meta-side span { color: #888; display: block; margin-bottom: 20px; }
-
-    /* ══ EVENT LAIN ══ */
-    .other-section h2 { font-family: 'Playfair Display'; font-size: 2.8rem; color: #5a1a1a; margin-bottom: 2rem; }
-    .other-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    
-    .small-card {
-        display: flex; gap: 20px; padding: 20px; border-radius: 15px;
-        border: 1px solid #eee; transition: 0.3s; align-items: center;
+    .detail-event-container {
+        max-width: 1300px;
+        margin: 50px auto;
+        padding: 0 4%;
     }
-    .small-card:hover { transform: translateY(-5px); border-color: #b91c1c; }
-    .date-sq { background: #5a1a1a; color: #fff; padding: 15px; border-radius: 10px; min-width: 70px; text-align: center; }
+
+    .event-main-card {
+        background: #ffffff;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+        border: 1px solid #EAEAEA;
+    }
+
+    .event-image-wrapper {
+        position: relative;
+        width: 100%;
+        height: 520px;
+    }
+
+    .event-image-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .badge-kategori {
+        position: absolute;
+        top: 25px;
+        left: 35px;
+        background-color: #D4AF37;
+        color: #3D0C0C;
+        padding: 6px 16px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        border-radius: 6px;
+        text-transform: uppercase;
+    }
+
+    .event-info-body {
+        padding: 40px 45px;
+    }
+
+    .event-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 30px;
+        margin-bottom: 20px;
+    }
+
+    .event-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.5rem;
+        color: #111111;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .event-time-place {
+        text-align: right;
+        font-family: 'Poppins', sans-serif;
+        color: #333333;
+        font-size: 1rem;
+        line-height: 1.6;
+        min-width: 250px;
+    }
+
+    .event-time-place .date {
+        font-weight: 700;
+        color: #111111;
+        font-size: 1.1rem;
+    }
+
+    .event-description {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.05rem;
+        line-height: 1.8;
+        color: #555555;
+        margin-top: 15px;
+        text-align: justify;
+    }
+
+    /* ══ SECTION EVENT LAIN (BAWAH) ══ */
+    .event-lain-section {
+        background-color: #E7DCDA;
+        padding: 6rem 8%;
+    }
+
+    .event-lain-title {
+        font-family: 'Playfair Display', serif;
+        font-size: 2.6rem;
+        color: #3D0C0C;
+        font-weight: 800;
+        margin: 0 0 35px 0;
+    }
+
+    .event-lain-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+
+    .lain-card {
+        background: #ffffff;
+        border-radius: 16px;
+        display: flex;
+        overflow: hidden;
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.3s;
+    }
+
+    .lain-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .lain-date-box {
+        background: #3D0C0C;
+        color: white;
+        width: 95px;
+        min-width: 95px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .lain-date-box .day {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+
+    .lain-date-box .month {
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-top: 5px;
+    }
+
+    .lain-details-box {
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex-grow: 1;
+    }
+
+    .lain-details-box h4 {
+        margin: 0 0 10px 0;
+        font-size: 1.2rem;
+        color: #111;
+        font-weight: 700;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    .lain-meta-info {
+        display: flex;
+        gap: 20px;
+        font-size: 0.82rem;
+        color: #555;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    @media (max-width: 992px) {
+        .event-image-wrapper { height: 380px; }
+        .event-header-row { flex-direction: column; gap: 15px; }
+        .event-time-place { text-align: left; }
+        .event-lain-grid { grid-template-columns: 1fr; }
+    }
 </style>
 @endpush
 
 @section('content')
-<div class="detail-container">
-    <div class="main-event-card">
-        <div class="hero-wrapper">
-            <span class="cat-badge">{{ $event->kategori }}</span>
-            @if($event->galeri)
-                <img src="data:image/jpeg;base64,{{ base64_encode($event->galeri->file_blob) }}" alt="">
-            @else
-                <img src="{{ asset('img/default-event.jpg') }}" alt="">
-            @endif
-        </div>
-        <div class="info-area">
-            <div>
-                <h1>{{ $event->nama_event }}</h1>
-                <p>{{ $event->deskripsi }}</p>
-            </div>
-            <div class="meta-side">
-                <h3>{{ \Carbon\Carbon::parse($event->tanggal)->format('d M Y') }}</h3>
-                <span>Tanggal Pelaksanaan</span>
-                <h3>{{ $event->lokasi }}</h3>
-                <span>Lokasi Kegiatan</span>
-            </div>
-        </div>
-    </div>
 
-    <div class="other-section">
-        <h2>Event lain</h2>
-        <div class="other-grid">
-            @foreach($eventLain as $lain)
-            <a href="{{ route('event.detail', $lain->id) }}" style="text-decoration: none; color: inherit;">
-                <div class="small-card">
-                    <div class="date-sq">
-                        <h4 style="margin:0">{{ \Carbon\Carbon::parse($lain->tanggal)->format('d') }}</h4>
-                        <small>{{ strtoupper(\Carbon\Carbon::parse($lain->tanggal)->format('M')) }}</small>
+<div class="detail-event-container">
+    <div class="event-main-card">
+        
+        <div class="event-image-wrapper">
+            @php
+                $gambarPath = 'img/images-landing-page/banner_berita.jpeg';
+                if ($event->galeri) {
+                    $gambarPath = $event->galeri instanceof \Illuminate\Support\Collection 
+                        ? ($event->galeri->first()->path ?? $gambarPath)
+                        : ($event->galeri->path ?? $gambarPath);
+                }
+            @endphp
+            <img src="{{ asset($gambarPath) }}" alt="{{ $event->nama_event }}">
+            <span class="badge-kategori">{{ $event->kategori }}</span>
+        </div>
+
+        <div class="event-info-body">
+            <div class="event-header-row">
+                <h1 class="event-title">{{ $event->nama_event }}</h1>
+                <div class="event-time-place">
+                    <div class="date">{{ \Carbon\Carbon::parse($event->tanggal)->format('d M Y') }}</div>
+                    <div>{{ $event->lokasi ?? 'Lokasi belum ditentukan' }}</div>
+                    <div style="font-size: 0.9rem; color: #666; margin-top: 4px;">
+                        🕒 {{ \Carbon\Carbon::parse($event->jam)->format('H:i') }} WIB
                     </div>
-                    <div>
-                        <h5 style="margin:0; font-weight:700;">{{ $lain->nama_event }}</h5>
-                        <p style="font-size:0.75rem; color:#888; margin:5px 0;">{{ Str::limit($lain->deskripsi, 50) }}</p>
-                        <small style="color:#b91c1c">📍 {{ $lain->lokasi }}</small>
+                </div>
+            </div>
+            
+            <div class="event-description">
+                {!! $event->deskripsi !!}
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<section class="event-lain-section">
+    <h3 class="event-lain-title">Event lain</h3>
+    
+    <div class="event-lain-grid">
+        @forelse($eventLainnya as $lain)
+            <a href="{{ route('umum.event-detail', $lain->id) }}" class="lain-card">
+                <div class="lain-date-box">
+                    <span class="day">{{ \Carbon\Carbon::parse($lain->tanggal)->format('d') }}</span>
+                    <span class="month">{{ \Carbon\Carbon::parse($lain->tanggal)->format('M') }}</span>
+                </div>
+                
+                <div class="lain-details-box">
+                    <h4>{{ $lain->nama_event }}</h4>
+                    <div class="lain-meta-info">
+                        <span>📍 {{ Str::limit($lain->lokasi, 25) }}</span>
+                        <span>🕒 {{ \Carbon\Carbon::parse($lain->jam)->format('H:i') }} WIB</span>
                     </div>
                 </div>
             </a>
-            @endforeach
-        </div>
+        @empty
+            <p style="grid-column: 1/-1; text-align: center; color: #666; font-family: 'Poppins', sans-serif;">
+                Tidak ada event lainnya saat ini.
+            </p>
+        @endforelse
     </div>
-</div>
+</section>
+
 @endsection

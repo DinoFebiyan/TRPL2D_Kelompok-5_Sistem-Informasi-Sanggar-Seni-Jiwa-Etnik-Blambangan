@@ -3,25 +3,44 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Event extends Model
 {
     protected $table = 'event';
 
-    protected $fillable = ['nama_event', 'tanggal', 'jam', 'lokasi', 'kategori', 'status', 'user_id', 'galeri_id'];
+    
+    protected $fillable = [
+        'nama_event', 
+        'tanggal', 
+        'jam', 
+        'lokasi', 
+        'kategori', 
+        'deskripsi', 
+        'status', 
+        'user_id', 
+        'galeri_id'
+    ];
 
-    // Consistency: Mengonversi string database ke objek waktu Carbon
+    
     protected $casts = [
         'tanggal' => 'date',
         'jam' => 'datetime:H:i',
     ];
 
-    public function user()
+    /**
+     * Relasi ke User (Pembuat Event)
+     */
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-    public function galeri()
+
+    public function galeri(): HasMany
     {
-        return $this->belongsTo(Galeri::class, 'galeri_id');
+        return $this->hasMany(Galeri::class, 'event_id');
     }
+
+    
 }
