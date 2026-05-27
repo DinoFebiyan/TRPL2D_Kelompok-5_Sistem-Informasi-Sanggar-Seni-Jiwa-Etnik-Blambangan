@@ -3,24 +3,28 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Katalog extends Model
 {
     protected $table = 'katalog';
 
-    protected $fillable = ['nama_tari', 'kategori', 'stok', 'deskripsi', 'status', 'galeri_id', 'user_id'];
+    // PERBAIKAN: Gunakan nama kolom 'nama_katalog' untuk menampung isian input form 'nama_tari'
+    protected $fillable = ['nama_katalog', 'kategori', 'stok', 'deskripsi', 'status', 'user_id'];
 
     protected $casts = [
         'stok' => 'integer',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
     
-    public function galeri()
+    // PERBAIKAN: Diubah menjadi HasMany agar satu produk katalog bisa memiliki banyak foto header sekaligus
+    public function galeri(): HasMany
     {
-        return $this->belongsTo(Galeri::class, 'galeri_id'); 
+        return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'katalog');
     }
 }

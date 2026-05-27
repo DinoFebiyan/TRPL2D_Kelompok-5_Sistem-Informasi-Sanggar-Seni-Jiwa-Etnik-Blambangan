@@ -13,6 +13,7 @@ class Event extends Model
     
     protected $fillable = [
         'nama_event', 
+        'deskripsi',
         'tanggal', 
         'jam', 
         'lokasi', 
@@ -39,8 +40,9 @@ class Event extends Model
 
     public function galeri(): HasMany
     {
-        return $this->hasMany(Galeri::class, 'event_id');
+        return $this->hasMany(Galeri::class, 'sumber_id');
     }
+
 
     
 }

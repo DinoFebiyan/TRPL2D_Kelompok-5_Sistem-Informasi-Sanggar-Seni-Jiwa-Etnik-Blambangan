@@ -19,9 +19,7 @@ return new class extends Migration
         $table->string('kategori'); 
         $table->boolean('is_watermark')->default(false);
         $table->timestamps();
-
-        // $table->foreign('sumber_id')->references('id')->on('users')->onDelete('cascade');
-    });
+ });
     }
 
     /**

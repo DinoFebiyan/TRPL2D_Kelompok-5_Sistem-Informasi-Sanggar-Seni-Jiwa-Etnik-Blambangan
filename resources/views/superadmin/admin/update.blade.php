@@ -3,12 +3,13 @@
 @section('title', 'Edit Admin — JEB')
 
 @section('styles')
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         .page-container {
             max-width: 1000px;
             margin: 2rem auto;
-            background: #EAEAEA; /* Warna abu-abu muda sesuai desain */
+            background: #EAEAEA;
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
@@ -148,6 +149,29 @@
             background-repeat: no-repeat;
             background-position: calc(100% - 20px) center;
         }
+
+        .btn-hapus-foto-lama {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: 0.2s;
+        }
+        .btn-hapus-foto-lama:hover {
+            background: #dc2626;
+            transform: scale(1.1);
+        }
     </style>
 @endsection
 
@@ -164,12 +188,12 @@
             </div>
         </div>
         <div class="form-body">
-            <form id="formEditAdmin" action="{{ route('superadmin.update-admin', $admin->id) }}" method="POST"
-                enctype="multipart/form-data">
+            <form id="formEditAdmin" action="{{ route('superadmin.update-admin', $admin->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                @method('PUT') @if($errors->any())
-                    <div
-                        style="background:#fee2e2; padding:12px 16px; border-radius:8px; margin-bottom:15px; border-left:4px solid #dc2626;">
+                @method('PUT') 
+                
+                @if($errors->any())
+                    <div style="background:#fee2e2; padding:12px 16px; border-radius:8px; margin-bottom:15px; border-left:4px solid #dc2626;">
                         <ul style="margin:0; color:#dc2626; padding-left:16px;">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -178,15 +202,31 @@
                     </div>
                 @endif
                 
+                {{-- Foto Lama dari database --}}
+                @if($admin->galeri && $admin->galeri->path && !Str::contains($admin->galeri->path, 'dummy'))
+                <div class="form-group" id="boxFotoProfilLama">
+                    <label>Foto Profil Saat Ini</label>
+                    <div style="position: relative; display: inline-block; margin-top: 5px;">
+                        <img src="{{ asset('storage/' . $admin->galeri->path) }}" style="width: 110px; height: 110px; object-fit: cover; border-radius: 50%; border: 2px solid #5B1A1A;">
+                        <button type="button" class="btn-hapus-foto-lama" onclick="hapusVisualFotoLama()" title="Hapus foto profil">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                @endif
+
+                <div id="wadahInputHapusFoto"></div>
+                
+                {{-- Input Upload Foto Baru --}}
                 <div class="form-group">
-                    <label>Foto</label>
+                    <label>Unggah Foto Baru</label>
                     <div class="custom-file-wrapper">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
-                        <span class="file-name-display" id="fileNameDisplay">Belum ada file dipilih</span>
-                        <input type="file" id="foto" name="foto" accept="image/*" style="display:none"
-                            onchange="updateFileName(this)">
+                        <span class="file-name-display" id="fileNameDisplay">Pilih foto baru...</span>
+                        <input type="file" id="foto" name="foto" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="updateFileNameAndPreview(this)">
                     </div>
-                    <div class="form-helper">Kosongkan jika tidak ingin mengubah foto. Format: JPG, PNG. Maks 2MB.</div>
+                    <div class="form-helper">Format: JPG, PNG. Maks 2MB.</div>
+                    <div id="imagePreviewContainer" style="margin-top: 12px;"></div>
                 </div>
                 
                 <div class="form-group">
@@ -227,14 +267,47 @@
     </div>
     
     <script>
-        function updateFileName(input) {
+        // Menandai penghapusan foto profil lama di database
+        function hapusVisualFotoLama() {
+            if(confirm('Apakah Anda yakin ingin menghapus foto profil saat ini?')) {
+                const wadah = document.getElementById('wadahInputHapusFoto');
+                const inputHidden = document.createElement('input');
+                inputHidden.type = 'hidden';
+                inputHidden.name = 'hapus_foto[]';
+                inputHidden.value = "{{ $admin->galeri->id ?? '' }}";
+                wadah.appendChild(inputHidden);
+
+                const box = document.getElementById('boxFotoProfilLama');
+                if(box) box.remove();
+            }
+        }
+
+        // Render pratinjau instan foto baru yang dipilih
+        function updateFileNameAndPreview(input) {
             const display = document.getElementById('fileNameDisplay');
-            if (input.files.length) {
+            const container = document.getElementById('imagePreviewContainer');
+            
+            if (input.files && input.files.length > 0) {
                 display.textContent = input.files[0].name;
-                display.style.color = "#333"; 
+                display.style.color = "#333";
+                container.innerHTML = '';
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.width = '100px';
+                    img.style.height = '100px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '50%';
+                    img.style.border = '2px dashed #A87C7C';
+                    container.appendChild(img);
+                };
+                reader.readAsDataURL(input.files[0]);
             } else {
-                display.textContent = "Belum ada file dipilih";
+                display.textContent = "Pilih foto baru...";
                 display.style.color = "#b0b0b0";
+                container.innerHTML = '';
             }
         }
     </script>

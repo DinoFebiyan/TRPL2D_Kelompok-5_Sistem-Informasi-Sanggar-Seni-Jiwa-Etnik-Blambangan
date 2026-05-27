@@ -20,10 +20,6 @@ class Berita extends Model
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
-    /**
-     * PERBAIKAN: Karena tabel galeri menyimpan 'sumber_id', 
-     * Berita memiliki (hasMany/hasOne) foto di dalam galeri.
-     */
     public function galeri()
     {
         return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'berita');

@@ -1,4 +1,4 @@
-@extends('layouts.superadmin-clean')
+@extends('layouts.form')
 
 @section('title', 'Tambah Katalog — JEB')
 
@@ -8,7 +8,7 @@
         .page-container {
             max-width: 1000px;
             margin: 2rem auto;
-            background: #EAEAEA; /* Background abu-abu sesuai desain */
+            background: #EAEAEA;
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
@@ -92,8 +92,8 @@
         .form-group textarea {
             width: 100%;
             padding: 12px 20px;
-            border: 1px solid #A87C7C; /* Warna garis merah kecoklatan */
-            border-radius: 30px; /* Bentuk kapsul */
+            border: 1px solid #A87C7C;
+            border-radius: 30px;
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             background: #fff;
@@ -101,11 +101,9 @@
             outline: none;
         }
 
-        /* Khusus textarea agar radiusnya tidak terlalu lonjong tapi tetap serasi */
         .form-group textarea {
-            border-radius: 20px;
+            border-radius: 15px;
             resize: vertical;
-            min-height: 100px;
         }
 
         .form-group input::placeholder,
@@ -123,7 +121,7 @@
         }
 
         .btn-pilih-file {
-            background: #8A4B4B;
+            background: #531919;
             color: white !important;
             padding: 12px 25px;
             cursor: pointer;
@@ -157,6 +155,17 @@
             background-repeat: no-repeat;
             background-position: calc(100% - 20px) center;
         }
+
+        .select-status {
+            width: 100%;
+            padding: 12px 20px;
+            border-radius: 30px;
+            border: 1px solid #A87C7C;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            background: #fff;
+            color: #333;
+        }
     </style>
 @endsection
 
@@ -168,18 +177,19 @@
                 <p>Kelola Katalog</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('superadmin.katalog.index') }}" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
+                <a href="{{ route('superadmin.kelola-katalog') }}" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
                 <button type="submit" form="formTambahKatalog" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>
+
         <div class="form-body">
-            <form id="formTambahKatalog" action="{{ route('superadmin.katalog.store') }}" method="POST"
-                enctype="multipart/form-data">
+            <form id="formTambahKatalog" action="{{ route('superadmin.store-katalog') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                
+
                 @if($errors->any())
-                    <div style="background:#fee2e2; padding:12px 16px; border-radius:8px; margin-bottom:15px; border-left:4px solid #dc2626;">
-                        <ul style="margin:0; color:#dc2626; padding-left:16px;">
+                    <div style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
+                        <i class="fas fa-exclamation-circle"></i> Harap perbaiki kesalahan pada form.
+                        <ul style="margin: 5px 0 0 0; padding-left: 20px; color: #dc2626;">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -187,45 +197,52 @@
                     </div>
                 @endif
 
+                {{-- Foto Produk Katalog (Mendukung Multi-Upload seperti Berita) --}}
                 <div class="form-group">
-                    <label>Foto Katalog</label>
-                    <div class="custom-file-wrapper">
+                    <label>Foto Katalog (Bisa pilih lebih dari satu)</label>
+                    <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
                         <span class="file-name-display" id="fileNameDisplay">Masukkan foto produk...</span>
-                        <input type="file" id="foto" name="foto" accept="image/*" style="display:none"
-                            onchange="updateFileName(this)">
+                        
+                        <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
                     </div>
-                    <div class="form-helper">Format: JPG, PNG. Maks 2MB.</div>
+                    <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
+                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
                 </div>
-                
+
+                {{-- Nama Katalog --}}
                 <div class="form-group">
                     <label>Nama Katalog (Tari)</label>
                     <input type="text" name="nama_tari" value="{{ old('nama_tari') }}" placeholder="Masukkan nama tari/kostum..." required>
                 </div>
-                
+
+                {{-- Kategori Dropdown --}}
                 <div class="form-group">
                     <label>Kategori</label>
-                    <select name="kategori" required>
-                        <option value="" disabled selected hidden>Masukkan kategori katalog...</option>
+                    <select name="kategori" class="select-status" required>
+                        <option value="" disabled selected hidden>Pilih kategori katalog...</option>
                         <option value="Kostum" {{ old('kategori') == 'Kostum' ? 'selected' : '' }}>Kostum</option>
                         <option value="Properti" {{ old('kategori') == 'Properti' ? 'selected' : '' }}>Properti</option>
                         <option value="Alat Musik" {{ old('kategori') == 'Alat Musik' ? 'selected' : '' }}>Alat Musik</option>
                     </select>
                 </div>
 
+                {{-- Deskripsi --}}
                 <div class="form-group">
                     <label>Deskripsi</label>
-                    <textarea name="deskripsi" placeholder="Masukkan deskripsi lengkap mengenai katalog ini..." required>{{ old('deskripsi') }}</textarea>
+                    <textarea name="deskripsi" rows="6" placeholder="Masukkan deskripsi lengkap mengenai katalog ini..." required>{{ old('deskripsi') }}</textarea>
                 </div>
-                
+
+                {{-- Jumlah Stok --}}
                 <div class="form-group">
                     <label>Stok</label>
                     <input type="number" name="stok" value="{{ old('stok') }}" placeholder="Masukkan jumlah stok tersedia..." required>
                 </div>
-                
+
+                {{-- Status --}}
                 <div class="form-group">
-                    <label>Status</label>
-                    <select name="status" required>
+                    <label>Status Ketersediaan</label>
+                    <select name="status" class="select-status" required>
                         <option value="" disabled selected hidden>Masukkan status ketersediaan...</option>
                         <option value="tersedia" {{ old('status') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
                         <option value="tidak tersedia" {{ old('status') == 'tidak tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
@@ -234,16 +251,48 @@
             </form>
         </div>
     </div>
-    
+
     <script>
-        function updateFileName(input) {
+        let kumpulanFileKatalog = [];
+
+        function updateFileNameAndPreview(input) {
             const display = document.getElementById('fileNameDisplay');
-            if (input.files.length) {
-                display.textContent = input.files[0].name;
+            const container = document.getElementById('imagePreviewContainer');
+            
+            if (input.files && input.files.length > 0) {
+                for (let i = 0; i < input.files.length; i++) {
+                    kumpulanFileKatalog.push(input.files[i]);
+                }
+
+                container.innerHTML = '';
+                const dataTransferObat = new DataTransfer();
+                
+                kumpulanFileKatalog.forEach((file) => {
+                    dataTransferObat.items.add(file);
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const wrapper = document.createElement('div');
+                        wrapper.style.position = 'relative';
+                        wrapper.style.display = 'inline-block';
+
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '100px';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '6px';
+                        img.style.border = '1px dashed #A87C7C';
+
+                        wrapper.appendChild(img);
+                        container.appendChild(wrapper);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                input.files = dataTransferObat.files;
+                display.textContent = kumpulanFileKatalog.length + " file dipilih (terakumulasi)";
                 display.style.color = "#333";
-            } else {
-                display.textContent = "Masukkan foto produk...";
-                display.style.color = "#b0b0b0";
             }
         }
     </script>

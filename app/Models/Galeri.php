@@ -10,15 +10,28 @@ class Galeri extends Model
     protected $table = 'galeri';
 
     protected $fillable = [
-        'nama_file',
+        'sumber_id',
         'path',
+        'nama_file',
         'kategori',
-        'event_id', // Pastikan kolom ini ada di database dan di sini
+        'is_watermark',
+        'created_at',
+        'updated_at'
     ];
 
     
     public function event(): BelongsTo
     {
-        return $this->belongsTo(Event::class, 'event_id');
+        return $this->belongsTo(Event::class, 'sumber_id');
     }
-}
+
+        public function berita(): BelongsTo
+        {
+            return $this->belongsTo(Berita::class, 'sumber_id');
+        }
+
+        public function katalog(): BelongsTo
+        {
+            return $this->belongsTo(Katalog::class, 'sumber_id');
+        }
+};

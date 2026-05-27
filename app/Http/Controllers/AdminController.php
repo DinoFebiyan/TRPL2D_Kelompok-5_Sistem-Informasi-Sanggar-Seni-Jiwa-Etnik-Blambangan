@@ -130,13 +130,14 @@ if ($request->hasFile('foto')) {
         $path = $request->file('foto')->store('admin_fotos', 'public');
         $namaFileBaru = uniqid().'_'.$request->file('foto')->getClientOriginalName();
 
+        // PERBAIKAN: Gunakan optional check agar tidak crash jika galeri bernilai null
         if ($admin->galeri) {
-            // Hapus file foto yang lama dari storage agar menghemat ruang penyimpanan
+            // Hapus file foto lama dari disk storage
             if (Storage::disk('public')->exists($admin->galeri->path)) {
                 Storage::disk('public')->delete($admin->galeri->path);
             }
 
-            // Perbarui data path 
+            // Perbarui data path foto lama
             $admin->galeri->update([
                 'path' => $path,
                 'nama_file' => $namaFileBaru,
@@ -145,10 +146,10 @@ if ($request->hasFile('foto')) {
             // Jika sebelumnya admin tidak memiliki foto, buat data baru di tabel galeri
             Galeri::create([
                 'sumber_id'    => $admin->id,
-                'path'           => $path,
-                'nama_file'      => $namaFileBaru,
-                'kategori'       => 'admin',
-                'is_watermark'   => false,
+                'path'         => $path,
+                'nama_file'    => $namaFileBaru,
+                'kategori'     => 'admin', // Memastikan kategori terkunci sebagai admin
+                'is_watermark' => false,
             ]);
         }
     }

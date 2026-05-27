@@ -147,9 +147,11 @@
         vertical-align: middle;
         font-size: 0.85rem;
     }
+    
+    /* SINKRONISASI CSS: Slideshow container untuk foto katalog */
     .katalog-foto-preview {
-        width: 45px;
-        height: 45px;
+        width: 60px; /* Lebar disamakan dengan modul berita */
+        height: 50px;
         background: #f0f0f0;
         border-radius: 8px;
         display: flex;
@@ -158,12 +160,22 @@
         font-size: 0.7rem;
         color: #999;
         overflow: hidden;
+        position: relative;
     }
     .katalog-foto-preview img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
     }
+    .katalog-foto-preview img.active {
+        opacity: 1;
+    }
+    
     .badge-tersedia {
         background: #dcfce7;
         color: #16a34a;
@@ -194,7 +206,6 @@
     .btn-edit-katalog { background: #eff6ff; color: #3b82f6; }
     .btn-hapus-katalog { background: #fef2f2; color: #ef4444; }
     
-    /* Penyesuaian Pagination Katalog */
     .katalog-pagination {
         display: flex;
         justify-content: space-between;
@@ -299,15 +310,21 @@
                 @forelse($katalogs as $katalog)
                 <tr>
                     <td>
-                        <div class="katalog-foto-preview">
-                            @if($katalog->galeri && $katalog->galeri->file_blob)
-                                <img src="data:image/jpeg;base64,{{ base64_encode($katalog->galeri->file_blob) }}" alt="Foto">
+                        <div class="katalog-foto-preview slideshow-container">
+                            @if($katalog->getRelation('galeri') && $katalog->galeri->isNotEmpty())
+                                @foreach($katalog->galeri as $index => $foto)
+                                    <img src="{{ asset('storage/' . $foto->path) }}" 
+                                         alt="Foto Produk" 
+                                         class="{{ $index === 0 ? 'active' : '' }}">
+                                @endforeach
                             @else
-                                <i class="fas fa-image"></i>
+                                <div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f3f4f6; color:#9ca3af;">
+                                    <i class="fas fa-image" style="font-size:1.1rem;"></i>
+                                </div>
                             @endif
                         </div>
                     </td>
-                    <td style="font-weight:600">{{ $katalog->nama_tari }}</td>
+                    <td style="font-weight:600">{{ $katalog->nama_katalog }}</td>
                     <td>{{ $katalog->kategori }}</td>
                     <td>{{ Str::limit($katalog->deskripsi, 60) }}</td>
                     <td><strong style="color: #333;">{{ $katalog->stok }}</strong></td>
@@ -360,7 +377,6 @@
         }
     }
     
-    // Fungsi search simpel di sisi client
     function filterKatalog() {
         let input = document.getElementById('searchKatalog');
         let filter = input.value.toLowerCase();
@@ -376,5 +392,25 @@
     }
 
     document.getElementById('searchKatalog').addEventListener('keyup', filterKatalog);
+
+    // =========================================================================
+    // JAVASCRIPT: AUTOMATIC SLIDESHOW MULTI-FOTO PRODUK KATALOG (5 DETIK)
+    // =========================================================================
+    document.addEventListener("DOMContentLoaded", function() {
+        const containers = document.querySelectorAll('.slideshow-container');
+
+        containers.forEach(container => {
+            const images = container.querySelectorAll('img');
+            if (images.length > 1) {
+                let currentIndex = 0;
+
+                setInterval(() => {
+                    images[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % images.length;
+                    images[currentIndex].classList.add('active');
+                }, 5000);
+            }
+        });
+    });
 </script>
 @endsection

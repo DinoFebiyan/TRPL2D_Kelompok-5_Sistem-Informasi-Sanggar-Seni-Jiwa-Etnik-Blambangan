@@ -37,9 +37,9 @@ class DatabaseSeeder extends Seeder
             'status' => 'aktif',
         ]);
 
-        // 3. Buat data Galeri (foto)
+        // 3. Buat data Galeri (foto) untuk Profil Sanggar
         $galeri1 = Galeri::create([
-            'path' => 'dummy_base64_1', // isi dengan file dummy
+            'path' => 'dummy_base64_1',
             'nama_file' => 'logo_sanggar.jpg',
             'kategori' => 'logo',
             'is_watermark' => false,
@@ -86,58 +86,61 @@ class DatabaseSeeder extends Seeder
             'galeri_id' => null,
         ]);
 
-        // 4. Katalog (10 Data)
+        // 6. SEEDER KATALOG: Menyesuaikan Multi-Foto (sumber_id)
         for ($i = 1; $i <= 10; $i++) {
-            // Buat entri galeri dulu untuk setiap foto
-            $galeri = Galeri::create([
-                'nama_file' => 'katalog_' . $i . '.jpeg',
-                'path' => 'img/images-landing-page/katalog/katalog_' . $i . '.jpeg', 
-                'kategori' => 'katalog',
-            ]);
-
-            Katalog::create([
-                'nama_tari' => 'Kostum Tari ' . $i,
+            $katalog = Katalog::create([
+                'nama_katalog' => 'Kostum Tari ' . $i,
                 'kategori' => 'Tradisional',
                 'stok' => 5,
                 'deskripsi' => 'Deskripsi kostum tari ke-' . $i . '.',
                 'status' => 'tersedia',
-                'galeri_id' => $galeri->id, // Hubungkan ID galeri baru ini ke katalog
                 'user_id' => $superAdmin->id,
+            ]);
+
+            // Hubungkan rekaman foto ke tabel galeri menggunakan id katalog sebagai sumber_id
+            Galeri::create([
+                'sumber_id' => $katalog->id,
+                'nama_file' => 'katalog_' . $i . '.jpeg',
+                'path' => 'img/images-landing-page/katalog/katalog_' . $i . '.jpeg', 
+                'kategori' => 'katalog',
+                'is_watermark' => false,
             ]);
         }
 
-        // 5. Berita (10 Data)
-       for ($i = 1; $i <= 10; $i++) {
-    // 1. Buat data galeri baru untuk setiap berita agar gambarnya unik
-    $galeri = Galeri::create([
-        'nama_file' => 'berita_' . $i . '.jpeg',
-        'path' => 'img/images-landing-page/berita/berita_' . $i . '.jpeg', // Pastikan file ini ada di folder
-        'kategori' => 'berita',
-    ]);
+        // 7. SEEDER BERITA: PERBAIKAN! Menggunakan pola sumber_id (bukan galeri_id lagi)
+        for ($i = 1; $i <= 10; $i++) {
+            $berita = Berita::create([
+                'judul' => 'Update Berita Seni #' . $i,
+                'isi_berita' => 'Konten berita ke-' . $i . ' tentang kegiatan sanggar.',
+                'status' => 'tayang',
+                'user_id' => $admin->id,
+            ]);
 
-    // 2. Buat berita dan hubungkan dengan $galeri->id yang baru dibuat
-    Berita::create([
-        'judul' => 'Update Berita Seni #' . $i,
-        'isi_berita' => 'Konten berita ke-' . $i . ' tentang kegiatan sanggar.',
-        'status' => 'tayang',
-        'user_id' => $admin->id,
-        'galeri_id' => $galeri->id, // Menggunakan ID galeri yang baru dibuat
-    ]);
-}
+            // Hubungkan rekaman foto ke tabel galeri menggunakan id berita sebagai sumber_id
+            Galeri::create([
+                'sumber_id' => $berita->id,
+                'nama_file' => 'berita_' . $i . '.jpeg',
+                'path' => 'img/images-landing-page/berita/berita_' . $i . '.jpeg',
+                'kategori' => 'berita',
+                'is_watermark' => false,
+            ]);
+        }
 
-        // 6. Event (10 Data)
-       
+        // 8. Event (10 Data)
         for ($i = 1; $i <= 10; $i++) {
             Event::create([
-        'nama_event' => 'Pentas Seni #' . $i,
-        'tanggal'    => Carbon::now()->startOfMonth()->addDays($i + 10),
-        'jam'        => '07:13:00',
-        'lokasi'     => 'Pendopo Sabha Swagata Blambangan',
-        'deskripsi'  => 'Penampilan dalam rangka Hari Jadi Kabupaten Banyuwangi ke-254. Menyajikan ragam tari tradisional khas Bumi Blambangan yang memukau.', // Wajib ada!
-        'kategori'   => 'Pertunjukan',
-        'status'     => 'belum selesai',
-        'user_id'    => $admin->id,
-]);          
+                'nama_event' => 'Pentas Seni #' . $i,
+                'tanggal'    => Carbon::now()->startOfMonth()->addDays($i + 10),
+                'jam'        => '07:13:00',
+                'lokasi'     => 'Pendopo Sabha Swagata Blambangan',
+                'deskripsi'  => 'Penampilan dalam rangka Hari Jadi Kabupaten Banyuwangi ke-254...',
+                
+                // GANTI 'Pertunjukan' dengan salah satu nilai enum yang ada di migration event Anda!
+                'kategori'   => 'Pendidikan', // Contoh jika di migration ada 'Festival'
+                
+                'status'     => 'belum selesai',
+                'user_id'    => $admin->id,
+            ]);          
         }
     }
 }

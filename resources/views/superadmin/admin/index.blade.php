@@ -113,18 +113,17 @@
         cursor: pointer;
     }
     
-    /* Penyesuaian Card Tabel */
     .adm-table-card {
         background: #ffffff;
         border-radius: 12px;
-        padding: 25px 0; /* Padding atas bawah saja */
+        padding: 25px 0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         border: 1px solid #f0f0f0;
         overflow-x: auto;
     }
     .adm-table-card h3 {
         margin: 0 0 20px 0;
-        padding: 0 25px; /* Margin kiri kanan untuk judul */
+        padding: 0 25px;
         font-size: 1.1rem;
         color: #333;
     }
@@ -133,8 +132,8 @@
         border-collapse: collapse;
         min-width: 900px;
     }
-    .adm-table thead {
-        background-color: #F5EBEB; /* Blok warna pada header tabel */
+    .adm-table Maxwell {
+        background-color: #F5EBEB;
     }
     .adm-table th {
         text-align: left;
@@ -146,21 +145,24 @@
     }
     .adm-table td {
         padding: 15px 25px;
-        border-bottom: 1px solid #E0E0E0; /* Menggelapkan garis tabel */
+        border-bottom: 1px solid #E0E0E0;
         vertical-align: middle;
         font-size: 0.85rem;
     }
-    .adm-foto {
-        width: 35px;
-        height: 35px;
-        background: #2563eb;
-        color: #fff;
+    .adm-foto-frame {
+        width: 45px;
+        height: 45px;
         border-radius: 50%;
+        overflow: hidden;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
-        font-size: 0.8rem;
+        border: 1px solid #e8dede;
+        background: #f3f4f6;
+    }
+    .adm-foto-frame img {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
     }
     .adm-badge-aktif {
@@ -193,7 +195,6 @@
     .adm-btn-edit { background: #eff6ff; color: #3b82f6; }
     .adm-btn-hapus { background: #fef2f2; color: #ef4444; }
     
-    /* Penyesuaian Pagination */
     .adm-pagination {
         display: flex;
         justify-content: space-between;
@@ -272,18 +273,17 @@
             </div>
             <span>Tambah Admin</span>
         </a>
-   </div>
+    </div>
 
     <form method="GET" action="{{ route('superadmin.kelola-admin') }}" class="adm-search-row">
-    <div class="adm-search-box">
-        <input type="text" name="search" placeholder="Cari nama Admin..." value="{{ request('search') }}">
-        <i class="fas fa-search"></i>
-    </div>
-    <button type="submit" class="adm-btn-filter">
-        <i class="fas fa-filter"></i> Filter
-    </button>
+        <div class="adm-search-box">
+            <input type="text" name="search" placeholder="Cari nama Admin..." value="{{ request('search') }}">
+            <i class="fas fa-search"></i>
+        </div>
+        <button type="submit" class="adm-btn-filter">
+            <i class="fas fa-filter"></i> Filter
+        </button>
     </form>
-
 
     <div class="adm-table-card">
         <h3>Daftar Admin</h3>
@@ -302,13 +302,14 @@
                 @forelse($admins as $admin)
                 <tr>
                     <td>
-        @if($admin->galeri && $admin->galeri->path)
-    <img src="{{ asset('storage/' . $admin->galeri->path) }}" alt="Foto Admin" style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
-
-            @else
-            <img src="{{ asset('images/default-avatar.png') }}" alt="Default" style="width: 50px; height: 50px; border-radius: 50%;">
-        @endif
-    </td>
+                        <div class="adm-foto-frame">
+                            @if($admin->galeri && $admin->galeri->path && !Str::contains($admin->galeri->path, 'dummy'))
+                                <img src="{{ asset('storage/' . $admin->galeri->path) }}" alt="Foto Admin">
+                            @else
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($admin->name) }}&background=5B1A1A&color=fff&rounded=false" alt="Avatar">
+                            @endif
+                        </div>
+                    </td>
                     <td style="font-weight:600">{{ $admin->name }}</td>
                     <td>{{ $admin->email }}</td>
                     <td>{{ $admin->no_handphone ?? '-' }}</td>

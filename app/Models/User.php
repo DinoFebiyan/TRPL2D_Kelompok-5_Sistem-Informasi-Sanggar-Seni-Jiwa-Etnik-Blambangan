@@ -38,11 +38,21 @@ class User extends Authenticatable
 
     public function galeri()
     {
-         return $this->hasOne(Galeri::class, 'sumber_id', 'id');
+         return $this->hasOne(Galeri::class, 'sumber_id', 'id')->where('kategori', 'admin');
     }
 
     public function berita()
     {
         return $this->hasMany(Berita::class, 'user_id', 'id');
+    }
+
+    public function event()
+    {
+        return $this->hasMany(Event::class, 'user_id', 'id');
+    }
+
+    public function katalog()
+    {
+        return $this->hasMany(Katalog::class, 'user_id', 'id');
     }
 }

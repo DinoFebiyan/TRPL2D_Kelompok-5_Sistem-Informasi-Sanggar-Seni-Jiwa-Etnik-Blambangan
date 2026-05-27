@@ -300,9 +300,8 @@
                 <tr>
                     <td>
                         <div class="event-foto-preview">
-                            {{-- Sesuaikan dengan relasi foto event kamu --}}
-                            @if($event->galeri && $event->galeri->file_blob)
-                                <img src="data:image/jpeg;base64,{{ base64_encode($event->galeri->file_blob) }}" alt="Foto">
+                            @if($event->galeri->isNotEmpty())
+                                <img src="{{ asset('storage/'.$event->galeri->first()->path) }}" alt="Foto">
                             @else
                                 <i class="fas fa-image"></i>
                             @endif
