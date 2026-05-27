@@ -236,7 +236,7 @@
             <h2>Kelola Profil Sanggar</h2>
             <p>{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }} - Atur informasi sanggar, pengurus, dan pelatih</p>
         </div>
-        <a href="{{ route('superadmin.profil.update') }}" class="btn-edit-profil">
+        <a href="{{ route('superadmin.edit-profil') }}" class="btn-edit-profil">
             <i class="fas fa-edit"></i> Edit Profil
         </a>
     </div>
@@ -298,7 +298,7 @@
     <div class="personel-section">
         <div class="section-header">
             <h3><i class="fas fa-users"></i> Daftar Pengurus</h3>
-            <a href="{{ route('superadmin.profil.tambah-pengurus') }}" class="btn-tambah"><i class="fas fa-plus"></i> Tambah Pengurus</a>
+            <a href="{{ route('superadmin.tambah-pengurus') }}" class="btn-tambah"><i class="fas fa-plus"></i> Tambah Pengurus</a>
         </div>
         <table class="personel-table">
             <thead>
@@ -324,7 +324,7 @@
                     <td class="action-btns">
                         <a href="{{ route('superadmin.edit-pengurus', $item->id) }}" class="btn-edit">Edit</a>
                         <button class="btn-delete" onclick="confirmDelete('pengurus', {{ $item->id }})">Hapus</button>
-                        <form id="delete-pengurus-{{ $item->id }}" action="{{ route('superadmin.delete-pengurus', $item->id) }}" method="POST" style="display:none;">@csrf @method('DELETE')</form>
+                        <form id="delete-pengurus-{{ $item->id }}" action="{{ route('superadmin.hapus-pengurus', $item->id) }}" method="POST" style="display:none;">@csrf @method('DELETE')</form>
                     </td>
                 </tr>
                 @empty
@@ -339,7 +339,7 @@
     <div class="personel-section" style="margin-top: 40px;">
         <div class="section-header">
             <h3><i class="fas fa-chalkboard-user"></i> Daftar Pelatih</h3>
-            <a href="{{ route('superadmin.profil.tambah-pelatih') }}" class="btn-tambah"><i class="fas fa-plus"></i> Tambah Pelatih</a>
+            <a href="{{ route('superadmin.tambah-pelatih') }}" class="btn-tambah"><i class="fas fa-plus"></i> Tambah Pelatih</a>
         </div>
         <table class="personel-table">
             <thead>
@@ -365,7 +365,7 @@
                     <td class="action-btns">
                         <a href="{{ route('superadmin.edit-pelatih', $item->id) }}" class="btn-edit">Edit</a>
                         <button class="btn-delete" onclick="confirmDelete('pelatih', {{ $item->id }})">Hapus</button>
-                        <form id="delete-pelatih-{{ $item->id }}" action="{{ route('superadmin.delete-pelatih', $item->id) }}" method="POST" style="display:none;">@csrf @method('DELETE')</form>
+                        <form id="delete-pelatih-{{ $item->id }}" action="{{ route('superadmin.hapus-pelatih', $item->id) }}" method="POST" style="display:none;">@csrf @method('DELETE')</form>
                     </td>
                 </tr>
                 @empty

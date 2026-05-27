@@ -942,7 +942,7 @@
     </div>
     <div class="berita-grid">
       @if($beritaUtama)
-      <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ asset($beritaUtama->galeri->file_blob ?? 'default.jpg') }}'); background-size: cover; background-position: center;">
+      <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ asset($beritaUtama->galeri->first->path ?? 'default.jpg') }}'); background-size: cover; background-position: center;">
         <span class="badge-yellow">BERITA UTAMA</span>
         <h3>{{ $beritaUtama->judul }}</h3>
         <p>{{ Str::limit(strip_tags($beritaUtama->isi_berita), 150) }}</p>
@@ -963,7 +963,14 @@
         @forelse($beritaTerbaru as $item)
         <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
           <div class="berita-item">
-            <div class="berita-img-placeholder" style="background: url('{{ asset($item->galeri->file_blob ?? 'default.jpg') }}'); background-size: cover; background-position: center; width: 120px; min-width: 120px; height: 100px;"></div>
+            <div class="berita-img-placeholder"
+     style="background: url('{{ asset('storage/'.optional($item->galeri->first())->path ?? 'default.jpg') }}');
+            background-size: cover;
+            background-position: center;
+            width: 120px; min-width: 120px; height: 100px;">
+</div>
+
+
             <div class="berita-item-content">
               <span class="tag">Berita</span>
               <h5>{{ Str::limit($item->judul, 60) }}</h5>
