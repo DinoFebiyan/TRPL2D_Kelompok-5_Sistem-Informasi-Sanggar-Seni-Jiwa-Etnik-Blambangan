@@ -21,7 +21,7 @@ class DatabaseSeeder extends Seeder
         $superAdmin = User::factory()->create([
             'name' => 'Super Admin',
             'email' => 'superadmin@jeb.id',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('12345678'),
             'peran' => 'super_admin',
             'no_handphone' => '081234567890',
             'status' => 'aktif',
@@ -31,60 +31,84 @@ class DatabaseSeeder extends Seeder
         $admin = User::factory()->create([
             'name' => 'Admin JEB',
             'email' => 'admin@jeb.id',
-            'password' => Hash::make('password'),
+            'password' => Hash::make('12345678'),
             'peran' => 'admin',
             'no_handphone' => '081298765432',
             'status' => 'aktif',
         ]);
 
-        // 3. Buat data Galeri (foto) untuk Profil Sanggar
+        // 3. Buat data Galeri awal untuk Struktur Ikatan Profil Sanggar (sumber_id diisi 0 dulu)
         $galeri1 = Galeri::create([
-            'path' => 'dummy_base64_1',
-            'nama_file' => 'logo_sanggar.jpg',
-            'kategori' => 'logo',
+            'sumber_id' => 0,
+            'path' => 'galeri/logo_sanggar.jpg',
+            'nama_file' => uniqid() . '_logo_sanggar.jpg',
+            'kategori' => 'profil', // Diselaraskan ke 'profil' sesuai relasi model Personel/Profil Anda
             'is_watermark' => false,
         ]);
 
         $galeri2 = Galeri::create([
-            'path' => 'dummy_base64_2',
-            'nama_file' => 'foto_pembina.jpg',
-            'kategori' => 'pembina',
+            'sumber_id' => 0,
+            'path' => 'galeri/foto_pembina.jpg',
+            'nama_file' => uniqid() . '_foto_pembina.jpg',
+            'kategori' => 'profil',
             'is_watermark' => false,
         ]);
 
-        // 4. Buat Profil Sanggar
-        ProfilSanggar::create([
-            'deskripsi' => 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional...',
-            'visi' => 'Menjadi sanggar seni yang unggul, berkarakter, dan memiliki keunikan tersendiri...',
-            'misi' => 'Mengembangkan potensi anggota...',
-            'sejarah' => 'Berdiri sejak 2010...',
+        // 4. Buat data Profil Sanggar
+        $profil = ProfilSanggar::create([
+            'deskripsi' => 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional di Banyuwangi.',
+            'visi' => 'Menjadi sanggar seni yang unggul, berkarakter, dan memiliki keunikan tersendiri.',
+            'misi' => 'Mengembangkan potensi anggota dan melestarikan budaya Blambangan.',
+            'sejarah' => 'Berdiri sejak 2010 di Kabupaten Banyuwangi...',
             'sambutan_pembina' => 'Selamat datang di JEB...',
             'logo_id' => $galeri1->id,
             'foto_pembina_id' => $galeri2->id,
         ]);
 
+        // Sinkronisasi balik sumber_id ke ID profil sanggar yang baru terbit
+        $galeri1->update(['sumber_id' => $profil->id]);
+        $galeri2->update(['sumber_id' => $profil->id]);
+
+
         // 5. Buat Personel (Pengurus & Pelatih)
-        Personel::create([
+        $pengurus = Personel::create([
             'nama' => 'Rizky Pratama',
             'jabatan' => 'Ketua Sanggar',
             'no_handphone' => '081234567890',
             'instagram' => '@rizkypratama',
             'peran' => 'pengurus',
             'status' => 'aktif',
-            'galeri_id' => null,
         ]);
 
-        Personel::create([
+        // Hubungkan foto pengurus melalui tabel galeri dengan kategori 'profil' (sesuai hasMany di model Personel)
+        Galeri::create([
+            'sumber_id' => $pengurus->id,
+            'path' => 'personel/dummy-pengurus.jpg',
+            'nama_file' => uniqid() . '_dummy-pengurus.jpg',
+            'kategori' => 'profil',
+            'is_watermark' => false,
+        ]);
+
+        $pelatih = Personel::create([
             'nama' => 'Budi Santoso',
             'jabatan' => 'Pelatih Tari',
             'no_handphone' => '081298765432',
             'instagram' => '@buditaridance',
             'peran' => 'pelatih',
             'status' => 'aktif',
-            'galeri_id' => null,
         ]);
 
-        // 6. SEEDER KATALOG: Menyesuaikan Multi-Foto (sumber_id)
+        // Hubungkan foto pelatih melalui tabel galeri dengan kategori 'profil'
+        Galeri::create([
+            'sumber_id' => $pelatih->id,
+            'path' => 'personel/dummy-pelatih.jpg',
+            'nama_file' => uniqid() . '_dummy-pelatih.jpg',
+            'kategori' => 'profil',
+            'is_watermark' => false,
+        ]);
+
+
+        // 6. SEEDER KATALOG: Sinkronisasi Multi-Foto (sumber_id)
         for ($i = 1; $i <= 10; $i++) {
             $katalog = Katalog::create([
                 'nama_katalog' => 'Kostum Tari ' . $i,
@@ -95,50 +119,56 @@ class DatabaseSeeder extends Seeder
                 'user_id' => $superAdmin->id,
             ]);
 
-            // Hubungkan rekaman foto ke tabel galeri menggunakan id katalog sebagai sumber_id
             Galeri::create([
                 'sumber_id' => $katalog->id,
-                'nama_file' => 'katalog_' . $i . '.jpeg',
-                'path' => 'img/images-landing-page/katalog/katalog_' . $i . '.jpeg', 
+                'path' => 'katalog/katalog_' . $i . '.jpeg', 
+                'nama_file' => uniqid() . '_katalog_' . $i . '.jpeg',
                 'kategori' => 'katalog',
                 'is_watermark' => false,
             ]);
         }
 
-        // 7. SEEDER BERITA: PERBAIKAN! Menggunakan pola sumber_id (bukan galeri_id lagi)
+
+        // 7. SEEDER BERITA: Sesuai opsi Enum/Check Constraint di DB (Ganti 'Kegiatan' menjadi 'Event')
         for ($i = 1; $i <= 10; $i++) {
             $berita = Berita::create([
-                'judul' => 'Update Berita Seni #' . $i,
-                'isi_berita' => 'Konten berita ke-' . $i . ' tentang kegiatan sanggar.',
-                'status' => 'tayang',
-                'user_id' => $admin->id,
+                'judul'        => 'Update Berita Seni #' . $i,
+                'isi_berita'   => 'Konten berita ke-' . $i . ' tentang kegiatan sanggar.',
+                'jenis_berita' => 'Event', // <--- DIUBAH DISINI agar lolos CHECK constraint SQLite
+                'status'       => 'tayang',
+                'user_id'      => $admin->id,
             ]);
 
-            // Hubungkan rekaman foto ke tabel galeri menggunakan id berita sebagai sumber_id
             Galeri::create([
-                'sumber_id' => $berita->id,
-                'nama_file' => 'berita_' . $i . '.jpeg',
-                'path' => 'img/images-landing-page/berita/berita_' . $i . '.jpeg',
-                'kategori' => 'berita',
+                'sumber_id'    => $berita->id,
+                'path'         => 'berita/berita_' . $i . '.jpeg',
+                'nama_file'    => uniqid() . '_berita_' . $i . '.jpeg',
+                'kategori'     => 'berita',
                 'is_watermark' => false,
             ]);
         }
 
-        // 8. Event (10 Data)
+
+        // 8. SEEDER EVENT: Sesuai struktur data model Event
         for ($i = 1; $i <= 10; $i++) {
-            Event::create([
+            $event = Event::create([
                 'nama' => 'Pentas Seni #' . $i,
-                'tanggal'    => Carbon::now()->startOfMonth()->addDays($i + 10),
-                'jam'        => '07:13:00',
-                'lokasi'     => 'Pendopo Sabha Swagata Blambangan',
-                'deskripsi'  => 'Penampilan dalam rangka Hari Jadi Kabupaten Banyuwangi ke-254...',
-                
-                // GANTI 'Pertunjukan' dengan salah satu nilai enum yang ada di migration event Anda!
-                'kategori'   => 'Latihan', // Contoh jika di migration ada 'Festival'
-                
-                'status'     => 'belum selesai',
-                'user_id'    => $admin->id,
-            ]);          
+                'tanggal' => Carbon::now()->startOfMonth()->addDays($i + 10),
+                'jam' => '19:00:00',
+                'lokasi' => 'Pendopo Sabha Swagata Blambangan',
+                'deskripsi' => 'Penampilan dalam rangka Hari Jadi Kabupaten Banyuwangi...',
+                'kategori' => 'Latihan', 
+                'status' => 'belum selesai',
+                'user_id' => $admin->id,
+            ]);
+
+            Galeri::create([
+                'sumber_id' => $event->id,
+                'path' => 'event/event_' . $i . '.jpeg',
+                'nama_file' => uniqid() . '_event_' . $i . '.jpeg',
+                'kategori' => 'event', // Sesuai filter ->where('kategori', 'event') pada model Event
+                'is_watermark' => false,
+            ]);
         }
     }
 }
