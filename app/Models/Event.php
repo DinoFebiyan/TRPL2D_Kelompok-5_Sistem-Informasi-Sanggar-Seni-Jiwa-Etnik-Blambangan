@@ -10,24 +10,21 @@ class Event extends Model
 {
     protected $table = 'event';
 
-    
+    // PERBAIKAN: Sesuaikan dengan nama kolom di migration Anda ('nama', bukan 'nama_event')
+    // Serta hapus 'galeri_id' karena ID event dicatat di tabel galeri (sumber_id)
     protected $fillable = [
-        'nama_event', 
+        'nama', 
         'deskripsi',
         'tanggal', 
         'jam', 
         'lokasi', 
         'kategori', 
-        'deskripsi', 
         'status', 
-        'user_id', 
-        'galeri_id'
+        'user_id'
     ];
 
-    
     protected $casts = [
         'tanggal' => 'date',
-        'jam' => 'datetime:H:i',
     ];
 
     /**
@@ -35,14 +32,15 @@ class Event extends Model
      */
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 
+    /**
+     * Relasi ke Galeri (Multi-Foto Slideshow)
+     */
     public function galeri(): HasMany
     {
-        return $this->hasMany(Galeri::class, 'sumber_id');
+        // PERBAIKAN: Hubungkan via sumber_id dan kunci kategori khusus 'event'
+        return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'event');
     }
-
-
-    
 }

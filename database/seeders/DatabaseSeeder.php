@@ -57,8 +57,6 @@ class DatabaseSeeder extends Seeder
             'deskripsi' => 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional...',
             'visi' => 'Menjadi sanggar seni yang unggul, berkarakter, dan memiliki keunikan tersendiri...',
             'misi' => 'Mengembangkan potensi anggota...',
-            'alamat' => 'Singojuruh, Banyuwangi',
-            'kontak' => '082232505355',
             'sejarah' => 'Berdiri sejak 2010...',
             'sambutan_pembina' => 'Selamat datang di JEB...',
             'logo_id' => $galeri1->id,
@@ -129,14 +127,14 @@ class DatabaseSeeder extends Seeder
         // 8. Event (10 Data)
         for ($i = 1; $i <= 10; $i++) {
             Event::create([
-                'nama_event' => 'Pentas Seni #' . $i,
+                'nama' => 'Pentas Seni #' . $i,
                 'tanggal'    => Carbon::now()->startOfMonth()->addDays($i + 10),
                 'jam'        => '07:13:00',
                 'lokasi'     => 'Pendopo Sabha Swagata Blambangan',
                 'deskripsi'  => 'Penampilan dalam rangka Hari Jadi Kabupaten Banyuwangi ke-254...',
                 
                 // GANTI 'Pertunjukan' dengan salah satu nilai enum yang ada di migration event Anda!
-                'kategori'   => 'Pendidikan', // Contoh jika di migration ada 'Festival'
+                'kategori'   => 'Latihan', // Contoh jika di migration ada 'Festival'
                 
                 'status'     => 'belum selesai',
                 'user_id'    => $admin->id,

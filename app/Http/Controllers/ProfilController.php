@@ -5,21 +5,25 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ProfilSanggar;
 use App\Models\Personel;
+use App\Models\Galeri;
+use Illuminate\Support\Facades\Storage;
 
 class ProfilController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function Index()
+    public function index()
     {
-        $profil = ProfilSanggar::with('logo', 'fotoPembina')->first();
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
 
         if (!$profil) {
             $profil = new ProfilSanggar();
         }
-        $pengurus = Personel::where('peran', 'pengurus')->paginate(10);
-        $pelatih = Personel::where('peran', 'pelatih')->paginate(10);
+
+        // Eager loading relasi galeri untuk menghemat query database (Anti N+1 Problem)
+        $pengurus = Personel::with('galeri')->where('peran', 'pengurus')->paginate(10);
+        $pelatih = Personel::with('galeri')->where('peran', 'pelatih')->paginate(10);
 
         return view('superadmin.profil.index', compact('profil', 'pengurus', 'pelatih'));
     }
@@ -53,15 +57,121 @@ class ProfilController extends Controller
      */
     public function edit()
     {
-        return view('superadmin.profil.update');
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
+
+        if (!$profil) {
+            $profil = new ProfilSanggar();
+        }
+
+        return view('superadmin.profil.edit', compact('profil'));
     }
-    
+
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request)
     {
-        //
+        // 1. Ambil baris pertama atau buat baru jika kosong
+        $profil = ProfilSanggar::first();
+
+        if (!$profil) {
+            $profil = ProfilSanggar::create([
+                'deskripsi'        => '',
+                'visi'             => '',
+                'misi'             => '',
+                'sejarah'          => '',
+                'sambutan_pembina' => ''
+            ]);
+        }
+
+        // 2. Validasi Input Form
+        $request->validate([
+            'deskripsi'        => 'required|string',
+            'visi'             => 'required|string',
+            'misi'             => 'required|string',
+            'sejarah'          => 'required|string',
+            'sambutan_pembina' => 'required|string',
+            'logo'             => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_pembina'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        // 3. PROSES SIMPAN FILE LOGO (File Path Storage)
+        if ($request->hasFile('logo')) {
+            $fileLogo = $request->file('logo');
+            $pathLogo = $fileLogo->store('galeri', 'public');
+
+            if ($profil->logo_id) {
+                $galeriLogoLama = Galeri::find($profil->logo_id);
+                if ($galeriLogoLama) {
+                    if ($galeriLogoLama->path) {
+                        Storage::disk('public')->delete($galeriLogoLama->path);
+                    }
+                    $galeriLogoLama->update([
+                        'path'      => $pathLogo,
+                        'nama_file' => $fileLogo->getClientOriginalName(),
+                    ]);
+                }
+            } else {
+                $galeriLogoBaru = Galeri::create([
+                    'sumber_id'    => $profil->id,
+                    'path'         => $pathLogo,
+                    'nama_file'    => $fileLogo->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+                $profil->logo_id = $galeriLogoBaru->id;
+            }
+        }
+
+        // 4. PROSES SIMPAN FOTO PEMBINA (File Path Storage)
+        if ($request->hasFile('foto_pembina')) {
+            $filePembina = $request->file('foto_pembina');
+            $pathPembina = $filePembina->store('galeri', 'public');
+
+            if ($profil->foto_pembina_id) {
+                $galeriPembinaLama = Galeri::find($profil->foto_pembina_id);
+                if ($galeriPembinaLama) {
+                    if ($galeriPembinaLama->path) {
+                        Storage::disk('public')->delete($galeriPembinaLama->path);
+                    }
+                    $galeriPembinaLama->update([
+                        'path'      => $pathPembina,
+                        'nama_file' => $filePembina->getClientOriginalName(),
+                    ]);
+                }
+            } else {
+                $galeriPembinaBaru = Galeri::create([
+                    'sumber_id'    => $profil->id,
+                    'path'         => $pathPembina,
+                    'nama_file'    => $filePembina->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+                $profil->foto_pembina_id = $galeriPembinaBaru->id;
+            }
+        }
+
+        // 5. Update Semua Field Teks Utama
+        $profil->update([
+            'deskripsi'        => $request->deskripsi,
+            'visi'             => $request->visi,
+            'misi'             => $request->misi,
+            'sejarah'          => $request->sejarah,
+            'sambutan_pembina' => $request->sambutan_pembina,
+            'logo_id'          => $profil->logo_id,
+            'foto_pembina_id'  => $profil->foto_pembina_id,
+        ]);
+
+        // 6. Catat log aktivitas sistem (opsional)
+        if (class_exists('App\Models\LogAktivitas')) {
+            \App\Models\LogAktivitas::create([
+                'user_id'   => auth()->id(),
+                'aktivitas' => 'Memperbarui profil informasi utama sanggar',
+                'waktu'     => now(),
+            ]);
+        }
+
+        return redirect()->route('superadmin.kelola-profil')->with('success', 'Profil sanggar berhasil diperbarui.');
     }
 
     /**
@@ -72,13 +182,257 @@ class ProfilController extends Controller
         //
     }
 
+    /**
+     * Show form for adding new pengurus.
+     */
     public function tambahPengurus()
     {
         return view('superadmin.profil.tambah-pengurus');
     }
 
+    /**
+     * Show form for adding new pelatih.
+     */
     public function tambahPelatih()
     {
         return view('superadmin.profil.tambah-pelatih');
+    }
+
+    /**
+     * Store a newly created pengurus in storage (Mendukung Multi-Foto).
+     */
+    public function storePengurus(Request $request)
+    {
+        $request->validate([
+            'nama'      => 'required|string|max:255',
+            'jabatan'   => 'required|string',
+            'instagram' => 'nullable|string|max:255',
+            'no_hp'     => 'required|string|max:20',
+            'status'    => 'required|in:aktif,nonaktif',
+            'foto'      => 'nullable|array',
+            'foto.*'    => 'image|mimes:jpeg,png,jpg,gif|max:4096',
+        ]);
+
+        $personel = Personel::create([
+            'nama'         => $request->nama,
+            'jabatan'      => $request->jabatan,
+            'instagram'    => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status'       => $request->status,
+            'peran'        => 'pengurus',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $personel->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        if (class_exists('App\Models\LogAktivitas')) {
+            \App\Models\LogAktivitas::create([
+                'user_id'   => auth()->id(),
+                'aktivitas' => 'Menambahkan pengurus baru: ' . $request->nama,
+                'waktu'     => now(),
+            ]);
+        }
+
+        return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pengurus baru beserta galeri foto berhasil disimpan.');
+    }
+
+    /**
+     * Show the form for editing pengurus.
+     */
+    public function editPengurus(string $id)
+    {
+        $pengurus = Personel::with('galeri')->findOrFail($id);
+        return view('superadmin.profil.edit-pengurus', compact('pengurus'));
+    }
+
+    /**
+     * Update the specified resource in storage (Mendukung Sinkronisasi Multi-Foto).
+     */
+    public function updatePengurus(Request $request, string $id)
+    {
+        $pengurus = Personel::findOrFail($id);
+
+        $request->validate([
+            'nama'         => 'required|string|max:255',
+            'jabatan'      => 'required|string',
+            'instagram'    => 'nullable|string|max:255',
+            'no_hp'        => 'required|string|max:20',
+            'status'       => 'required|in:aktif,nonaktif',
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'hapus_foto'   => 'nullable|array',
+            'hapus_foto.*' => 'exists:galeri,id',
+        ]);
+
+        $pengurus->update([
+            'nama'         => $request->nama,
+            'jabatan'      => $request->jabatan,
+            'instagram'    => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status'       => $request->status,
+        ]);
+
+        // Hapus foto lama jika ditandai oleh admin
+        if ($request->filled('hapus_foto')) {
+            foreach ($request->hapus_foto as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $pengurus->id)
+                                  ->where('kategori', 'profil')
+                                  ->find($fotoId);
+
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        // Upload foto tambahan baru jika ada
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+
+                Galeri::create([
+                    'sumber_id'    => $pengurus->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        if (class_exists('App\Models\LogAktivitas')) {
+            \App\Models\LogAktivitas::create([
+                'user_id'   => auth()->id(),
+                'aktivitas' => 'Memperbarui data pengurus: ' . $pengurus->nama,
+                'waktu'     => now(),
+            ]);
+        }
+
+        return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pengurus berhasil diperbarui.');
+    }
+
+    /**
+     * Store a newly created pelatih in storage (Mendukung Multi-Foto).
+     */
+    public function storePelatih(Request $request)
+    {
+        $request->validate([
+            'nama'      => 'required|string|max:255',
+            'jabatan'   => 'required|string',
+            'instagram' => 'nullable|string|max:255',
+            'no_hp'     => 'required|string|max:20',
+            'status'    => 'required|in:aktif,nonaktif',
+            'foto'      => 'nullable|array',
+            'foto.*'    => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
+
+        $personel = Personel::create([
+            'nama'         => $request->nama,
+            'jabatan'      => $request->jabatan,
+            'instagram'    => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status'       => $request->status,
+            'peran'        => 'pelatih',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $personel->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pelatih baru berhasil disimpan.');
+    }
+
+    /**
+     * Show the form for editing pelatih.
+     */
+    public function editPelatih(string $id)
+    {
+        $pelatih = Personel::with('galeri')->findOrFail($id);
+        return view('superadmin.profil.edit-pelatih', compact('pelatih'));
+    }
+
+    /**
+     * Update pelatih in storage.
+     */
+    public function updatePelatih(Request $request, string $id)
+    {
+        $pelatih = Personel::findOrFail($id);
+
+        $request->validate([
+            'nama'         => 'required|string|max:255',
+            'jabatan'      => 'required|string',
+            'instagram'    => 'nullable|string|max:255',
+            'no_hp'        => 'required|string|max:20',
+            'status'       => 'required|in:aktif,nonaktif',
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'hapus_foto'   => 'nullable|array',
+            'hapus_foto.*' => 'exists:galeri,id',
+        ]);
+
+        $pelatih->update([
+            'nama'         => $request->nama,
+            'jabatan'      => $request->jabatan,
+            'instagram'    => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status'       => $request->status,
+        ]);
+
+        // Hapus foto lama yang ditandai
+        if ($request->filled('hapus_foto')) {
+            foreach ($request->hapus_foto as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $pelatih->id)
+                                  ->where('kategori', 'profil')
+                                  ->find($fotoId);
+                                  
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        // Tambah foto baru jika diunggah
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+
+                Galeri::create([
+                    'sumber_id'    => $pelatih->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pelatih berhasil diperbarui.');
     }
 }

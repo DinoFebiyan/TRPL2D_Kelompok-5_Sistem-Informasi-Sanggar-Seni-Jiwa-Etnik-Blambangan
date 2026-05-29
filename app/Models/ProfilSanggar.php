@@ -12,8 +12,6 @@ class ProfilSanggar extends Model
         'deskripsi',
         'visi',
         'misi',
-        'alamat',
-        'kontak',
         'sejarah',
         'sambutan_pembina',
         'logo_id',

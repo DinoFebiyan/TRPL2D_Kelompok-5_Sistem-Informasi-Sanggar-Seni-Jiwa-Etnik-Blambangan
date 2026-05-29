@@ -68,7 +68,7 @@ $user = User::create([
 
 // Kalau ada foto, simpan ke Galeri dengan user_id
 if ($request->hasFile('foto')) {
-    $path = $request->file('foto')->store('admin_fotos', 'public');
+    $path = $request->file('foto')->store('admin', 'public');
 
     Galeri::create([
         'sumber_id'    => $user->id,
@@ -126,8 +126,8 @@ if ($request->hasFile('foto')) {
     $admin->update($data);
 
     if ($request->hasFile('foto')) {
-        // Simpan file fisik foto baru ke dalam folder storage/app/public/admin_fotos
-        $path = $request->file('foto')->store('admin_fotos', 'public');
+        // Simpan file fisik foto baru ke dalam folder storage/app/public/admin
+        $path = $request->file('foto')->store('admin', 'public');
         $namaFileBaru = uniqid().'_'.$request->file('foto')->getClientOriginalName();
 
         // PERBAIKAN: Gunakan optional check agar tidak crash jika galeri bernilai null

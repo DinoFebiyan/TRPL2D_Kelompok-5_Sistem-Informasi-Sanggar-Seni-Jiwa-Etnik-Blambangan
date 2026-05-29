@@ -34,4 +34,16 @@ class Galeri extends Model
         {
             return $this->belongsTo(Katalog::class, 'sumber_id');
         }
+
+        public function admin(): BelongsTo
+        {
+            return $this->belongsTo(User::class, 'sumber_id');
+        }
+
+        public function profilSanggar(): BelongsTo
+        {
+            return $this->belongsTo(ProfilSanggar::class, 'sumber_id');
+        }
+
+        
 };

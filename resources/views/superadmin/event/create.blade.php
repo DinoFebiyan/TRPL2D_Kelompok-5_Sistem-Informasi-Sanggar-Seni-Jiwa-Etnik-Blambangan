@@ -1,4 +1,4 @@
-@extends('layouts.superadmin-clean')
+@extends('layouts.form')
 
 @section('title', 'Tambah Event — JEB')
 
@@ -8,7 +8,7 @@
         .page-container {
             max-width: 1000px;
             margin: 2rem auto;
-            background: #EAEAEA; /* Warna abu-abu muda sesuai desain */
+            background: #EAEAEA;
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
@@ -92,8 +92,8 @@
         .form-group textarea {
             width: 100%;
             padding: 12px 20px;
-            border: 1px solid #A87C7C; /* Warna garis merah kecoklatan */
-            border-radius: 30px; /* Membuat bentuk kapsul */
+            border: 1px solid #A87C7C;
+            border-radius: 30px;
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             background: #fff;
@@ -101,7 +101,6 @@
             outline: none;
         }
 
-        /* Khusus textarea agar radiusnya tidak terlalu lonjong tapi tetap serasi */
         .form-group textarea {
             border-radius: 20px;
             resize: vertical;
@@ -123,7 +122,7 @@
         }
 
         .btn-pilih-file {
-            background: #8A4B4B;
+            background: #531919;
             color: white !important;
             padding: 12px 25px;
             cursor: pointer;
@@ -149,22 +148,22 @@
             margin-left: 10px;
         }
 
-        /* Styling panah untuk select dan icon kalender untuk input date */
         select {
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' fill='%23000' viewBox='0 0 16 16'%3E%3Cpath d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238A4B4B' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: calc(100% - 20px) center;
         }
         
-        input[type="date"] {
+        input[type="date"], input[type="time"] {
             appearance: none;
             -webkit-appearance: none;
             position: relative;
         }
-        input[type="date"]::-webkit-calendar-picker-indicator {
+        input[type="date"]::-webkit-calendar-picker-indicator,
+        input[type="time"]::-webkit-calendar-picker-indicator {
             background: transparent;
             bottom: 0;
             color: transparent;
@@ -176,12 +175,24 @@
             top: 0;
             width: auto;
         }
-        /* Icon kalender kustom di sebelah kanan */
-        .date-input-wrapper {
+        
+        .date-input-wrapper, .time-input-wrapper {
             position: relative;
         }
         .date-input-wrapper::after {
-            content: "\f133"; /* FontAwesome Calendar Icon */
+            content: "\f133";
+            font-family: "Font Awesome 5 Free";
+            font-weight: 400;
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #000;
+            pointer-events: none;
+            font-size: 1.1rem;
+        }
+        .time-input-wrapper::after {
+            content: "\f017";
             font-family: "Font Awesome 5 Free";
             font-weight: 400;
             position: absolute;
@@ -203,18 +214,18 @@
                 <p>Kelola Event</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('superadmin.event.index') }}" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
+                <a href="{{ route('superadmin.kelola-event') }}" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
                 <button type="submit" form="formTambahEvent" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>
         <div class="form-body">
-            <form id="formTambahEvent" action="{{ route('superadmin.event.store') }}" method="POST"
-                enctype="multipart/form-data">
+            <form id="formTambahEvent" action="{{ route('superadmin.store-event') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
                 @if($errors->any())
-                    <div style="background:#fee2e2; padding:12px 16px; border-radius:8px; margin-bottom:15px; border-left:4px solid #dc2626;">
-                        <ul style="margin:0; color:#dc2626; padding-left:16px;">
+                    <div style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
+                        <i class="fas fa-exclamation-circle"></i> Harap perbaiki kesalahan pada form.
+                        <ul style="margin: 5px 0 0 0; padding-left: 20px; color: #dc2626;">
                             @foreach($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
@@ -222,20 +233,21 @@
                     </div>
                 @endif
 
+                {{-- PERBAIKAN MULTIPLE PHOTO: Menggunakan nama array foto[] dan multiple picker --}}
                 <div class="form-group">
-                    <label>Foto Event</label>
+                    <label>Foto Event (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
-                        <span class="file-name-display" id="fileNameDisplay">Masukkan foto event...</span>
-                        <input type="file" id="foto" name="foto" accept="image/*" style="display:none"
-                            onchange="updateFileName(this)">
+                        <span class="file-name-display" id="fileNameDisplay">Masukkan foto-foto event...</span>
+                        <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
                     </div>
-                    <div class="form-helper">Format: JPG, PNG. Maks 2MB.</div>
+                    <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
+                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
                 </div>
                 
                 <div class="form-group">
                     <label>Nama Event</label>
-                    <input type="text" name="nama_event" value="{{ old('nama_event') }}" placeholder="Masukkan nama event..." required>
+                    <input type="text" name="nama" value="{{ old('nama') }}" placeholder="Masukkan nama event..." required>
                 </div>
                 
                 <div class="form-group">
@@ -248,26 +260,25 @@
                     <select name="kategori" required>
                         <option value="" disabled selected hidden>Pilih Kategori Event</option>
                         <option value="Pertunjukan" {{ old('kategori') == 'Pertunjukan' ? 'selected' : '' }}>Pertunjukan</option>
-                        <option value="Lomba" {{ old('kategori') == 'Lomba' ? 'selected' : '' }}>Lomba</option>
-                        <option value="Workshop" {{ old('kategori') == 'Workshop' ? 'selected' : '' }}>Workshop</option>
-                        <option value="Festival" {{ old('kategori') == 'Festival' ? 'selected' : '' }}>Festival</option>
+                        <option value="Latihan" {{ old('kategori') == 'Latihan' ? 'selected' : '' }}>Latihan</option>
+                        <option value="Pelatihan" {{ old('kategori') == 'Pelatihan' ? 'selected' : '' }}>Pelatihan</option>
+                        <option value="Lainnya" {{ old('kategori') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
                     <label>Tanggal</label>
                     <div class="date-input-wrapper">
-                        <input type="text" placeholder="Masukkan tanggal dilaksanakannya event..." onfocus="(this.type='date')" onblur="(this.type='text')" id="tanggal" name="tanggal" value="{{ old('tanggal') }}" required>
+                        <input type="date" id="tanggal" name="tanggal" value="{{ old('tanggal') }}" required>
                     </div>
                 </div>
 
-                {{-- Catatan: di gambar desain kanan tidak ada form Jam, tapi kalau di databasemu wajib ada (seperti gambar kiri), kamu bisa uncomment div di bawah ini --}}
-                {{-- 
                 <div class="form-group">
-                    <label>Jam</label>
-                    <input type="time" name="jam" value="{{ old('jam') }}" required>
-                </div> 
-                --}}
+                    <label>Jam Pelaksanaan</label>
+                    <div class="time-input-wrapper">
+                        <input type="time" name="jam" value="{{ old('jam') }}" required>
+                    </div>
+                </div>
                 
                 <div class="form-group">
                     <label>Lokasi Event</label>
@@ -278,8 +289,8 @@
                     <label>Status</label>
                     <select name="status" required>
                         <option value="" disabled selected hidden>Pilih status event ...</option> 
-                        <option value="Belum Selesai" {{ old('status') == 'Belum Selesai' ? 'selected' : '' }}>Belum Selesai</option>
-                        <option value="Selesai" {{ old('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                        <option value="belum selesai" {{ old('status') == 'belum selesai' ? 'selected' : '' }}>Belum Selesai</option>
+                        <option value="selesai" {{ old('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
                     </select>
                 </div>
             </form>
@@ -287,14 +298,47 @@
     </div>
     
     <script>
-        function updateFileName(input) {
+        // JS Akumulasi Foto Baru Sesuai Pola Sukses Berita
+        let kumpulanFileEvent = [];
+
+        function updateFileNameAndPreview(input) {
             const display = document.getElementById('fileNameDisplay');
-            if (input.files.length) {
-                display.textContent = input.files[0].name;
+            const container = document.getElementById('imagePreviewContainer');
+            
+            if (input.files && input.files.length > 0) {
+                for (let i = 0; i < input.files.length; i++) {
+                    kumpulanFileEvent.push(input.files[i]);
+                }
+
+                container.innerHTML = '';
+                const dataTransferObat = new DataTransfer();
+                
+                kumpulanFileEvent.forEach((file) => {
+                    dataTransferObat.items.add(file);
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const wrapper = document.createElement('div');
+                        wrapper.style.position = 'relative';
+                        wrapper.style.display = 'inline-block';
+
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '100px';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '6px';
+                        img.style.border = '1px dashed #A87C7C';
+
+                        wrapper.appendChild(img);
+                        container.appendChild(wrapper);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                input.files = dataTransferObat.files;
+                display.textContent = kumpulanFileEvent.length + " file baru dipilih (terakumulasi)";
                 display.style.color = "#333";
-            } else {
-                display.textContent = "Masukkan foto event...";
-                display.style.color = "#b0b0b0";
             }
         }
     </script>

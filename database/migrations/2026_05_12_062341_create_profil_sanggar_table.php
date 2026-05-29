@@ -10,13 +10,11 @@ return new class extends Migration
     {
         Schema::create('profil_sanggar', function (Blueprint $table) {
             $table->id();
-            $table->text('deskripsi')->nullable();
-            $table->text('visi')->nullable();
-            $table->text('misi')->nullable();
-            $table->string('alamat')->nullable();
-            $table->string('kontak')->nullable();
-            $table->text('sejarah')->nullable();
-            $table->text('sambutan_pembina')->nullable();
+            $table->text('deskripsi');
+            $table->text('visi');
+            $table->text('misi');
+            $table->text('sejarah');
+            $table->text('sambutan_pembina');
             $table->foreignId('logo_id')->nullable()->constrained('galeri')->nullOnDelete();
             $table->foreignId('foto_pembina_id')->nullable()->constrained('galeri')->nullOnDelete();
             $table->timestamps();

@@ -10,12 +10,12 @@ return new class extends Migration
     {
         Schema::create('event', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_event');
-            $table->text('deskripsi')->nullable();
+            $table->string('nama');
+            $table->text('deskripsi');
             $table->date('tanggal');
             $table->time('jam');
             $table->string('lokasi');
-            $table->enum('kategori', ['Pendidikan', 'Kebangkitan', 'Lainnya'])->default('Lainnya');
+            $table->enum('kategori', ['Latihan', 'Pertunjukan', 'Pelatihan', 'Lainnya'])->default('Lainnya');
             $table->enum('status', ['selesai', 'belum selesai'])->default('belum selesai');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
            // $table->foreignId('galeri_id')->nullable()->constrained('galeri')->nullOnDelete();

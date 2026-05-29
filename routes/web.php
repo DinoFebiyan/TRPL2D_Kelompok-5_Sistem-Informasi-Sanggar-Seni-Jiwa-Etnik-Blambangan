@@ -103,7 +103,7 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
 
     // Pengaturan
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('superadmin.pengaturan');
-    Route::put('/pengaturan/update-akun', [PengaturanController::class, 'updateProfil'])->name('superadmin.update-akun');
+    Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('superadmin.update-profil');
     Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('superadmin.update-password');
 
     // Log Aktivitas 

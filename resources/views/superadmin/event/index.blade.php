@@ -147,23 +147,35 @@
         vertical-align: middle;
         font-size: 0.85rem;
     }
+    
+    /* SINKRONISASI CSS SLIDESHOW: Identik dengan Berita & Katalog */
     .event-foto-preview {
-        width: 50px;
+        width: 60px;
         height: 50px;
         background: #f0f0f0;
         border-radius: 8px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1rem;
+        font-size: 0.7rem;
         color: #999;
         overflow: hidden;
+        position: relative;
     }
     .event-foto-preview img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
     }
+    .event-foto-preview img.active {
+        opacity: 1;
+    }
+    
     .badge-selesai {
         background: #dcfce7;
         color: #16a34a;
@@ -194,7 +206,6 @@
     .btn-edit-event { background: #eff6ff; color: #3b82f6; }
     .btn-hapus-event { background: #fef2f2; color: #ef4444; }
     
-    /* Pagination */
     .event-pagination {
         display: flex;
         justify-content: space-between;
@@ -299,17 +310,23 @@
                 @forelse($events as $event)
                 <tr>
                     <td>
-                        <div class="event-foto-preview">
-                            @if($event->galeri->isNotEmpty())
-                                <img src="{{ asset('storage/'.$event->galeri->first()->path) }}" alt="Foto">
+                        <div class="event-foto-preview slideshow-container">
+                            @if($event->galeri && $event->galeri->isNotEmpty())
+                                @foreach($event->galeri as $index => $foto)
+                                    <img src="{{ asset('storage/' . $foto->path) }}" 
+                                         alt="Foto Event" 
+                                         class="{{ $index === 0 ? 'active' : '' }}">
+                                @endforeach
                             @else
-                                <i class="fas fa-image"></i>
+                                <div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f3f4f6; color:#9ca3af;">
+                                    <i class="fas fa-image" style="font-size:1.1rem;"></i>
+                                </div>
                             @endif
                         </div>
                     </td>
-                    <td style="font-weight:600">{{ $event->nama_event }}</td>
+                    <td style="font-weight:600">{{ $event->nama }}</td>
                     <td>{{ \Carbon\Carbon::parse($event->tanggal)->translatedFormat('d F Y') }}</td>
-                    <td>{{ $event->jam ?? '-' }} WIB</td>
+                    <td>{{ $event->jam ? \Carbon\Carbon::parse($event->jam)->format('H:i') : '-' }} WIB</td>
                     <td>{{ $event->lokasi }}</td>
                     <td>{{ $event->kategori }}</td>
                     <td>
@@ -319,6 +336,7 @@
                             <span class="badge-belum-selesai">Belum Selesai</span>
                         @endif
                     </td>
+                    <div style="display: none;"></div>
                     <td class="event-actions">
                         <a href="{{ route('superadmin.edit-event', $event->id) }}" class="btn-edit-event">Edit</a>
                         <button class="btn-hapus-event" onclick="confirmDelete({{ $event->id }})">Hapus</button>
@@ -376,5 +394,25 @@
     }
 
     document.getElementById('searchEvent').addEventListener('keyup', filterEvent);
+
+    // =========================================================================
+    // JAVASCRIPT: AUTOMATIC SLIDESHOW MULTI-FOTO EVENT (5 DETIK)
+    // =========================================================================
+    document.addEventListener("DOMContentLoaded", function() {
+        const containers = document.querySelectorAll('.slideshow-container');
+
+        containers.forEach(container => {
+            const images = container.querySelectorAll('img');
+            if (images.length > 1) {
+                let currentIndex = 0;
+
+                setInterval(() => {
+                    images[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % images.length;
+                    images[currentIndex].classList.add('active');
+                }, 5000);
+            }
+        });
+    });
 </script>
 @endsection
