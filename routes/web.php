@@ -102,9 +102,10 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
     Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('superadmin.update-pelatih');
 
     // Pengaturan
+    // Pengaturan Akun Superadmin
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('superadmin.pengaturan');
-    Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('superadmin.update-profil');
-    Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('superadmin.update-password');
+    Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('superadmin.pengaturan.update-profil');
+    Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('superadmin.pengaturan.update-password');
 
     // Log Aktivitas 
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('superadmin.log-aktivitas');

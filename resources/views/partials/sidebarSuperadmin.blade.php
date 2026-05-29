@@ -1,6 +1,17 @@
 <aside class="sidebar">
     <div class="sidebar-logo">
-        <img src="{{ asset('img/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-sidebar">
+        {{-- Mengambil data profil pertama langsung dari model untuk menjamin sifat kedinamisan di file layout --}}
+        @php
+            $profilSanggarGlobal = \App\Models\ProfilSanggar::with('logo')->first();
+        @endphp
+
+        @if($profilSanggarGlobal && $profilSanggarGlobal->logo && $profilSanggarGlobal->logo->path)
+            <img src="{{ asset('storage/' . $profilSanggarGlobal->logo->path) }}" alt="Logo JEB" class="logo-img-sidebar" style="object-fit: cover;">
+        @else
+            {{-- Fallback ke file lokal jika admin belum mengunggah logo di sistem --}}
+            <img src="{{ asset('img/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-sidebar">
+        @endif
+        
         <div class="logo-text">
             <h3>Jiwa Etnik<br>Blambangan</h3>
             <span>Sanggar Tari</span>
@@ -98,11 +109,25 @@
 
     <div class="sidebar-footer">
         <div class="user-card">
-            <div class="avatar">SA</div>
+            {{-- Avatar Dinamis --}}
+            <div class="avatar" style="overflow: hidden; display: flex; align-items: center; justify-content: center; background: #5B1A1A;">
+                @if(Auth::user()->galeri && Auth::user()->galeri->path)
+                    <img src="{{ asset('storage/' . Auth::user()->galeri->path) }}" alt="Foto Profil" style="width: 100%; height: 100%; object-fit: cover;">
+                @else
+                    {{-- Mengambil 2 huruf pertama dari nama user sebagai fallback inisial --}}
+                    <span style="color: #fff; font-weight: 600; font-size: 0.85rem;">
+                        {{ strtoupper(substr(Auth::user()->name ?? 'SA', 0, 2)) }}
+                    </span>
+                @endif
+            </div>
+
+            {{-- Info User Dinamis --}}
             <div class="user-info">
-                <p>Super Admin</p>
+                <p>{{ Auth::user()->name ?? 'Super Admin' }}</p>
                 <span>{{ Auth::user()->email ?? 'superadmin@jeb.id' }}</span>
             </div>
+
+            {{-- Tombol Logout --}}
             <button class="logout-btn" title="Logout" onclick="openLogoutModal()">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
