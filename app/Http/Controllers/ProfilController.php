@@ -15,13 +15,13 @@ class ProfilController extends Controller
      */
     public function index()
     {
-        $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
+        // Eager load relasi 'headers' baru untuk mencegah N+1 Query Problem
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
 
         if (!$profil) {
             $profil = new ProfilSanggar();
         }
 
-        // Eager loading relasi galeri untuk menghemat query database (Anti N+1 Problem)
         $pengurus = Personel::with('galeri')->where('peran', 'pengurus')->paginate(10);
         $pelatih = Personel::with('galeri')->where('peran', 'pelatih')->paginate(10);
 
@@ -57,7 +57,8 @@ class ProfilController extends Controller
      */
     public function edit()
     {
-        $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
+        // Memuat halaman edit beserta data multi-foto header terpilih
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
 
         if (!$profil) {
             $profil = new ProfilSanggar();
@@ -71,31 +72,62 @@ class ProfilController extends Controller
      */
     public function update(Request $request)
     {
-        // 1. Ambil baris pertama atau buat baru jika kosong
         $profil = ProfilSanggar::first();
 
         if (!$profil) {
             $profil = ProfilSanggar::create([
-                'deskripsi'        => '',
-                'visi'             => '',
-                'misi'             => '',
-                'sejarah'          => '',
-                'sambutan_pembina' => ''
+                'deskripsi' => '', 'visi' => '', 'misi' => '', 'sejarah' => '', 'sambutan_pembina' => ''
             ]);
         }
 
-        // 2. Validasi Input Form
+        // Jalankan Validasi Input (Termasuk array berkas header_files baru)
         $request->validate([
             'deskripsi'        => 'required|string',
             'visi'             => 'required|string',
             'misi'             => 'required|string',
             'sejarah'          => 'required|string',
             'sambutan_pembina' => 'required|string',
-            'logo'             => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-            'foto_pembina'     => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'logo'             => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'foto_pembina'     => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'header_files'     => 'nullable|array',
+            'header_files.*'   => 'image|mimes:jpeg,png,jpg|max:16384',
+            'hapus_header'     => 'nullable|array',
+            'hapus_header.*'   => 'exists:galeri,id',
         ]);
 
-        // 3. PROSES SIMPAN FILE LOGO (File Path Storage)
+        // LOGIKA A: Bersihkan Foto Header Lama yang Ditandai Admin
+        if ($request->filled('hapus_header')) {
+            foreach ($request->hapus_header as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $profil->id)
+                                  ->where('kategori', 'header')
+                                  ->find($fotoId);
+
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        // LOGIKA B: Upload Kumpulan Foto Header Baru ke Folder 'header'
+        if ($request->hasFile('header_files')) {
+            foreach ($request->file('header_files') as $file) {
+                // Disimpan terpisah di folder public/storage/header/
+                $path = $file->store('header', 'public');
+
+                Galeri::create([
+                    'sumber_id'    => $profil->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'header', // Set kategori khusus header
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        // Proses Simpan Gambar Singgal (Logo)
         if ($request->hasFile('logo')) {
             $fileLogo = $request->file('logo');
             $pathLogo = $fileLogo->store('galeri', 'public');
@@ -103,27 +135,20 @@ class ProfilController extends Controller
             if ($profil->logo_id) {
                 $galeriLogoLama = Galeri::find($profil->logo_id);
                 if ($galeriLogoLama) {
-                    if ($galeriLogoLama->path) {
-                        Storage::disk('public')->delete($galeriLogoLama->path);
-                    }
+                    if ($galeriLogoLama->path) { Storage::disk('public')->delete($galeriLogoLama->path); }
                     $galeriLogoLama->update([
-                        'path'      => $pathLogo,
-                        'nama_file' => $fileLogo->getClientOriginalName(),
+                        'path' => $pathLogo, 'nama_file' => $fileLogo->getClientOriginalName(),
                     ]);
                 }
             } else {
                 $galeriLogoBaru = Galeri::create([
-                    'sumber_id'    => $profil->id,
-                    'path'         => $pathLogo,
-                    'nama_file'    => $fileLogo->getClientOriginalName(),
-                    'kategori'     => 'profil',
-                    'is_watermark' => false,
+                    'sumber_id' => $profil->id, 'path' => $pathLogo, 'nama_file' => $fileLogo->getClientOriginalName(), 'kategori' => 'profil', 'is_watermark' => false,
                 ]);
                 $profil->logo_id = $galeriLogoBaru->id;
             }
         }
 
-        // 4. PROSES SIMPAN FOTO PEMBINA (File Path Storage)
+        // Proses Simpan Gambar Singgal (Foto Pembina)
         if ($request->hasFile('foto_pembina')) {
             $filePembina = $request->file('foto_pembina');
             $pathPembina = $filePembina->store('galeri', 'public');
@@ -131,27 +156,20 @@ class ProfilController extends Controller
             if ($profil->foto_pembina_id) {
                 $galeriPembinaLama = Galeri::find($profil->foto_pembina_id);
                 if ($galeriPembinaLama) {
-                    if ($galeriPembinaLama->path) {
-                        Storage::disk('public')->delete($galeriPembinaLama->path);
-                    }
+                    if ($galeriPembinaLama->path) { Storage::disk('public')->delete($galeriPembinaLama->path); }
                     $galeriPembinaLama->update([
-                        'path'      => $pathPembina,
-                        'nama_file' => $filePembina->getClientOriginalName(),
+                        'path' => $pathPembina, 'nama_file' => $filePembina->getClientOriginalName(),
                     ]);
                 }
             } else {
                 $galeriPembinaBaru = Galeri::create([
-                    'sumber_id'    => $profil->id,
-                    'path'         => $pathPembina,
-                    'nama_file'    => $filePembina->getClientOriginalName(),
-                    'kategori'     => 'profil',
-                    'is_watermark' => false,
+                    'sumber_id' => $profil->id, 'path' => $pathPembina, 'nama_file' => $filePembina->getClientOriginalName(), 'kategori' => 'profil', 'is_watermark' => false,
                 ]);
                 $profil->foto_pembina_id = $galeriPembinaBaru->id;
             }
         }
 
-        // 5. Update Semua Field Teks Utama
+        // Simpan Data Teks Umum Ke Database
         $profil->update([
             'deskripsi'        => $request->deskripsi,
             'visi'             => $request->visi,
@@ -162,16 +180,15 @@ class ProfilController extends Controller
             'foto_pembina_id'  => $profil->foto_pembina_id,
         ]);
 
-        // 6. Catat log aktivitas sistem (opsional)
         if (class_exists('App\Models\LogAktivitas')) {
             \App\Models\LogAktivitas::create([
                 'user_id'   => auth()->id(),
-                'aktivitas' => 'Memperbarui profil informasi utama sanggar',
+                'aktivitas' => 'Memperbarui profil sanggar beserta tumpukan gambar header slideshow',
                 'waktu'     => now(),
             ]);
         }
 
-        return redirect()->route('superadmin.kelola-profil')->with('success', 'Profil sanggar berhasil diperbarui.');
+        return redirect()->route('superadmin.kelola-profil')->with('success', 'Profil sanggar dan data header baru berhasil diperbarui.');
     }
 
     /**

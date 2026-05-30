@@ -12,7 +12,7 @@
         color: #333;
     }
 
-    /* --- INFORMASI UMUM CARD STYLING --- */
+    /* --- KARTU UTAMA STYLING (SERASI MODUL LAIN) --- */
     .prof-card-card {
         background: #fff;
         border-radius: 12px;
@@ -46,6 +46,61 @@
     .btn-edit-profil:hover {
         background: #d4aeae;
     }
+
+    /* --- NEW STYLING: SLIDESHOW & GRID HEADER SANGGAR --- */
+    .header-preview-display {
+        width: 100%;
+        height: 280px;
+        background: #f4ecec;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+        border: 1px solid #e8dede;
+        margin-bottom: 20px;
+    }
+    .header-preview-display img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+    }
+    .header-preview-display img.active {
+        opacity: 1;
+    }
+    .header-grid-list {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 15px;
+    }
+    .header-grid-item {
+        background: #fffbfb;
+        border: 1px solid #e8dede;
+        padding: 8px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    .header-grid-item img {
+        width: 100%;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #f0f0f0;
+    }
+    .header-grid-item span {
+        font-size: 0.75rem;
+        color: #777;
+        margin-top: 6px;
+        display: block;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    /* --- DETAIL INFORMASI GRID --- */
     .info-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -106,7 +161,7 @@
         color: #333;
     }
 
-    /* --- TABEL STRUKTUR DESIGN (SERASI MODUL LAIN) --- */
+    /* --- TABEL STRUKTUR DESIGN --- */
     .prof-table-card {
         background: #fff;
         border-radius: 12px;
@@ -169,7 +224,6 @@
         font-size: 0.85rem;
     }
 
-    /* SINKRONISASI STYLE SLIDESHOW FOTO PERSONEL */
     .prof-foto-frame {
         width: 55px;
         height: 55px;
@@ -232,9 +286,56 @@
         display: flex;
         justify-content: flex-end;
     }
+
+    @media (max-width: 992px) {
+        .header-grid-list { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 576px) {
+        .header-grid-list { grid-template-columns: repeat(2, 1fr); }
+        .info-grid { grid-template-columns: 1fr; }
+        .full-width { grid-column: span 1; }
+    }
 </style>
 
 <div class="prof-wrapper">
+
+    {{-- CARD BARU: MANAGED SLIDESHOW & GRID IMAGES HEADER --}}
+    <div class="prof-card-card">
+        <h3>
+            <span><i class="fas fa-images" style="color:#5B1A1A; margin-right:8px;"></i> Header</span>
+            <a href="{{ route('superadmin.edit-profil') }}" class="btn-edit-profil">
+                <i class="fas fa-images"></i> Pengaturan Header
+            </a>
+        </h3>
+
+        {{-- Tampilan Frame Karosel Atas --}}
+        <div class="header-preview-display slideshow-container">
+            @if($profil->headers && $profil->headers->isNotEmpty())
+                @foreach($profil->headers as $index => $header)
+                    <img src="{{ asset('storage/' . $header->path) }}" alt="Header Sanggar" class="{{ $index === 0 ? 'active' : '' }}">
+                @endforeach
+            @else
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; color:#9ca3af; gap:10px;">
+                    <i class="fas fa-photo-video" style="font-size:2.5rem;"></i>
+                    <span style="font-size:0.9rem;">Belum ada gambar banner slideshow yang diunggah.</span>
+                </div>
+            @endif
+        </div>
+
+        {{-- Daftar Koleksi Baris Bawah --}}
+        <div class="header-grid-list">
+            @forelse($profil->headers as $key => $header)
+                <div class="header-grid-item">
+                    <img src="{{ asset('storage/' . $header->path) }}" alt="Thumb">
+                    <span>Header {{ $key + 1 }}</span>
+                </div>
+            @empty
+                <div style="grid-column: span 5; text-align:center; padding:15px; font-size:0.85rem; color:#888; background:#fffbfb; border:1px dashed #e8dede; border-radius:8px;">
+                    Daftar header kosong.
+                </div>
+            @endforelse
+        </div>
+    </div>
 
     {{-- KARTU DATA INFORMASI UMUM --}}
     <div class="prof-card-card">
@@ -317,7 +418,6 @@
                 @forelse($pengurus as $item)
                 <tr>
                     <td>
-                        {{-- PERBAIKAN: Mengaktifkan Multi-Foto Slideshow untuk Pengurus --}}
                         <div class="prof-foto-frame slideshow-container">
                             @if($item->galeri && $item->galeri->isNotEmpty())
                                 @foreach($item->galeri as $index => $foto)
@@ -378,7 +478,6 @@
                 @forelse($pelatih as $item)
                 <tr>
                     <td>
-                        {{-- PERBAIKAN: Mengaktifkan Multi-Foto Slideshow untuk Pelatih --}}
                         <div class="prof-foto-frame slideshow-container">
                             @if($item->galeri && $item->galeri->isNotEmpty())
                                 @foreach($item->galeri as $index => $foto)
@@ -422,7 +521,7 @@
         }
     }
 
-    // JAVASCRIPT: ENGINE SLIDESHOW MULTI-FOTO PERSONEL (5 DETIK)
+    // JAVASCRIPT ENGINE AUTOMATIC SLIDESHOW (5 DETIK)
     document.addEventListener("DOMContentLoaded", function() {
         const containers = document.querySelectorAll('.slideshow-container');
 
