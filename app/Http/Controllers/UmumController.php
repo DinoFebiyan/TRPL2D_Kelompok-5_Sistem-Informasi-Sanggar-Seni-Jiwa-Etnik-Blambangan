@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Katalog;
 use App\Models\Galeri;
 use App\Models\ProfilSanggar;
+use App\Models\Personel;
 use Illuminate\Http\Request;
 
 class UmumController extends Controller
@@ -148,5 +149,15 @@ class UmumController extends Controller
                             ->get();
 
     return view('umum.galeri.detail', compact('galeriUtama', 'galeriLainnya'));
+}
+
+public function profil()
+{
+    $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
+    $pengurus = Personel::where('peran', 'pengurus')->where('status', 'aktif')->get();
+    $pelatih = Personel::where('peran', 'pelatih')->where('status', 'aktif')->get();
+    $prestasi = Berita::where('jenis_berita', 'Prestasi')->where('status', 'tayang')->latest()->take(4)->get();
+
+    return view('umum.profil.index', compact('profil', 'pengurus', 'pelatih', 'prestasi'));
 }
 }

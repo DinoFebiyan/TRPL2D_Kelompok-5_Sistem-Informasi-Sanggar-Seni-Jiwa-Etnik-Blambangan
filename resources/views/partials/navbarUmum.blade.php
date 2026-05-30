@@ -1,6 +1,6 @@
 <nav>
   <div class="nav-logo">
-    <img src="{{ asset('img/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-nav" />
+    <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-nav" />
     <span>JEB</span>
   </div>
   <div class="nav-links">

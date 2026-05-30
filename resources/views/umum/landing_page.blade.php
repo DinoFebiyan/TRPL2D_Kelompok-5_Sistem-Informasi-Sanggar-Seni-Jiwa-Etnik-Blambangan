@@ -817,8 +817,10 @@
         <a href="#galeri" class="btn-gray-pill">Lihat Galeri</a>
       </div>
       <div class="hero-logo-wrap">
-        <img src="{{ asset('img/logo-jeb.jpg') }}" alt="Logo Sanggar Jiwa Etnik Blambangan" class="logo-img-hero" />
-      </div>
+      <img src="{{ asset($profil->logo->path ?? 'img/images-landing-page/galeri/logo-jeb.jpg') }}" 
+          alt="Logo Sanggar Jiwa Etnik Blambangan" 
+          class="logo-img-hero" />
+    </div>
     </div>
   </section>
 
@@ -855,31 +857,23 @@
   
   <section class="section-visi-misi" style="padding: 60px 0; background-color: #fff;">
     <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
-        
         <h2 style="font-family: 'Playfair Display', serif; color: #3D0C0C; margin-bottom: 40px;">VISI & MISI</h2>
 
         <div class="visi-card" style="background: #a51c1c; color: white; padding: 40px; border-radius: 15px; margin-bottom: 20px;">
             <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif;">VISI</h3>
             <p style="font-size: 1.1rem; line-height: 1.6;">
-                Menjadi sanggar seni yang unggul, berkarakter, (bisa) dan memiliki keunikan tersendiri (berbeda) serta mampu menghasilkan karya nyata dalam pelestarian dan pengembangan seni budaya Blambangan di Banyuwangi.
+                {{ $profil->visi }}
             </p>
         </div>
 
         <div class="misi-card" style="background: #fdf5e6; color: #3D0C0C; padding: 40px; border-radius: 15px; border: 1px solid #e0d0c0;">
             <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif;">MISI</h3>
-            <ul style="text-align: left; line-height: 1.8; list-style-position: inside;">
-                <li>Mengembangkan potensi anggota agar memiliki kemampuan (bisa) yang terampil dan profesional di bidang seni budaya.</li>
-                <li>Menciptakan karya seni yang inovatif, kreatif, dan memiliki ciri khas (beda) tanpa meninggalkan nilai-nilai budaya Blambangan.</li>
-                <li>Menghasilkan karya nyata melalui pertunjukan, karya cipta, dan partisipasi aktif dalam berbagai kegiatan seni.</li>
-                <li>Menyelenggarakan pelatihan dan pembinaan seni secara berkelanjutan dan berkualitas.</li>
-                <li>Menanamkan sikap disiplin, tanggung jawab, dan kecintaan terhadap seni budaya kepada seluruh anggota.</li>
-                <li>Membangun kerja sama dengan berbagai pihak untuk mendukung perkembangan dan eksistensi sanggar.</li>
-            </ul>
+            <p style="font-size: 1.1rem; line-height: 1.8; text-align: left;">
+                {{ $profil->misi }}
+            </p>
         </div>
-
     </div>
 </section>
-
   <section id="katalog">
     <div class="section-header">
       <h2 class="section-title white">Katalog Kostum</h2>

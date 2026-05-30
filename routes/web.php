@@ -87,7 +87,7 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
     Route::delete('/berita/hapus/{id}', [BeritaController::class, 'destroy'])->name('superadmin.hapus-berita');
 
     // Kelola Profil Sanggar
-    Route::get('/kelola-profil', [ProfilController::class, 'index'])->name('superadmin.kelola-profil');
+    Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.profil');
     Route::get('/kelola-profil/edit-profil', [ProfilController::class, 'edit'])->name('superadmin.edit-profil');
     Route::put('/kelola-profil/update-profil', [ProfilController::class, 'update'])->name('superadmin.update-profil');
     Route::get('/kelola-profil/tambah-pengurus', [ProfilController::class, 'tambahPengurus'])->name('superadmin.tambah-pengurus');

@@ -198,14 +198,22 @@
 
     <div class="galeri-grid-container">
         @forelse($galeriData as $item)
-        <a href="{{ route('umum.galeri-detail', $item->id) }}" class="galeri-card" style="text-decoration: none; color: inherit;">
-            <div class="galeri-card">
+            {{-- HOTFIX: Otomatis sembunyikan data personel/pembina jika tidak sengaja masuk ke tabel galeri --}}
+            @if(
+                \Illuminate\Support\Str::contains($item->path, ['personel', 'pembina']) || 
+                \Illuminate\Support\Str::contains($item->nama_file, ['pengurus', 'pelatih', 'pembina', 'dummy'])
+            )
+                @continue
+            @endif
+
+            {{-- Perbaikan Struktur HTML: Menghilangkan double div .galeri-card --}}
+            <a href="{{ route('umum.galeri-detail', $item->id) }}" class="galeri-card" style="text-decoration: none; color: inherit;">
                 <img src="{{ asset($item->path) }}" alt="{{ $item->nama_file }}">
                 
                 <div class="galeri-overlay">
                     <span style="text-transform: capitalize; font-weight: 600;">{{ $item->kategori }}</span>
                 </div>
-            </div>
+            </a>
         @empty
             <div style="grid-column: 1/-1; text-align: center; padding: 80px 20px; font-family: 'Poppins', sans-serif; color: #666;">
                 <p style="font-size: 1.2rem; font-weight: 600; margin: 0;">Foto belum tersedia</p>

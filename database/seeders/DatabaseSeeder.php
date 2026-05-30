@@ -40,15 +40,15 @@ class DatabaseSeeder extends Seeder
         // 3. Buat data Galeri awal untuk Struktur Ikatan Profil Sanggar (sumber_id diisi 0 dulu)
         $galeri1 = Galeri::create([
             'sumber_id' => 0,
-            'path' => 'galeri/logo_sanggar.jpg',
-            'nama_file' => uniqid() . '_logo_sanggar.jpg',
+            'path' => 'img/images-landing-page/galeri/logo-jeb.jpg',
+            'nama_file' => uniqid() . '_logo-jeb.jpg',
             'kategori' => 'profil', // Diselaraskan ke 'profil' sesuai relasi model Personel/Profil Anda
             'is_watermark' => false,
         ]);
 
         $galeri2 = Galeri::create([
             'sumber_id' => 0,
-            'path' => 'galeri/foto_pembina.jpg',
+            'path' => 'img/images-landing-page/galeri/foto_pembina.jpg',
             'nama_file' => uniqid() . '_foto_pembina.jpg',
             'kategori' => 'profil',
             'is_watermark' => false,
@@ -121,7 +121,7 @@ class DatabaseSeeder extends Seeder
 
             Galeri::create([
                 'sumber_id' => $katalog->id,
-                'path' => 'katalog/katalog_' . $i . '.jpeg', 
+                'path' => 'img/images-landing-page/katalog/katalog_' . $i . '.jpeg', 
                 'nama_file' => uniqid() . '_katalog_' . $i . '.jpeg',
                 'kategori' => 'katalog',
                 'is_watermark' => false,
@@ -141,7 +141,7 @@ class DatabaseSeeder extends Seeder
 
             Galeri::create([
                 'sumber_id'    => $berita->id,
-                'path'         => 'berita/berita_' . $i . '.jpeg',
+                'path'         => 'img/images-landing-page/berita/berita_' . $i . '.jpeg',
                 'nama_file'    => uniqid() . '_berita_' . $i . '.jpeg',
                 'kategori'     => 'berita',
                 'is_watermark' => false,
@@ -164,7 +164,7 @@ class DatabaseSeeder extends Seeder
 
             Galeri::create([
                 'sumber_id' => $event->id,
-                'path' => 'event/event_' . $i . '.jpeg',
+                'path' => 'img/images-landing-page/event/event_' . $i . '.jpeg',
                 'nama_file' => uniqid() . '_event_' . $i . '.jpeg',
                 'kategori' => 'event', // Sesuai filter ->where('kategori', 'event') pada model Event
                 'is_watermark' => false,
