@@ -43,7 +43,15 @@ class EventController extends Controller
         $selesai = Event::where('status', 'selesai')->count();
         $belumSelesai = Event::where('status', 'belum selesai')->count();
 
-        return view('superadmin.event.index', compact('events', 'totalEvent', 'selesai', 'belumSelesai'));
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return view('kelola.event.indexSuperadmin', compact('events', 'totalEvent', 'selesai', 'belumSelesai'));
+        } elseif ($role === 'admin') {
+            return view('kelola.event.indexAdmin', compact('events', 'totalEvent', 'selesai', 'belumSelesai'));
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -51,7 +59,7 @@ class EventController extends Controller
      */
     public function create()
     {
-        return view('superadmin.event.create');
+        return view('kelola.event.create');
     }
 
     /**
@@ -118,7 +126,7 @@ class EventController extends Controller
     public function edit($id)
     {
         $event = Event::with('galeri')->findOrFail($id);
-        return view('superadmin.event.update', compact('event'));
+        return view('kelola.event.update', compact('event'));
     }
 
     /**

@@ -45,7 +45,7 @@ class LogAktivitasController extends Controller
         $editaktivitas   = LogAktivitas::where('aktivitas', 'like', '%Memperbarui%')->count();
         $hapusaktivitas  = LogAktivitas::where('aktivitas', 'like', '%Menghapus%')->count();
 
-        return view('superadmin.log_aktivitas.index', compact(
+        return view('kelola.log_aktivitas.indexSuperadmin', compact(
             'logs', 
             'totalaktivitas', 
             'tambahaktivitas', 

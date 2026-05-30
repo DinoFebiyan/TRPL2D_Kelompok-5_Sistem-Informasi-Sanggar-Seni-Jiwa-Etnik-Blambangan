@@ -44,7 +44,7 @@ class AdminController extends Controller
         $activeAdmins = User::where('peran', 'admin')->where('status', 'aktif')->count();
         $inactiveAdmins = User::where('peran', 'admin')->where('status', 'nonaktif')->count();
         
-        return view('superadmin.admin.index', compact('admins', 'totalAdmin', 'activeAdmins', 'inactiveAdmins'));
+        return view('kelola.admin.indexSuperadmin', compact('admins', 'totalAdmin', 'activeAdmins', 'inactiveAdmins'));
     }
 
     /**
@@ -52,7 +52,7 @@ class AdminController extends Controller
      */
     public function create()
     {
-        return view('superadmin.admin.create');
+        return view('kelola.admin.create');
     }
 
     /**
@@ -105,7 +105,7 @@ class AdminController extends Controller
     public function edit(string $id)
     {
         $admin = User::where('peran', 'admin')->findOrFail($id);
-        return view('superadmin.admin.update', compact('admin'));
+        return view('kelola.admin.update', compact('admin'));
     }
 
     /**

@@ -293,6 +293,35 @@
     .btn-modal-terapkan { background: #EF4444; color: white; }
     .btn-modal-terapkan:hover { background: #DC2626; }
 
+    .adm-btn-tambah {
+        background: #e2c0c0;
+        color: #5a1a1a;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid #e8dede;
+    }
+    .adm-btn-tambah:hover {
+        background: #d4aeae;
+    }
+.adm-icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+ .adm-icon-dark-red { background-color: #7a2a214a; color: #411f1f; }
+
+
     @keyframes popupSlightIn {
         from { transform: scale(0.95); opacity: 0; }
         to { transform: scale(1); opacity: 1; }
@@ -322,8 +351,11 @@
                 <h2>{{ $belumSelesai ?? 0 }}</h2>
             </div>
         </div>
-        <a href="{{ route('superadmin.tambah-event') }}" class="event-btn-tambah">
-            <span>+</span> Tambah Event
+        <a href="{{ route('superadmin.tambah-event') }}" class="adm-btn-tambah">
+            <div class="adm-icon-box adm-icon-dark-red">
+                <i class="fas fa-plus"></i>
+            </div>
+            <span>Tambah Event</span>
         </a>
     </div>
 

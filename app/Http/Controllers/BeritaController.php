@@ -43,7 +43,15 @@ class BeritaController extends Controller
         $ditayangkan = Berita::where('status', 'tayang')->count();
         $tidakDitayangkan = Berita::where('status', 'tidak ditayangkan')->count();
         
-        return view('superadmin.berita.index', compact('beritas', 'totalBerita', 'ditayangkan', 'tidakDitayangkan'));
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return view('kelola.berita.indexSuperadmin', compact('beritas', 'totalBerita', 'ditayangkan', 'tidakDitayangkan'));
+        } elseif ($role === 'admin') {
+            return view('kelola.berita.indexAdmin', compact('beritas', 'totalBerita', 'ditayangkan', 'tidakDitayangkan'));
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -51,7 +59,7 @@ class BeritaController extends Controller
      */
     public function create()
     {
-        return view('superadmin.berita.create');
+        return view('kelola.berita.create');
     }
 
     /**
@@ -113,7 +121,7 @@ class BeritaController extends Controller
     public function edit(string $id)
     {
         $berita = Berita::with('galeri')->findOrFail($id);
-        return view('superadmin.berita.update', compact('berita'));
+        return view('kelola.berita.update', compact('berita'));
     }
 
     /**

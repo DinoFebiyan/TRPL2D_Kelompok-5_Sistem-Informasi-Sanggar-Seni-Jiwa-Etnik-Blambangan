@@ -26,7 +26,7 @@
     <nav class="sidebar-nav">
         <div class="nav-label">Menu Utama</div>
 
-        <a class="nav-item {{ request()->is('superadmin/dashboard') ? 'active' : '' }}" href="{{ route('superadmin.dashboard') }}">
+        <a class="nav-item {{ request()->is('superadmin/dashboard*') ? 'active' : '' }}" href="{{ route('superadmin.dashboard') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="7" height="7"/>
                 <rect x="14" y="3" width="7" height="7"/>
@@ -36,7 +36,6 @@
             Dashboard
         </a>
         
-       
         <a class="nav-item {{ request()->is('superadmin/kelola-admin*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-admin') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -45,7 +44,6 @@
                 <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
             </svg>
             Kelola Admin
-            <span class="nav-badge">{{ \App\Models\User::where('peran', 'admin')->count() }}</span>
         </a>
         
         <a class="nav-item {{ request()->is('superadmin/log-aktivitas*') ? 'active' : '' }}" href="{{ route('superadmin.log-aktivitas') }}">
@@ -57,8 +55,7 @@
         
         <div class="nav-label">Konten</div>
 
-       
-        <a class="nav-item {{ request()->is('superadmin/katalog*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-katalog') }}">
+        <a class="nav-item {{ request()->is('superadmin/kelola-katalog*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-katalog') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
                 <path d="M3 9h18M9 21V9"/>
@@ -66,8 +63,7 @@
             Kelola Katalog
         </a>
 
-        
-        <a class="nav-item {{ request()->is('superadmin/event*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-event') }}">
+        <a class="nav-item {{ request()->is('superadmin/kelola-event*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-event') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
@@ -97,7 +93,6 @@
 
         <div class="nav-label">Sistem</div>
 
-       
         <a class="nav-item {{ request()->is('superadmin/pengaturan*') ? 'active' : '' }}" href="{{ route('superadmin.pengaturan') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="3"/>
@@ -139,7 +134,6 @@
     </div>
 </aside>
 
-<!-- Modal logout -->
 <div id="modalLogout" class="modal-overlay" style="display: none;">
     <div class="modal-box">
         <div class="modal-header">

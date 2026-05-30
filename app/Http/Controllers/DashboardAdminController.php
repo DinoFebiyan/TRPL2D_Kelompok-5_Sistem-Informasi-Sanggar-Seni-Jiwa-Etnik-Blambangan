@@ -2,7 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Katalog;
+use App\Models\Event;
+use App\Models\Berita;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class DashboardAdminController extends Controller
 {
@@ -11,54 +15,49 @@ class DashboardAdminController extends Controller
      */
     public function index()
     {
-        //
-    }
+        // Mendapatkan bulan dan tahun saat ini untuk kalkulasi data bulanan
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+        // 1. DATA TOTAL STATISTIK (Tanpa Data Admin)
+        $totalKatalog = Katalog::count();
+        $activeEvents = Event::where('status', 'belum selesai')->count();
+        $totalBerita = Berita::count();
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        // 2. HITUNG DATA BARU YANG MASUK BULAN INI (Tanpa Data Admin)
+        $newKatalogThisMonth = Katalog::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        $newEventsThisMonth = Event::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        $newBeritaThisMonth = Berita::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        // 3. AMBIL DATA EVENT TERBARU UNTUK DITAMPILKAN DI GRID BAWAH (Substitusi Log Aktivitas)
+        $latestEvents = Event::latest()
+            ->take(5)
+            ->get();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        // 4. AMBIL DATA BERITA TERBARU (Substitusi Tabel Admin)
+        $latestBeritas = Berita::with('user')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Melempar variabel yang sudah disaring ke dalam View
+        return view('kelola.dashboardAdmin', compact(
+            'totalKatalog',
+            'activeEvents',
+            'totalBerita',
+            'newKatalogThisMonth',
+            'newEventsThisMonth',
+            'newBeritaThisMonth',
+            'latestEvents',
+            'latestBeritas'
+        ));
     }
 }

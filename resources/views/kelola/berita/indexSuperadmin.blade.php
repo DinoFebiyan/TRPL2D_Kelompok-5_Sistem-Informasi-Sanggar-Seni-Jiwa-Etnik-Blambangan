@@ -179,13 +179,32 @@
     .btn-hapus-news { background: #fef2f2; color: #ef4444; }
 
     .adm-btn-tambah {
-        background: #e2c0c0; color: #5a1a1a; border-radius: 12px;
-        display: flex; align-items: center; justify-content: center; gap: 8px;
-        font-weight: 700; font-size: 1.1rem; text-decoration: none;
-        border: 1px solid #e8dede; transition: all 0.2s;
+        background: #e2c0c0;
+        color: #5a1a1a;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        text-decoration: none;
+        transition: all 0.2s;
+        border: 1px solid #e8dede;
     }
-    .adm-btn-tambah:hover { background: #d4aeae; }
-    .adm-icon-dark-red { background-color: #7a2a214a; color: #411f1f; }
+    .adm-btn-tambah:hover {
+        background: #d4aeae;
+    }
+.adm-icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+ .adm-icon-dark-red { background-color: #7a2a214a; color: #411f1f; }
 
     /* UNIFIED PAGINATION & MODAL STYLES */
     .news-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding: 0 25px; }

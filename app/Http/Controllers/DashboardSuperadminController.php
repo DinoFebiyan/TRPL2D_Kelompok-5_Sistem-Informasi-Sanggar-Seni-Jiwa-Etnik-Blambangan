@@ -58,7 +58,7 @@ class DashboardSuperadminController extends Controller
             ->get();
 
         // Melempar seluruh variabel ke dalam View Blade
-        return view('superadmin.dashboard', compact(
+        return view('kelola.dashboardSuperadmin', compact(
             'totalAdmin',
             'totalKatalog',
             'activeEvents',

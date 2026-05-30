@@ -44,7 +44,48 @@ Route::get('/auth/verifikasi_otp', function () {
 // =========================================================================
 // 3. ROUTE UNTUK ADMIN BIASA
 // =========================================================================
+Route::prefix('admin')->middleware(['auth'])->group(function () {
+    
+    // Dashboard
+    Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
 
+    // Kelola Event
+    Route::get('/kelola-event', [EventController::class, 'index'])->name('admin.kelola-event');
+    Route::get('/kelola-event/tambah-event', [EventController::class, 'create'])->name('admin.tambah-event');
+    Route::post('/kelola-event/store', [EventController::class, 'store'])->name('admin.store-event');
+    Route::get('/event/edit/{id}', [EventController::class, 'edit'])->name('admin.edit-event');
+    Route::put('/event/update/{id}', [EventController::class, 'update'])->name('admin.update-event');
+    Route::delete('/event/hapus/{id}', [EventController::class, 'destroy'])->name('admin.hapus-event');
+
+    // Kelola Berita 
+    Route::get('/kelola-berita', [BeritaController::class, 'index'])->name('admin.kelola-berita');
+    Route::get('/kelola-berita/tambah-berita', [BeritaController::class, 'create'])->name('admin.tambah-berita');
+    Route::post('/kelola-berita/store', [BeritaController::class, 'store'])->name('admin.store-berita');
+    Route::get('/berita/edit/{id}', [BeritaController::class, 'edit'])->name('admin.edit-berita');
+    Route::put('/berita/update/{id}', [BeritaController::class, 'update'])->name('admin.update-berita');
+    Route::delete('/berita/hapus/{id}', [BeritaController::class, 'destroy'])->name('admin.hapus-berita');
+
+    // Kelola Profil Sanggar
+    Route::get('/kelola-profil', [ProfilController::class, 'index'])->name('admin.kelola-profil');
+    Route::get('/kelola-profil/edit-profil', [ProfilController::class, 'edit'])->name('admin.edit-profil');
+    Route::put('/kelola-profil/update-profil', [ProfilController::class, 'update'])->name('admin.update-profil');
+    Route::get('/kelola-profil/tambah-pengurus', [ProfilController::class, 'tambahPengurus'])->name('admin.tambah-pengurus');
+    Route::post('/kelola-profil/store-pengurus', [ProfilController::class, 'storePengurus'])->name('admin.store-pengurus');
+    Route::delete('/kelola-profil/hapus-pengurus/{id}', [ProfilController::class, 'hapusPengurus'])->name('admin.hapus-pengurus');
+    Route::get('/kelola-profil/edit-pengurus/{id}', [ProfilController::class, 'editPengurus'])->name('admin.edit-pengurus');
+    Route::put('/kelola-profil/update-pengurus/{id}', [ProfilController::class, 'updatePengurus'])->name('admin.update-pengurus');
+    Route::get('/kelola-profil/tambah-pelatih', [ProfilController::class, 'tambahPelatih'])->name('admin.tambah-pelatih');
+    Route::post('/kelola-profil/store-pelatih', [ProfilController::class, 'storePelatih'])->name('admin.store-pelatih');
+    Route::delete('/kelola-profil/hapus-pelatih/{id}', [ProfilController::class, 'hapusPelatih'])->name('admin.hapus-pelatih');
+    Route::get('/kelola-profil/edit-pelatih/{id}', [ProfilController::class, 'editPelatih'])->name('admin.edit-pelatih');
+    Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('admin.update-pelatih');
+
+    // Pengaturan
+    Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('admin.pengaturan');
+    Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('admin.pengaturan.update-profil');
+    Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('admin.pengaturan.update-password');
+
+});
 
 // =========================================================================
 // 4. ROUTE UNTUK SUPER ADMIN
@@ -102,7 +143,6 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
     Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('superadmin.update-pelatih');
 
     // Pengaturan
-    // Pengaturan Akun Superadmin
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('superadmin.pengaturan');
     Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('superadmin.pengaturan.update-profil');
     Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('superadmin.pengaturan.update-password');

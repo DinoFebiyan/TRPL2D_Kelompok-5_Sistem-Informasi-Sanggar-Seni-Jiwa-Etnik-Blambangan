@@ -25,7 +25,15 @@ class ProfilController extends Controller
         $pengurus = Personel::with('galeri')->where('peran', 'pengurus')->paginate(10);
         $pelatih = Personel::with('galeri')->where('peran', 'pelatih')->paginate(10);
 
-        return view('superadmin.profil.index', compact('profil', 'pengurus', 'pelatih'));
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return view('kelola.profil.indexSuperadmin', compact('profil', 'pengurus', 'pelatih'));
+        } elseif ($role === 'admin') {
+            return view('kelola.profil.indexAdmin', compact('profil', 'pengurus', 'pelatih'));
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -64,7 +72,7 @@ class ProfilController extends Controller
             $profil = new ProfilSanggar();
         }
 
-        return view('superadmin.profil.edit', compact('profil'));
+        return view('kelola.profil.edit', compact('profil'));
     }
 
     /**
@@ -204,7 +212,7 @@ class ProfilController extends Controller
      */
     public function tambahPengurus()
     {
-        return view('superadmin.profil.tambah-pengurus');
+        return view('kelola.profil.tambah-pengurus');
     }
 
     /**
@@ -212,7 +220,7 @@ class ProfilController extends Controller
      */
     public function tambahPelatih()
     {
-        return view('superadmin.profil.tambah-pelatih');
+        return view('kelola.profil.tambah-pelatih');
     }
 
     /**
@@ -270,7 +278,7 @@ class ProfilController extends Controller
     public function editPengurus(string $id)
     {
         $pengurus = Personel::with('galeri')->findOrFail($id);
-        return view('superadmin.profil.edit-pengurus', compact('pengurus'));
+        return view('kelola.profil.edit-pengurus', compact('pengurus'));
     }
 
     /**
@@ -389,7 +397,7 @@ class ProfilController extends Controller
     public function editPelatih(string $id)
     {
         $pelatih = Personel::with('galeri')->findOrFail($id);
-        return view('superadmin.profil.edit-pelatih', compact('pelatih'));
+        return view('kelola.profil.edit-pelatih', compact('pelatih'));
     }
 
     /**

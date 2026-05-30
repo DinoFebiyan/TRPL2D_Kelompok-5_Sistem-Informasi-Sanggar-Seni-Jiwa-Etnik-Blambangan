@@ -52,7 +52,7 @@ class KatalogController extends Controller
         $tersedia = Katalog::where('status', 'tersedia')->count();
         $tidakTersedia = Katalog::where('status', 'tidak tersedia')->count();
 
-        return view('superadmin.katalog.index', compact('katalogs', 'totalKatalog', 'tersedia', 'tidakTersedia'));
+        return view('kelola.katalog.indexSuperadmin', compact('katalogs', 'totalKatalog', 'tersedia', 'tidakTersedia'));
     }
 
     /**
@@ -60,7 +60,7 @@ class KatalogController extends Controller
      */
     public function create()
     {
-        return view('superadmin.katalog.create');
+        return view('kelola.katalog.create');
     }
 
     /**
@@ -130,7 +130,7 @@ class KatalogController extends Controller
     public function edit($id)
     {
         $katalog = Katalog::with('galeri')->findOrFail($id);
-        return view('superadmin.katalog.update', compact('katalog'));
+        return view('kelola.katalog.update', compact('katalog'));
     }
 
     /**

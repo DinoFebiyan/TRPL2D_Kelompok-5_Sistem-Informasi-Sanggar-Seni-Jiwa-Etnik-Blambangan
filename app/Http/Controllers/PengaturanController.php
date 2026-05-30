@@ -16,7 +16,15 @@ class PengaturanController extends Controller
      */
     public function index()
     {
-        return view('superadmin.pengaturan.index');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return view('kelola.pengaturan.indexSuperadmin');
+        } elseif ($role === 'admin') {
+            return view('kelola.pengaturan.indexAdmin');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
