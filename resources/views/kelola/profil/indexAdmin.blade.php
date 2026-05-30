@@ -303,7 +303,7 @@
     <div class="prof-card-card">
         <h3>
             <span><i class="fas fa-images" style="color:#5B1A1A; margin-right:8px;"></i> Header</span>
-            <a href="{{ route('superadmin.edit-profil') }}" class="btn-edit-profil">
+            <a href="{{ route('admin.edit-profil') }}" class="btn-edit-profil">
                 <i class="fas fa-images"></i> Pengaturan Header
             </a>
         </h3>
@@ -341,7 +341,7 @@
     <div class="prof-card-card">
         <h3>
             <span>Informasi Umum Sanggar</span>
-            <a href="{{ route('superadmin.edit-profil') }}" class="btn-edit-profil">
+            <a href="{{ route('admin.edit-profil') }}" class="btn-edit-profil">
                 <i class="fas fa-edit"></i> Edit Profil
             </a>
         </h3>
@@ -397,7 +397,7 @@
     <div class="prof-table-card">
         <div class="table-header">
             <h3>Daftar Pengurus</h3>
-            <a href="{{ route('superadmin.tambah-pengurus') }}" class="btn-tambah-personel">
+            <a href="{{ route('admin.tambah-pengurus') }}" class="btn-tambah-personel">
                 <span>+</span> Tambah Pengurus
             </a>
         </div>
@@ -438,9 +438,9 @@
                         </span>
                     </td>
                     <td class="prof-actions">
-                        <a href="{{ route('superadmin.edit-pengurus', $item->id) }}" class="btn-edit-prof">Edit</a>
+                        <a href="{{ route('admin.edit-pengurus', $item->id) }}" class="btn-edit-prof">Edit</a>
                         <button class="btn-hapus-prof" onclick="confirmDelete('pengurus', {{ $item->id }})">Hapus</button>
-                        <form id="delete-pengurus-{{ $item->id }}" action="{{ route('superadmin.hapus-pengurus', $item->id) }}" method="POST" style="display:none;">
+                        <form id="delete-pengurus-{{ $item->id }}" action="{{ route('admin.hapus-pengurus', $item->id) }}" method="POST" style="display:none;">
                             @csrf @method('DELETE')
                         </form>
                     </td>
@@ -457,7 +457,7 @@
     <div class="prof-table-card">
         <div class="table-header">
             <h3>Daftar Pelatih</h3>
-            <a href="{{ route('superadmin.tambah-pelatih') }}" class="btn-tambah-personel">
+            <a href="{{ route('admin.tambah-pelatih') }}" class="btn-tambah-personel">
                 <span>+</span> Tambah Pelatih
             </a>
         </div>
@@ -498,9 +498,9 @@
                         </span>
                     </td>
                     <td class="prof-actions">
-                        <a href="{{ route('superadmin.edit-pelatih', $item->id) }}" class="btn-edit-prof">Edit</a>
+                        <a href="{{ route('admin.edit-pelatih', $item->id) }}" class="btn-edit-prof">Edit</a>
                         <button class="btn-hapus-prof" onclick="confirmDelete('pelatih', {{ $item->id }})">Hapus</button>
-                        <form id="delete-pelatih-{{ $item->id }}" action="{{ route('superadmin.hapus-pelatih', $item->id) }}" method="POST" style="display:none;">
+                        <form id="delete-pelatih-{{ $item->id }}" action="{{ route('admin.hapus-pelatih', $item->id) }}" method="POST" style="display:none;">
                             @csrf @method('DELETE')
                         </form>
                     </td>

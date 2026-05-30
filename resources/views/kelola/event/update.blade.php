@@ -237,7 +237,15 @@
                 <p>Kelola Event</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('superadmin.kelola-event') }}" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
+                @if(auth()->user()->peran === 'superadmin')
+                    <a href="{{ route('superadmin.kelola-event') }}" class="btn-batal">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                @elseif(auth()->user()->peran === 'admin')
+                    <a href="{{ route('admin.kelola-event') }}" class="btn-batal">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                @endif
                 <button type="submit" form="formEditEvent" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>

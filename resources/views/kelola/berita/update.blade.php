@@ -202,7 +202,15 @@
                 <p>Kelola Berita</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('superadmin.kelola-berita') }}" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
+                @if(auth()->user()->peran === 'superadmin')
+                    <a href="{{ route('superadmin.kelola-berita') }}" class="btn-batal">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                @elseif(auth()->user()->peran === 'admin')
+                    <a href="{{ route('admin.kelola-berita') }}" class="btn-batal">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                @endif
                 <button type="submit" form="formEditBerita" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>

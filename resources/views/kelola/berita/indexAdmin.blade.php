@@ -278,7 +278,7 @@
                 <h2>{{ $tidakDitayangkan ?? 0 }}</h2>
             </div>
         </div>
-        <a href="{{ route('superadmin.tambah-berita') }}" class="adm-btn-tambah">
+        <a href="{{ route('admin.tambah-berita') }}" class="adm-btn-tambah">
             <div class="adm-icon-box adm-icon-dark-red">
                 <i class="fas fa-plus"></i>
             </div>
@@ -287,7 +287,7 @@
     </div>
 
     {{-- INTEGRATED FORM ACTION GET --}}
-    <form action="{{ route('superadmin.kelola-berita') }}" method="GET" id="formFilterNews">
+    <form action="{{ route('admin.kelola-berita') }}" method="GET" id="formFilterNews">
         <div class="news-search-row">
             <div class="news-search-box">
                 <input type="text" name="search" id="searchBerita" placeholder="Cari berdasarkan judul, penulis, isi berita, dll..." value="{{ request('search') }}">
@@ -371,9 +371,9 @@
                         @endif
                     </td>
                     <td class="news-actions">
-                        <a href="{{ route('superadmin.edit-berita', $berita->id) }}" class="btn-edit-news">Edit</a>
+                        <a href="{{ route('admin.edit-berita', $berita->id) }}" class="btn-edit-news">Edit</a>
                         <button class="btn-hapus-news" onclick="confirmDelete({{ $berita->id }})">Hapus</button>
-                        <form id="delete-form-{{ $berita->id }}" action="{{ route('superadmin.hapus-berita', $berita->id) }}" method="POST" style="display:none;">
+                        <form id="delete-form-{{ $berita->id }}" action="{{ route('admin.hapus-berita', $berita->id) }}" method="POST" style="display:none;">
                             @csrf @method('DELETE')
                         </form>
                     </td>

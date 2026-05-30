@@ -183,7 +183,15 @@
                 <p>Kelola Profil Sanggar</p>
             </div>
             <div class="header-actions">
-                <a href="{{ route('superadmin.kelola-profil') }}" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
+                @if(auth()->user()->peran === 'superadmin')
+                    <a href="{{ route('superadmin.kelola-profil') }}" class="btn-batal">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                @elseif(auth()->user()->peran === 'admin')
+                    <a href="{{ route('admin.kelola-profil') }}" class="btn-batal">
+                        <i class="fas fa-times"></i> Batal
+                    </a>
+                @endif
                 <button type="submit" form="formEditPengurus" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>

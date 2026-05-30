@@ -196,7 +196,15 @@ class ProfilController extends Controller
             ]);
         }
 
-        return redirect()->route('superadmin.kelola-profil')->with('success', 'Profil sanggar dan data header baru berhasil diperbarui.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+           return redirect()->route('superadmin.kelola-profil')->with('success', 'Profil sanggar dan data header baru berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Profil sanggar dan data header baru berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -269,7 +277,15 @@ class ProfilController extends Controller
             ]);
         }
 
-        return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pengurus baru beserta galeri foto berhasil disimpan.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pengurus baru beserta galeri foto berhasil disimpan.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data pengurus baru beserta galeri foto berhasil disimpan.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -347,7 +363,15 @@ class ProfilController extends Controller
             ]);
         }
 
-        return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pengurus berhasil diperbarui.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pengurus berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data profil pengurus berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -388,7 +412,15 @@ class ProfilController extends Controller
             }
         }
 
-        return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pelatih baru berhasil disimpan.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pelatih baru berhasil disimpan.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data pelatih baru berhasil disimpan.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -458,6 +490,14 @@ class ProfilController extends Controller
             }
         }
 
-        return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pelatih berhasil diperbarui.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pelatih berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data profil pelatih berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 }

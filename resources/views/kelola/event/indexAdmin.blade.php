@@ -351,7 +351,7 @@
                 <h2>{{ $belumSelesai ?? 0 }}</h2>
             </div>
         </div>
-        <a href="{{ route('superadmin.tambah-event') }}" class="adm-btn-tambah">
+        <a href="{{ route('admin.tambah-event') }}" class="adm-btn-tambah">
             <div class="adm-icon-box adm-icon-dark-red">
                 <i class="fas fa-plus"></i>
             </div>
@@ -360,7 +360,7 @@
     </div>
 
     {{-- INTEGRATED FORM GET --}}
-    <form action="{{ route('superadmin.kelola-event') }}" method="GET" id="formFilterEvent">
+    <form action="{{ route('admin.kelola-event') }}" method="GET" id="formFilterEvent">
         <div class="event-search-row">
             <div class="event-search-box">
                 <input type="text" name="search" id="searchEvent" placeholder="Cari berdasarkan nama, lokasi, kategori, dll..." value="{{ request('search') }}">
@@ -448,9 +448,9 @@
                         @endif
                     </td>
                     <td class="event-actions">
-                        <a href="{{ route('superadmin.edit-event', $event->id) }}" class="btn-edit-event">Edit</a>
+                        <a href="{{ route('admin.edit-event', $event->id) }}" class="btn-edit-event">Edit</a>
                         <button class="btn-hapus-event" onclick="confirmDelete({{ $event->id }})">Hapus</button>
-                        <form id="delete-form-{{ $event->id }}" action="{{ route('superadmin.hapus-event', $event->id) }}" method="POST" style="display:none;">
+                        <form id="delete-form-{{ $event->id }}" action="{{ route('admin.hapus-event', $event->id) }}" method="POST" style="display:none;">
                             @csrf @method('DELETE')
                         </form>
                     </td>

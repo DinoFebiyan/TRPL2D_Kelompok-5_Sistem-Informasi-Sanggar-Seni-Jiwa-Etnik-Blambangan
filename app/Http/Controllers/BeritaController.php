@@ -104,7 +104,15 @@ class BeritaController extends Controller
             'waktu'     => now(),
         ]);
 
-        return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita berhasil ditambahkan dengan multi-foto.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita berhasil ditambahkan dengan multi-foto.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-berita')->with('success', 'Berita berhasil ditambahkan dengan multi-foto.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -184,7 +192,15 @@ class BeritaController extends Controller
             'waktu'     => now(),
         ]);
 
-        return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita berhasil diperbarui.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-berita')->with('success', 'Berita berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     /**
@@ -210,6 +226,14 @@ class BeritaController extends Controller
             'waktu'     => now(),
         ]);
 
-        return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita beserta seluruh gambarnya berhasil dihapus.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita beserta seluruh gambarnya berhasil dihapus.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-berita')->with('success', 'Berita beserta seluruh gambarnya berhasil dihapus.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 }
