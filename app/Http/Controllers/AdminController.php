@@ -48,7 +48,7 @@ class AdminController extends Controller
     public function store(Request $request)
 {
     $request->validate([
-        'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email',
         'password' => 'required|min:8|confirmed',
@@ -113,7 +113,7 @@ if ($request->hasFile('foto')) {
         'no_handphone' => 'required|string|max:20',
         'status' => 'required|in:aktif,nonaktif',
         'password' => 'nullable|min:8|confirmed', // Diubah ke min:8 agar sesuai petunjuk Blade
-        'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Validasi foto baru
+        'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:4096', // Validasi foto baru
     ]);
 
     $data = $request->only(['name', 'email', 'no_handphone', 'status']);

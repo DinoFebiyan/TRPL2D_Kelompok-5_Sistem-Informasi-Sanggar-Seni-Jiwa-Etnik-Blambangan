@@ -46,7 +46,7 @@ class BeritaController extends Controller
             'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
             'status'       => 'required|in:tayang,tidak ditayangkan',
             'foto'         => 'nullable|array', // Memastikan input berbentuk kumpulan data (array)
-            'foto.*'       => 'image|mimes:jpeg,png,jpg,gif|max:2048', // Validasi per file maks 2MB
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096', // Validasi per file maks 4MB
         ]);
 
         // 2. Simpan data berita utama ke database
@@ -122,7 +122,7 @@ class BeritaController extends Controller
             'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
             'status'       => 'required|in:tayang,tidak ditayangkan',
             'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
             'hapus_foto'   => 'nullable|array', // Validasi pelacak foto dihapus
             'hapus_foto.*' => 'exists:galeri,id',
         ]);

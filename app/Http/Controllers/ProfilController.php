@@ -210,7 +210,7 @@ class ProfilController extends Controller
             'no_hp'     => 'required|string|max:20',
             'status'    => 'required|in:aktif,nonaktif',
             'foto'      => 'nullable|array',
-            'foto.*'    => 'image|mimes:jpeg,png,jpg,gif|max:4096',
+            'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         $personel = Personel::create([
@@ -270,7 +270,7 @@ class ProfilController extends Controller
             'no_hp'        => 'required|string|max:20',
             'status'       => 'required|in:aktif,nonaktif',
             'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
             'hapus_foto'   => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
@@ -337,7 +337,7 @@ class ProfilController extends Controller
             'no_hp'     => 'required|string|max:20',
             'status'    => 'required|in:aktif,nonaktif',
             'foto'      => 'nullable|array',
-            'foto.*'    => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         $personel = Personel::create([
@@ -389,7 +389,7 @@ class ProfilController extends Controller
             'no_hp'        => 'required|string|max:20',
             'status'       => 'required|in:aktif,nonaktif',
             'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
             'hapus_foto'   => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);

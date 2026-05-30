@@ -27,7 +27,7 @@ Route::get('/katalog', [UmumController::class, 'katalog'])->name('umum.katalog')
 Route::get('/katalog/{id}', [UmumController::class, 'katalogDetail'])->name('umum.katalog-detail');
 Route::get('/galeri', [UmumController::class, 'galeri'])->name('umum.galeri');
 Route::get('/galeri/{id}', [UmumController::class, 'galeriDetail'])->name('umum.galeri-detail');
-Route::get('/profil', [UmumController::class, 'profil'])->name('umum.profil');
+Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.profil');
 
 // =========================================================================
 // 2. AUTH DEFAULT & OTP (Folder: views/auth)
@@ -87,7 +87,7 @@ Route::prefix('superadmin')->middleware(['auth'])->group(function () {
     Route::delete('/berita/hapus/{id}', [BeritaController::class, 'destroy'])->name('superadmin.hapus-berita');
 
     // Kelola Profil Sanggar
-    Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.profil');
+    Route::get('/kelola-profil', [ProfilController::class, 'index'])->name('superadmin.kelola-profil');
     Route::get('/kelola-profil/edit-profil', [ProfilController::class, 'edit'])->name('superadmin.edit-profil');
     Route::put('/kelola-profil/update-profil', [ProfilController::class, 'update'])->name('superadmin.update-profil');
     Route::get('/kelola-profil/tambah-pengurus', [ProfilController::class, 'tambahPengurus'])->name('superadmin.tambah-pengurus');

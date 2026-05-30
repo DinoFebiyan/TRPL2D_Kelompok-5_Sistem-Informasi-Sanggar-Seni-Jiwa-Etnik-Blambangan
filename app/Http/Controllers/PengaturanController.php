@@ -28,7 +28,7 @@ class PengaturanController extends Controller
 
         // Validasi input mengikuti struktur standar AdminController
         $request->validate([
-            'foto_profil'  => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'foto_profil'  => 'nullable|image|mimes:jpeg,png,jpg|max:4096', // Validasi foto baru
             'name'         => 'required|string|max:255',
             'email'        => 'required|email|unique:users,email,' . $user->id,
             'no_handphone' => 'nullable|string|max:20',

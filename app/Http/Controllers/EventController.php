@@ -54,7 +54,7 @@ class EventController extends Controller
             'kategori'   => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
             'status'     => 'required|in:selesai,belum selesai',
             'foto'       => 'nullable|array', 
-            'foto.*'     => 'image|mimes:jpeg,png,jpg,gif|max:2048', 
+            'foto.*'     => 'image|mimes:jpeg,png,jpg|max:4096', 
         ]);
 
         // 2. Simpan data teks utama ke tabel event
@@ -129,7 +129,7 @@ class EventController extends Controller
             'kategori'     => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
             'status'       => 'required|in:selesai,belum selesai',
             'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
             'hapus_foto'   => 'nullable|array', 
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
