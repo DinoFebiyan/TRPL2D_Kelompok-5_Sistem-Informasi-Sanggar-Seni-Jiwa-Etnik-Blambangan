@@ -257,7 +257,7 @@
                 {{-- Nama Katalog --}}
                 <div class="form-group">
                     <label>Nama Katalog</label>
-                    <input type="text" name="nama_tari" value="{{ old('nama_tari', $katalog->nama_tari) }}" placeholder="Masukkan nama katalog..." required>
+                    <input type="text" name="nama_katalog" value="{{ old('nama_katalog', $katalog->nama_katalog) }}" placeholder="Masukkan nama katalog..." required>
                 </div>
 
                 {{-- Kategori --}}

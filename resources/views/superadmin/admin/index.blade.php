@@ -98,6 +98,7 @@
         transform: translateY(-50%);
         color: #eab308;
         font-size: 1.2rem;
+        cursor: pointer;
     }
     .adm-btn-filter {
         background: #b91c1c;
@@ -132,7 +133,7 @@
         border-collapse: collapse;
         min-width: 900px;
     }
-    .adm-table Maxwell {
+    .adm-table thead {
         background-color: #F5EBEB;
     }
     .adm-table th {
@@ -142,6 +143,7 @@
         font-weight: 600;
         font-size: 0.85rem;
         border-bottom: none;
+        text-transform: uppercase;
     }
     .adm-table td {
         padding: 15px 25px;
@@ -242,6 +244,52 @@
         cursor: not-allowed;
         background: #fdfdfd;
     }
+
+    /* POPUP MODAL COMPONENT STYLE */
+    .custom-modal-overlay {
+        position: fixed;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: none;
+        justify-content: center; align-items: center;
+        z-index: 9999;
+    }
+    .custom-modal-content {
+        background: #fff; width: 100%; max-width: 480px;
+        border-radius: 24px; padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        animation: popupSlightIn 0.3s ease-out;
+    }
+    .custom-modal-header h3 { margin: 0; font-size: 1.3rem; font-weight: 700; color: #2D1A1A; }
+    .custom-modal-header p { margin: 4px 0 0 0; font-size: 0.85rem; color: #888; }
+    .modal-divider { border: 0; border-top: 1px solid #E5E7EB; margin: 18px 0; }
+    .section-title { font-size: 0.95rem; font-weight: 600; color: #333; display: block; margin-bottom: 12px; }
+    .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .filter-checkbox-card {
+        border: 1px solid #D1D5DB; border-radius: 12px; padding: 12px 15px;
+        display: flex; align-items: center; gap: 10px; cursor: pointer;
+        transition: all 0.2s; background: #fff; user-select: none;
+    }
+    .filter-checkbox-card:hover { border-color: #b07d7d; background: #fffbfb; }
+    .filter-checkbox-card input[type="checkbox"] { accent-color: #EF4444; width: 17px; height: 17px; cursor: pointer; }
+    .filter-checkbox-card.selected-box { border-color: #EF4444; background-color: #FFF5F5; }
+    .filter-checkbox-card.selected-box .checkbox-label { font-weight: 600; color: #EF4444; }
+    .checkbox-label { font-size: 0.85rem; color: #4B5563; cursor: pointer; }
+    .custom-modal-footer { display: flex; gap: 15px; margin-top: 25px; }
+    .btn-modal-batal, .btn-modal-terapkan {
+        flex: 1; padding: 12px; border-radius: 10px; font-family: 'Poppins', sans-serif;
+        font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: 0.2s;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn-modal-batal { background: #E5E7EB; color: #374151; }
+    .btn-modal-batal:hover { background: #D1D5DB; }
+    .btn-modal-terapkan { background: #EF4444; color: white; }
+    .btn-modal-terapkan:hover { background: #DC2626; }
+
+    @keyframes popupSlightIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
 </style>
 
 <div class="adm-wrapper">
@@ -275,14 +323,49 @@
         </a>
     </div>
 
-    <form method="GET" action="{{ route('superadmin.kelola-admin') }}" class="adm-search-row">
-        <div class="adm-search-box">
-            <input type="text" name="search" placeholder="Cari nama Admin..." value="{{ request('search') }}">
-            <i class="fas fa-search"></i>
+    {{-- INTEGRATED FORM ACTION GET --}}
+    <form method="GET" action="{{ route('superadmin.kelola-admin') }}" id="formFilterAdmin">
+        <div class="adm-search-row">
+            <div class="adm-search-box">
+                <input type="text" name="search" id="searchAdmin" placeholder="Cari berdasarkan nama, email, no handphone, dll..." value="{{ request('search') }}">
+                <i class="fas fa-search" onclick="submitFormFilter()"></i>
+            </div>
+            <button type="button" class="adm-btn-filter" onclick="openFilterModal()">
+                <i class="fas fa-filter"></i> Filter
+            </button>
         </div>
-        <button type="submit" class="adm-btn-filter">
-            <i class="fas fa-filter"></i> Filter
-        </button>
+
+        {{-- POPUP FILTER DI DALAM FORM --}}
+        <div id="filterModal" class="custom-modal-overlay">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h3>Filter Pencarian anda</h3>
+                    <p>Sesuaikan apa yang ingin anda tampilkan</p>
+                </div>
+                <hr class="modal-divider">
+
+                <div class="custom-modal-body">
+                    <div class="filter-group-section">
+                        <label class="section-title">Status Akun</label>
+                        <div class="checkbox-grid">
+                            <label class="filter-checkbox-card {{ in_array('aktif', request('status', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="status[]" value="aktif" onchange="syncCardVisual(this)" {{ in_array('aktif', request('status', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Aktif</span>
+                            </label>
+                            <label class="filter-checkbox-card {{ in_array('nonaktif', request('status', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="status[]" value="nonaktif" onchange="syncCardVisual(this)" {{ in_array('nonaktif', request('status', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Nonaktif</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn-modal-batal" onclick="closeFilterModal()">Batal</button>
+                    <button type="submit" class="btn-modal-terapkan">Terapkan Filter</button>
+                </div>
+            </div>
+        </div>
     </form>
 
     <div class="adm-table-card">
@@ -330,13 +413,18 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="6" style="text-align:center">Belum ada data admin.</td></tr>
+                <tr><td colspan="6" style="text-align:center">Belum ada data admin yang sesuai kriteria.</td></tr>
                 @endforelse
             </tbody>
         </table>
         
         <div class="adm-pagination">
-            <p>Menampilkan {{ $admins->firstItem() ?? 0 }} dari {{ $admins->total() ?? 0 }} admin</p>
+            @if($admins->total() > 0)
+                <p>Menampilkan {{ $admins->firstItem() }} - {{ $admins->lastItem() }} dari {{ $admins->total() }} admin</p>
+            @else
+                <p>Menampilkan 0 admin</p>
+            @endif
+            
             <div class="adm-page-controls">
                 @if ($admins->onFirstPage())
                     <span class="disabled"><i class="fas fa-chevron-left"></i></span>
@@ -362,5 +450,40 @@
             document.getElementById('delete-form-'+id).submit();
         }
     }
+
+    function openFilterModal() {
+        document.getElementById('filterModal').style.display = 'flex';
+    }
+
+    function closeFilterModal() {
+        document.getElementById('filterModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('filterModal');
+        if (event.target == modal) {
+            closeFilterModal();
+        }
+    }
+
+    function syncCardVisual(checkboxElement) {
+        let parentCard = checkboxElement.closest('.filter-checkbox-card');
+        if (checkboxElement.checked) {
+            parentCard.classList.add('selected-box');
+        } else {
+            parentCard.classList.remove('selected-box');
+        }
+    }
+
+    function submitFormFilter() {
+        document.getElementById('formFilterAdmin').submit();
+    }
+
+    document.getElementById('searchAdmin').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitFormFilter();
+        }
+    });
 </script>
 @endsection

@@ -14,10 +14,40 @@ class KatalogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Memuat data katalog beserta tumpukan foto galerinya (Eager Loading)
-        $katalogs = Katalog::with(['galeri', 'user'])->latest()->paginate(10);
+        // 1. Ambil data query pencarian & filter dari URL/Request
+        $search = $request->input('search');
+        $statuses = $request->input('status', []); // Array status
+        $categories = $request->input('kategori', []); // Array kategori
+
+        // 2. Buat Base Query dengan Eager Loading
+        $query = Katalog::with(['galeri', 'user']);
+
+        // 3. Tambahkan Logika Global Search (Mencari di Nama, Kategori, Deskripsi, dan Stok)
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_katalog', 'like', '%' . $search . '%')
+                  ->orWhere('kategori', 'like', '%' . $search . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $search . '%')
+                  ->orWhere('stok', 'like', '%' . $search . '%');
+            });
+        }
+
+        // 4. Tambahkan Multi-Filter Status (Checkbox)
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+
+        // 5. Tambahkan Multi-Filter Kategori (Checkbox)
+        if (!empty($categories)) {
+            $query->whereIn('kategori', $categories);
+        }
+
+        // 6. Eksekusi Pagination dengan mempertahankan Query Parameters di URL Links
+        $katalogs = $query->latest()->paginate(10)->withQueryString();
+
+        // 7. Hitung statistik card (Selalu ambil data total murni tanpa filter pencarian)
         $totalKatalog = Katalog::count();
         $tersedia = Katalog::where('status', 'tersedia')->count();
         $tidakTersedia = Katalog::where('status', 'tidak tersedia')->count();
@@ -40,7 +70,7 @@ class KatalogController extends Controller
     {
         // 1. VALIDASI MULTI-UPLOAD: Memvalidasi 'foto' sebagai tumpukan array berkas
         $request->validate([
-            'nama_tari' => 'required|string|max:255',
+            'nama_katalog' => 'required|string|max:255',
             'kategori'  => 'required|string',
             'stok'      => 'required|integer|min:0',
             'deskripsi' => 'required|string',
@@ -51,7 +81,7 @@ class KatalogController extends Controller
 
         // 2. Simpan informasi teks produk utama ke database
         $katalog = Katalog::create([
-            'nama_katalog' => $request->nama_tari,
+            'nama_katalog' => $request->nama_katalog,
             'kategori'     => $request->kategori,
             'stok'         => $request->stok,
             'deskripsi'    => $request->deskripsi,
@@ -79,7 +109,7 @@ class KatalogController extends Controller
         // 4. Catat riwayat penambahan barang ke Log Aktivitas
         LogAktivitas::create([
             'user_id'   => Auth::id(),
-            'aktivitas' => 'Menambahkan katalog produk baru: ' . $request->nama_tari,
+            'aktivitas' => 'Menambahkan katalog produk baru: ' . $request->nama_katalog,
             'waktu'     => now(),
         ]);
 
@@ -111,7 +141,7 @@ class KatalogController extends Controller
         $katalog = Katalog::findOrFail($id);
 
         $request->validate([
-            'nama_tari'    => 'required|string|max:255',
+            'nama_katalog' => 'required|string|max:255',
             'kategori'     => 'required|string',
             'stok'         => 'required|integer|min:0',
             'deskripsi'    => 'required|string',
@@ -124,7 +154,7 @@ class KatalogController extends Controller
 
         // 1. Perbarui teks data utama katalog
         $katalog->update([
-            'nama_katalog' => $request->nama_tari,
+            'nama_katalog' => $request->nama_katalog,
             'kategori'     => $request->kategori,
             'stok'         => $request->stok,
             'deskripsi'    => $request->deskripsi,

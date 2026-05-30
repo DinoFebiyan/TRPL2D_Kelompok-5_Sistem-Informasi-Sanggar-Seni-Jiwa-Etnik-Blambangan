@@ -10,70 +10,47 @@ class LogAktivitasController extends Controller
     /**
      * Display a listing of the resource.
      */
-     public function index(Request $request)
+    public function index(Request $request)
     {
+        $search = $request->input('search');
+        $types = $request->input('tipe', []); // Array penampung filter checkbox popup ("menambahkan", "memperbarui", "menghapus")
+
         $query = LogAktivitas::with('user');
 
-        if ($request->filled('search')) {
-            $query->where('aktivitas', 'like', '%' . $request->search . '%')
-                ->orWhere('deskripsi', 'like', '%' . $request->search . '%');
+        // 1. Global Search (Mencari teks aktivitas dan nama user aktor log)
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('aktivitas', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
         }
 
-        $logs = $query->latest()->paginate(15);
+        // 2. Multi-Filter Jenis Operasi Data (Looping string keyword)
+        if (!empty($types)) {
+            $query->where(function($q) use ($types) {
+                foreach ($types as $type) {
+                    $q->orWhere('aktivitas', 'like', '%' . $type . '%');
+                }
+            });
+        }
 
-        // Statistik
-        $totalAktivitas = LogAktivitas::count();
-        $aktivitasHariIni = LogAktivitas::whereDate('created_at', today())->count();
-        $aktivitasBulanIni = LogAktivitas::whereMonth('created_at', now()->month)->count();
+        // Jalankan pagination
+        $logs = $query->latest()->paginate(15)->withQueryString();
 
-        return view('superadmin.log_aktivitas.index', compact('logs', 'totalAktivitas', 'aktivitasHariIni', 'aktivitasBulanIni'));
-    }
+        // FIX SINKRONISASI VARIABEL: Menggunakan nama variabel persis sesuai yang diminta code view Blade Anda
+        $totalaktivitas = LogAktivitas::count();
+        $tambahaktivitas = LogAktivitas::where('aktivitas', 'like', '%Menambahkan%')->count();
+        $editaktivitas   = LogAktivitas::where('aktivitas', 'like', '%Memperbarui%')->count();
+        $hapusaktivitas  = LogAktivitas::where('aktivitas', 'like', '%Menghapus%')->count();
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        return view('superadmin.log_aktivitas.index', compact(
+            'logs', 
+            'totalaktivitas', 
+            'tambahaktivitas', 
+            'editaktivitas', 
+            'hapusaktivitas'
+        ));
     }
 }

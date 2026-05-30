@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Berita;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
+use Illuminate\Support\Facades\Storage;
 
 class BeritaController extends Controller
 {
@@ -14,11 +15,30 @@ class BeritaController extends Controller
      */
     public function index(Request $request)
     {
-        $query = Berita::with('user', 'galeri');
-        if ($request->filled('search')) {
-            $query->where('judul', 'like', '%' . $request->search . '%');
+        $search = $request->input('search');
+        $statuses = $request->input('status', []); // Menangkap array status dari filter
+
+        $query = Berita::with(['user', 'galeri']);
+
+        // 1. Global Search (Judul, Isi Berita, Nama Penulis)
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('judul', 'like', '%' . $search . '%')
+                  ->orWhere('isi_berita', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
         }
-        $beritas = $query->latest()->paginate(10);
+
+        // 2. Multi-Filter Status Checkbox
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+
+        $beritas = $query->latest()->paginate(10)->withQueryString();
+        
+        // Hitung total statistik riil data murni database
         $totalBerita = Berita::count();
         $ditayangkan = Berita::where('status', 'tayang')->count();
         $tidakDitayangkan = Berita::where('status', 'tidak ditayangkan')->count();
@@ -39,17 +59,15 @@ class BeritaController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. SINKRONISASI VALIDASI: Menggunakan 'foto' dan 'foto.*' sesuai file Blade Anda
         $request->validate([
             'judul'        => 'required|string|max:255',
             'isi'          => 'required|string',
             'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
             'status'       => 'required|in:tayang,tidak ditayangkan',
-            'foto'         => 'nullable|array', // Memastikan input berbentuk kumpulan data (array)
-            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096', // Validasi per file maks 4MB
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
-        // 2. Simpan data berita utama ke database
         $berita = Berita::create([
             'judul'        => $request->judul,
             'isi_berita'   => $request->isi,
@@ -58,14 +76,10 @@ class BeritaController extends Controller
             'user_id'      => auth()->id(),
         ]);
 
-        // 3. PROSES MULTIPLE UPLOAD: Memproses array file 'foto' satu per satu dengan foreach
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                
-                // Simpan file fisik secara otomatis ke folder public/storage/berita
                 $path = $file->store('berita', 'public');
                 
-                // Masukkan data record gambar ke tabel galeri satu per satu
                 Galeri::create([
                     'sumber_id'    => $berita->id, 
                     'path'         => $path,       
@@ -76,7 +90,6 @@ class BeritaController extends Controller
             }
         }
 
-        // 4. Catat Aktivitas ke Log Audit Trail
         LogAktivitas::create([
             'user_id'   => auth()->id(),
             'aktivitas' => 'Menambahkan berita baru: ' . $request->judul,
@@ -91,7 +104,7 @@ class BeritaController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return redirect()->route('superadmin.kelola-berita');
     }
 
     /**
@@ -99,16 +112,10 @@ class BeritaController extends Controller
      */
     public function edit(string $id)
     {
-        // Ambil data berita beserta seluruh foto galeri terkait menggunakan Eager Loading
         $berita = Berita::with('galeri')->findOrFail($id);
-        
-        // Mengembalikan tampilan form edit berita
         return view('superadmin.berita.update', compact('berita'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     /**
      * Update the specified resource in storage.
      */
@@ -123,11 +130,10 @@ class BeritaController extends Controller
             'status'       => 'required|in:tayang,tidak ditayangkan',
             'foto'         => 'nullable|array',
             'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
-            'hapus_foto'   => 'nullable|array', // Validasi pelacak foto dihapus
+            'hapus_foto'   => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
-        // 1. Perbarui teks isi berita utama
         $berita->update([
             'judul'        => $request->judul,
             'isi_berita'   => $request->isi,
@@ -135,26 +141,21 @@ class BeritaController extends Controller
             'status'       => $request->status,
         ]);
 
-        // LOGIKA BARU: Proses penghapusan foto lama yang ditandai user
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
-                // Cari foto di dalam tabel galeri yang terikat dengan berita ini
                 $fotoLama = Galeri::where('sumber_id', $berita->id)
                                   ->where('kategori', 'berita')
                                   ->find($fotoId);
 
                 if ($fotoLama) {
-                    // Hapus file biner asli yang ada di folder storage/berita/
-                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($fotoLama->path)) {
-                        \Illuminate\Support\Facades\Storage::disk('public')->delete($fotoLama->path);
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
                     }
-                    // Hapus record di database tabel galeri
                     $fotoLama->delete();
                 }
             }
         }
 
-        // 3. Jika user mengunggah beberapa foto tambahan baru, lakukan penyimpanan loop
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('berita', 'public');
@@ -169,7 +170,6 @@ class BeritaController extends Controller
             }
         }
 
-        // 4. Catat aktivitas pembaharuan data ke Log sistem
         LogAktivitas::create([
             'user_id'   => auth()->id(),
             'aktivitas' => 'Memperbarui data berita: ' . $berita->judul,
@@ -187,19 +187,15 @@ class BeritaController extends Controller
         $berita = Berita::with('galeri')->findOrFail($id);
         $judulBerita = $berita->judul;
 
-        // 1. Hapus semua file fisik gambar berita yang ada di storage/berita/
         foreach ($berita->galeri as $foto) {
-            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($foto->path)) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($foto->path);
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
             }
-            // Hapus baris record data gambar di tabel galeri
             $foto->delete();
         }
 
-        // 2. Hapus data utama berita dari database
         $berita->delete();
 
-        // 3. Catat aktivitas penghapusan ke Log
         LogAktivitas::create([
             'user_id'   => auth()->id(),
             'aktivitas' => 'Menghapus berita: ' . $judulBerita,

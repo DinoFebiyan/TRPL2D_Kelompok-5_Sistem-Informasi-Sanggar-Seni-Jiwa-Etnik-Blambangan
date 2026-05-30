@@ -6,26 +6,11 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* wrapper */
     .news-wrapper {
         width: 100%;
         font-family: 'Poppins', sans-serif;
         color: #333;
     }
-    .news-header {
-        margin-bottom: 24px;
-    }
-    .news-header h2 {
-        font-family: 'Playfair Display', serif;
-        font-size: 1.8rem;
-        margin: 0 0 4px 0;
-    }
-    .news-header p {
-        color: #999;
-        font-size: 0.85rem;
-        margin: 0;
-    }
-    /* stats grid */
     .news-stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -64,21 +49,6 @@
         font-size: 1.5rem;
         font-weight: 700;
     }
-    .news-btn-tambah {
-        background: #e2c0c0;
-        color: #5a1a1a;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        font-weight: 700;
-        text-decoration: none;
-        border: 1px solid #e8dede;
-        transition: 0.2s;
-    }
-    .news-btn-tambah:hover { background: #d4aeae; }
-    /* search */
     .news-search-row {
         display: flex;
         gap: 15px;
@@ -103,6 +73,7 @@
         top: 50%;
         transform: translateY(-50%);
         color: #eab308;
+        cursor: pointer;
     }
     .news-btn-filter {
         background: #b91c1c;
@@ -116,7 +87,6 @@
         gap: 10px;
         cursor: pointer;
     }
-    /* table */
     .news-table-card {
         background: #fff;
         border-radius: 12px;
@@ -172,10 +142,8 @@
         height: 100%;
         object-fit: cover;
         position: absolute;
-        top: 0;
-        left: 0;
-        opacity: 0;
-        transition: opacity 0.5s ease-in-out; /* Efek transisi halus saat ganti foto */
+        top: 0; left: 0; opacity: 0;
+        transition: opacity 0.5s ease-in-out;
     }
     .news-foto img.active {
         opacity: 1;
@@ -209,38 +177,63 @@
     }
     .btn-edit-news { background: #eff6ff; color: #3b82f6; }
     .btn-hapus-news { background: #fef2f2; color: #ef4444; }
-    .pagination-links {
-        margin-top: 20px;
-        display: flex;
-        justify-content: flex-end;
-    }
+
     .adm-btn-tambah {
-        background: #e2c0c0;
-        color: #5a1a1a;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        font-weight: 700;
-        font-size: 1.1rem;
-        text-decoration: none;
-        transition: all 0.2s;
-        border: 1px solid #e8dede;
+        background: #e2c0c0; color: #5a1a1a; border-radius: 12px;
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        font-weight: 700; font-size: 1.1rem; text-decoration: none;
+        border: 1px solid #e8dede; transition: all 0.2s;
     }
-    .adm-btn-tambah:hover {
-        background: #d4aeae;
-    }
+    .adm-btn-tambah:hover { background: #d4aeae; }
     .adm-icon-dark-red { background-color: #7a2a214a; color: #411f1f; }
-    .adm-icon-box {
-        width: 45px;
-        height: 45px;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
+
+    /* UNIFIED PAGINATION & MODAL STYLES */
+    .news-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 25px; padding: 0 25px; }
+    .news-pagination p { font-size: 0.85rem; color: #b07d7d; margin: 0; font-weight: 500; }
+    .news-page-controls { display: flex; gap: 8px; }
+    .news-page-controls a, .news-page-controls span {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 32px; height: 32px; border-radius: 6px; border: 1px solid #e8dede;
+        background: #fff; color: #333; font-size: 0.85rem; text-decoration: none; transition: 0.2s;
     }
+    .news-page-controls a:hover { background: #f5ebeb; border-color: #d4aeae; }
+    .news-page-controls span.active { background: #5B1A1A; color: #fff; border-color: #5B1A1A; font-weight: 700; }
+    .news-page-controls span.disabled { color: #ccc; cursor: not-allowed; background: #fdfdfd; }
+
+    .custom-modal-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(0, 0, 0, 0.4); display: none; justify-content: center; align-items: center; z-index: 9999;
+    }
+    .custom-modal-content {
+        background: #fff; width: 100%; max-width: 480px; border-radius: 24px; padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15); animation: popupSlightIn 0.3s ease-out;
+    }
+    .custom-modal-header h3 { margin: 0; font-size: 1.3rem; font-weight: 700; color: #2D1A1A; }
+    .custom-modal-header p { margin: 4px 0 0 0; font-size: 0.85rem; color: #888; }
+    .modal-divider { border: 0; border-top: 1px solid #E5E7EB; margin: 18px 0; }
+    .section-title { font-size: 0.95rem; font-weight: 600; color: #333; display: block; margin-bottom: 12px; }
+    .checkbox-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .filter-checkbox-card {
+        border: 1px solid #D1D5DB; border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; gap: 10px;
+        cursor: pointer; transition: all 0.2s; background: #fff; user-select: none;
+    }
+    .filter-checkbox-card:hover { border-color: #b07d7d; background: #fffbfb; }
+    .filter-checkbox-card input[type="checkbox"] { accent-color: #EF4444; width: 17px; height: 17px; }
+    .filter-checkbox-card.selected-box { border-color: #EF4444; background-color: #FFF5F5; }
+    .filter-checkbox-card.selected-box .checkbox-label { font-weight: 600; color: #EF4444; }
+    .checkbox-label { font-size: 0.85rem; color: #4B5563; cursor: pointer; }
+    .custom-modal-footer { display: flex; gap: 15px; margin-top: 25px; }
+    .btn-modal-batal, .btn-modal-terapkan {
+        flex: 1; padding: 12px; border-radius: 10px; font-family: 'Poppins', sans-serif;
+        font-weight: 600; font-size: 0.9rem; border: none; cursor: pointer; transition: 0.2s;
+        display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn-modal-batal { background: #E5E7EB; color: #374151; }
+    .btn-modal-batal:hover { background: #D1D5DB; }
+    .btn-modal-terapkan { background: #EF4444; color: white; }
+    .btn-modal-terapkan:hover { background: #DC2626; }
+
+    @keyframes popupSlightIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>
 
 <div class="news-wrapper">
@@ -274,13 +267,48 @@
         </a>
     </div>
 
-    <div class="news-search-row">
-        <div class="news-search-box">
-            <input type="text" id="searchBerita" placeholder="Cari berita..." value="{{ request('search') }}">
-            <i class="fas fa-search"></i>
+    {{-- INTEGRATED FORM ACTION GET --}}
+    <form action="{{ route('superadmin.kelola-berita') }}" method="GET" id="formFilterNews">
+        <div class="news-search-row">
+            <div class="news-search-box">
+                <input type="text" name="search" id="searchBerita" placeholder="Cari berdasarkan judul, penulis, isi berita, dll..." value="{{ request('search') }}">
+                <i class="fas fa-search" onclick="submitFormFilter()"></i>
+            </div>
+            <button type="button" class="news-btn-filter" onclick="openFilterModal()"><i class="fas fa-filter"></i> Filter</button>
         </div>
-        <button class="news-btn-filter" id="filterBtn"><i class="fas fa-filter"></i> Filter</button>
-    </div>
+
+        {{-- FILTER MODAL POPUP INSIDE FORM --}}
+        <div id="filterModal" class="custom-modal-overlay">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h3>Filter Pencarian anda</h3>
+                    <p>Sesuaikan apa yang ingin anda tampilkan</p>
+                </div>
+                <hr class="modal-divider">
+
+                <div class="custom-modal-body">
+                    <div class="filter-group-section">
+                        <label class="section-title">Status Tayang</label>
+                        <div class="checkbox-grid">
+                            <label class="filter-checkbox-card {{ in_array('tayang', request('status', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="status[]" value="tayang" onchange="syncCardVisual(this)" {{ in_array('tayang', request('status', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Tayang</span>
+                            </label>
+                            <label class="filter-checkbox-card {{ in_array('tidak tayang', request('status', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="status[]" value="tidak tayang" onchange="syncCardVisual(this)" {{ in_array('tidak tayang', request('status', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Tidak Ditayangkan</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn-modal-batal" onclick="closeFilterModal()">Batal</button>
+                    <button type="submit" class="btn-modal-terapkan">Terapkan Filter</button>
+                </div>
+            </div>
+        </div>
+    </form>
 
     <div class="news-table-card">
         <h3>Daftar Berita</h3>
@@ -307,7 +335,7 @@
                                          class="{{ $index === 0 ? 'active' : '' }}">
                                 @endforeach
                             @else
-                                <span>No Img</span>
+                                <div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f3f4f6; color:#9ca3af;">No Img</div>
                             @endif
                         </div>
                     </td>
@@ -332,12 +360,34 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="6" style="text-align:center">Belum ada data berita.</td></tr>
+                <tr><td colspan="6" style="text-align:center">Belum ada data berita yang sesuai kriteria.</td></tr>
                 @endforelse
             </tbody>
         </table>
-        <div class="pagination-links">
-            {{ $beritas->appends(request()->query())->links() }}
+        
+        {{-- ALIGNMENT REPAIR: Sinkronisasi Tampilan Navigasi Pagination Berita --}}
+        <div class="news-pagination">
+            @if($beritas->total() > 0)
+                <p>Menampilkan {{ $beritas->firstItem() }} - {{ $beritas->lastItem() }} dari {{ $beritas->total() }} berita</p>
+            @else
+                <p>Menampilkan 0 berita</p>
+            @endif
+            
+            <div class="news-page-controls">
+                @if ($beritas->onFirstPage())
+                    <span class="disabled"><i class="fas fa-chevron-left"></i></span>
+                @else
+                    <a href="{{ $beritas->previousPageUrl() }}"><i class="fas fa-chevron-left"></i></a>
+                @endif
+
+                <span class="active">{{ $beritas->currentPage() }}</span>
+
+                @if ($beritas->hasMorePages())
+                    <a href="{{ $beritas->nextPageUrl() }}"><i class="fas fa-chevron-right"></i></a>
+                @else
+                    <span class="disabled"><i class="fas fa-chevron-right"></i></span>
+                @endif
+            </div>
         </div>
     </div>
 </div>
@@ -349,33 +399,54 @@
         }
     }
 
-    document.getElementById('filterBtn')?.addEventListener('click', function() {
-        let search = document.getElementById('searchBerita').value;
-        window.location.href = "{{ route('superadmin.kelola-berita') }}?search=" + encodeURIComponent(search);
+    function openFilterModal() {
+        document.getElementById('filterModal').style.display = 'flex';
+    }
+
+    function closeFilterModal() {
+        document.getElementById('filterModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('filterModal');
+        if (event.target == modal) {
+            closeFilterModal();
+        }
+    }
+
+    function syncCardVisual(checkboxElement) {
+        let parentCard = checkboxElement.closest('.filter-checkbox-card');
+        if (checkboxElement.checked) {
+            parentCard.classList.add('selected-box');
+        } else {
+            parentCard.classList.remove('selected-box');
+        }
+    }
+
+    // Koreksi trigger pengiriman form via javascript
+    function submitFormFilter() {
+        document.getElementById('formFilterNews').submit();
+    }
+
+    document.getElementById('searchBerita').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitFormFilter();
+        }
     });
 
-    // =========================================================================
-    // JAVASCRIPT: AUTOMATIC SLIDESHOW 5 DETIK PER KOTAK GAMBAR
-    // =========================================================================
+    // AUTOMATIC SLIDESHOW MULTI-FOTO BERITA (5 DETIK)
     document.addEventListener("DOMContentLoaded", function() {
         const containers = document.querySelectorAll('.slideshow-container');
-
         containers.forEach(container => {
             const images = container.querySelectorAll('img');
-            // Jalankan rotasi hanya jika jumlah gambarnya lebih dari 1
             if (images.length > 1) {
                 let currentIndex = 0;
-
                 setInterval(() => {
-                    // Hilangkan class active dari gambar saat ini
                     images[currentIndex].classList.remove('active');
-
-                    // Pindah ke index berikutnya (reset ke 0 jika sudah gambar terakhir)
                     currentIndex = (currentIndex + 1) % images.length;
-
-                    // Tambahkan class active ke gambar yang baru
                     images[currentIndex].classList.add('active');
-                }, 5000); // 5000 milidetik = 5 detik
+                }, 5000);
             }
         });
     });

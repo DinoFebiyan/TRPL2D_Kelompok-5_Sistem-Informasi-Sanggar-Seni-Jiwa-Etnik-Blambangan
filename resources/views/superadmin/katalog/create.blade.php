@@ -215,7 +215,7 @@
                     <label>Nama Katalog (Tari)</label>
                     <input type="text" name="nama_tari" value="{{ old('nama_tari') }}" placeholder="Masukkan nama tari/kostum..." required>
                 </div>
-
+    
                 {{-- Kategori Dropdown --}}
                 <div class="form-group">
                     <label>Kategori</label>

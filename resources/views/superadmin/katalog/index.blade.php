@@ -96,6 +96,7 @@
         transform: translateY(-50%);
         color: #eab308;
         font-size: 1.2rem;
+        cursor: pointer;
     }
     .katalog-btn-filter {
         background: #b91c1c;
@@ -148,9 +149,8 @@
         font-size: 0.85rem;
     }
     
-    /* SINKRONISASI CSS: Slideshow container untuk foto katalog */
     .katalog-foto-preview {
-        width: 60px; /* Lebar disamakan dengan modul berita */
+        width: 60px;
         height: 50px;
         background: #f0f0f0;
         border-radius: 8px;
@@ -253,8 +253,129 @@
         cursor: not-allowed;
         background: #fdfdfd;
     }
-</style>
 
+    /* =========================================================================
+       STYLE MODAL POPUP FILTER (STRUKTUR MURNI SESUAI TRACKING GAMBAR DESAIN)
+       ========================================================================= */
+    .custom-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    .custom-modal-content {
+        background: #fff;
+        width: 100%;
+        max-width: 480px;
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        animation: popupSlightIn 0.3s ease-out;
+    }
+    .custom-modal-header h3 {
+        margin: 0;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #2D1A1A;
+    }
+    .custom-modal-header p {
+        margin: 4px 0 0 0;
+        font-size: 0.85rem;
+        color: #888;
+    }
+    .modal-divider {
+        border: 0;
+        border-top: 1px solid #E5E7EB;
+        margin: 18px 0;
+    }
+    .section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: #333;
+        display: block;
+        margin-bottom: 12px;
+    }
+    .checkbox-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+    }
+    .filter-checkbox-card {
+        border: 1px solid #D1D5DB;
+        border-radius: 12px;
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: #fff;
+        user-select: none;
+    }
+    .filter-checkbox-card:hover {
+        border-color: #b07d7d;
+        background: #fffbfb;
+    }
+    .filter-checkbox-card input[type="checkbox"] {
+        accent-color: #EF4444;
+        width: 17px;
+        height: 17px;
+        cursor: pointer;
+    }
+    .filter-checkbox-card.selected-box {
+        border-color: #EF4444;
+        background-color: #FFF5F5;
+    }
+    .filter-checkbox-card.selected-box .checkbox-label {
+        font-weight: 600;
+        color: #EF4444;
+    }
+    .checkbox-label {
+        font-size: 0.85rem;
+        color: #4B5563;
+        cursor: pointer;
+    }
+    .custom-modal-footer {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+    .btn-modal-batal, .btn-modal-terapkan {
+        flex: 1;
+        padding: 12px;
+        border-radius: 10px;
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .btn-modal-batal {
+        background: #E5E7EB;
+        color: #374151;
+    }
+    .btn-modal-batal:hover { background: #D1D5DB; }
+    .btn-modal-terapkan {
+        background: #EF4444;
+        color: white;
+    }
+    .btn-modal-terapkan:hover { background: #DC2626; }
+
+    @keyframes popupSlightIn {
+        from { transform: scale(0.95); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+</style>
 
 <div class="katalog-wrapper">
     <div class="katalog-stats-grid">
@@ -265,18 +386,20 @@
                 <h2>{{ $totalKatalog ?? 0 }}</h2>
             </div>
         </div>
-        <div class="katalog-stat-card">
-            <div class="katalog-icon-box katalog-icon-green"><i class="fas fa-check-circle"></i></div>
-            <div class="katalog-stat-text">
-                <h4>Tersedia</h4>
-                <h2>{{ $tersedia ?? 0 }}</h2>
+        <div class="katalog-stats-grid" style="display: contents;">
+            <div class="katalog-stat-card">
+                <div class="katalog-icon-box katalog-icon-green"><i class="fas fa-check-circle"></i></div>
+                <div class="katalog-stat-text">
+                    <h4>Tersedia</h4>
+                    <h2>{{ $tersedia ?? 0 }}</h2>
+                </div>
             </div>
-        </div>
-        <div class="katalog-stat-card">
-            <div class="katalog-icon-box katalog-icon-red"><i class="fas fa-ban"></i></div>
-            <div class="katalog-stat-text">
-                <h4>Tidak Tersedia</h4>
-                <h2>{{ $tidakTersedia ?? 0 }}</h2>
+            <div class="katalog-stat-card">
+                <div class="katalog-icon-box katalog-icon-red"><i class="fas fa-ban"></i></div>
+                <div class="katalog-stat-text">
+                    <h4>Tidak Tersedia</h4>
+                    <h2>{{ $tidakTersedia ?? 0 }}</h2>
+                </div>
             </div>
         </div>
         <a href="{{ route('superadmin.tambah-katalog') }}" class="katalog-btn-tambah">
@@ -284,13 +407,68 @@
         </a>
     </div>
 
-    <div class="katalog-search-row">
-        <div class="katalog-search-box">
-            <input type="text" placeholder="Cari Katalog..." id="searchKatalog">
-            <i class="fas fa-search"></i>
+    {{-- INTERFAS FORM GET UNTUK SERVER-SIDE COMBINATION FILTER --}}
+    <form action="{{ route('superadmin.kelola-katalog') }}" method="GET" id="formFilterKatalog">
+        <div class="katalog-search-row">
+            <div class="katalog-search-box">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari berdasarkan nama, deskripsi, stok, dll..." id="searchKatalog">
+                <i class="fas fa-search" onclick="submitFormFilter()" title="Klik untuk mencari"></i>
+            </div>
+            <button type="button" class="katalog-btn-filter" onclick="openFilterModal()"><i class="fas fa-filter"></i> Filter</button>
         </div>
-        <button class="katalog-btn-filter" onclick="filterKatalog()"><i class="fas fa-filter"></i> Filter</button>
-    </div>
+
+        {{-- POPUP MODAL MULTI-SELECT CHECKBOX (RETENTION DATA RECORD SECARA FORMAL) --}}
+        <div id="filterModal" class="custom-modal-overlay">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h3>Filter Pencarian anda</h3>
+                    <p>Sesuaikan apa yang ingin anda tampilkan</p>
+                </div>
+                <hr class="modal-divider">
+
+                <div class="custom-modal-body">
+                    <div class="filter-group-section">
+                        <label class="section-title">Status</label>
+                        <div class="checkbox-grid">
+                            <label class="filter-checkbox-card {{ in_array('tersedia', request('status', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="status[]" value="tersedia" onchange="syncCardVisual(this)" {{ in_array('tersedia', request('status', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Tersedia</span>
+                            </label>
+                            <label class="filter-checkbox-card {{ in_array('tidak tersedia', request('status', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="status[]" value="tidak tersedia" onchange="syncCardVisual(this)" {{ in_array('tidak tersedia', request('status', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Tidak Tersedia</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <hr class="modal-divider">
+
+                    <div class="filter-group-section">
+                        <label class="section-title">Kategori</label>
+                        <div class="checkbox-grid">
+                            <label class="filter-checkbox-card {{ in_array('Kostum', request('kategori', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="kategori[]" value="Kostum" onchange="syncCardVisual(this)" {{ in_array('Kostum', request('kategori', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Kostum / Baju Tari</span>
+                            </label>
+                            <label class="filter-checkbox-card {{ in_array('Properti', request('kategori', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="kategori[]" value="Properti" onchange="syncCardVisual(this)" {{ in_array('Properti', request('kategori', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Properti</span>
+                            </label>
+                            <label class="filter-checkbox-card {{ in_array('Alat Musik', request('kategori', [])) ? 'selected-box' : '' }}" style="grid-column: span 2;">
+                                <input type="checkbox" name="kategori[]" value="Alat Musik" onchange="syncCardVisual(this)" {{ in_array('Alat Musik', request('kategori', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Alat Musik</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="custom-modal-footer">
+                    <button type="button" class="btn-modal-batal" onclick="closeFilterModal()">Batal</button>
+                    <button type="submit" class="btn-modal-terapkan">Terapkan Filter</button>
+                </div>
+            </div>
+        </div>
+    </form>
 
     <div class="katalog-table-card">
         <h3>Daftar Katalog</h3>
@@ -344,13 +522,19 @@
                     </td>
                 </tr>
                 @empty
-                <tr><td colspan="7" style="text-align:center;">Belum ada data katalog.</td></tr>
+                <tr><td colspan="7" style="text-align:center;">Belum ada data katalog yang sesuai kriteria pencarian.</td></tr>
                 @endforelse
             </tbody>
         </table>
         
+        {{-- SINKRONISASI PAGINATION: INFO DISPLAY DAN CONTROLS YANG SUDAH VALID & PRECISE --}}
         <div class="katalog-pagination">
-            <p>Menampilkan {{ $katalogs->firstItem() ?? 0 }} dari {{ $katalogs->total() ?? 0 }} katalog</p>
+            @if($katalogs->total() > 0)
+                <p>Menampilkan {{ $katalogs->firstItem() }} - {{ $katalogs->lastItem() }} dari {{ $katalogs->total() }} katalog</p>
+            @else
+                <p>Menampilkan 0 katalog</p>
+            @endif
+            
             <div class="katalog-page-controls">
                 @if ($katalogs->onFirstPage())
                     <span class="disabled"><i class="fas fa-chevron-left"></i></span>
@@ -376,34 +560,50 @@
             document.getElementById('delete-form-'+id).submit();
         }
     }
-    
-    function filterKatalog() {
-        let input = document.getElementById('searchKatalog');
-        let filter = input.value.toLowerCase();
-        let table = document.getElementById('katalogTable');
-        let rows = table.getElementsByTagName('tr');
-        for (let i = 1; i < rows.length; i++) {
-            let namaCell = rows[i].getElementsByTagName('td')[1];
-            if (namaCell) {
-                let txtValue = namaCell.textContent || namaCell.innerText;
-                rows[i].style.display = txtValue.toLowerCase().indexOf(filter) > -1 ? '' : 'none';
-            }
+
+    function openFilterModal() {
+        document.getElementById('filterModal').style.display = 'flex';
+    }
+
+    function closeFilterModal() {
+        document.getElementById('filterModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('filterModal');
+        if (event.target == modal) {
+            closeFilterModal();
         }
     }
 
-    document.getElementById('searchKatalog').addEventListener('keyup', filterKatalog);
+    function syncCardVisual(checkboxElement) {
+        let parentCard = checkboxElement.closest('.filter-checkbox-card');
+        if (checkboxElement.checked) {
+            parentCard.classList.add('selected-box');
+        } else {
+            parentCard.classList.remove('selected-box');
+        }
+    }
 
-    // =========================================================================
-    // JAVASCRIPT: AUTOMATIC SLIDESHOW MULTI-FOTO PRODUK KATALOG (5 DETIK)
-    // =========================================================================
+    function submitFormFilter() {
+        document.getElementById('formFilterKatalog').submit();
+    }
+
+    // Jalankan submit form filter pencarian saat admin menekan tombol 'Enter' di keyboard
+    document.getElementById('searchKatalog').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            submitFormFilter();
+        }
+    });
+
+    // AUTOMATIC SLIDESHOW MULTI-FOTO PRODUK KATALOG (5 DETIK)
     document.addEventListener("DOMContentLoaded", function() {
         const containers = document.querySelectorAll('.slideshow-container');
-
         containers.forEach(container => {
             const images = container.querySelectorAll('img');
             if (images.length > 1) {
                 let currentIndex = 0;
-
                 setInterval(() => {
                     images[currentIndex].classList.remove('active');
                     currentIndex = (currentIndex + 1) % images.length;
