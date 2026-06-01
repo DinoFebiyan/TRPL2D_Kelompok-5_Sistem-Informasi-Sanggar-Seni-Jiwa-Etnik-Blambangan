@@ -22,7 +22,7 @@ class DatabaseSeeder extends Seeder
             'name' => 'Super Admin',
             'email' => 'superadmin@jeb.id',
             'password' => Hash::make('12345678'),
-            'peran' => 'super_admin',
+            'peran' => 'superadmin',
             'no_handphone' => '081234567890',
             'status' => 'aktif',
         ]);

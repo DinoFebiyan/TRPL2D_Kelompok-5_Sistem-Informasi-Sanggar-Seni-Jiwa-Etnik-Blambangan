@@ -145,7 +145,7 @@
         </div>
         <div class="modal-footer">
             <button class="btn-batal" onclick="closeLogoutModal()">Batal</button>
-            <form method="POST" action="{{ route('logout') }}">
+            <form method="POST" action="{{ route('profile.destroy') }}">
                 @csrf
                 <button type="submit" class="btn-simpan">Ya, Keluar</button>
             </form>
