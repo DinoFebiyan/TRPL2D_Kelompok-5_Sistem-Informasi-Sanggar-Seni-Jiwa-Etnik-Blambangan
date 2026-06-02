@@ -22,12 +22,12 @@ class BeritaController extends Controller
 
         // 1. Global Search (Judul, Isi Berita, Nama Penulis)
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('judul', 'like', '%' . $search . '%')
-                  ->orWhere('isi_berita', 'like', '%' . $search . '%')
-                  ->orWhereHas('user', function($userQuery) use ($search) {
-                      $userQuery->where('name', 'like', '%' . $search . '%');
-                  });
+                    ->orWhere('isi_berita', 'like', '%' . $search . '%')
+                    ->orWhereHas('user', function ($userQuery) use ($search) {
+                        $userQuery->where('name', 'like', '%' . $search . '%');
+                    });
             });
         }
 
@@ -37,12 +37,12 @@ class BeritaController extends Controller
         }
 
         $beritas = $query->latest()->paginate(10)->withQueryString();
-        
+
         // Hitung total statistik riil data murni database
         $totalBerita = Berita::count();
         $ditayangkan = Berita::where('status', 'tayang')->count();
         $tidakDitayangkan = Berita::where('status', 'tidak ditayangkan')->count();
-        
+
         $role = auth()->user()->peran;
 
         if ($role === 'superadmin') {
@@ -68,40 +68,40 @@ class BeritaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'judul'        => 'required|string|max:255',
-            'isi'          => 'required|string',
+            'judul' => 'required|string|max:255',
+            'isi' => 'required|string',
             'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
-            'status'       => 'required|in:tayang,tidak ditayangkan',
-            'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
+            'status' => 'required|in:tayang,tidak ditayangkan',
+            'foto' => 'nullable|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         $berita = Berita::create([
-            'judul'        => $request->judul,
-            'isi_berita'   => $request->isi,
+            'judul' => $request->judul,
+            'isi_berita' => $request->isi,
             'jenis_berita' => $request->jenis_berita,
-            'status'       => $request->status,
-            'user_id'      => auth()->id(),
+            'status' => $request->status,
+            'user_id' => auth()->id(),
         ]);
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('berita', 'public');
-                
+
                 Galeri::create([
-                    'sumber_id'    => $berita->id, 
-                    'path'         => $path,       
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(), 
-                    'kategori'     => 'berita',
+                    'sumber_id' => $berita->id,
+                    'path' => $path,
+                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori' => 'berita',
                     'is_watermark' => false,
                 ]);
             }
         }
 
         LogAktivitas::create([
-            'user_id'   => auth()->id(),
+            'user_id' => auth()->id(),
             'aktivitas' => 'Menambahkan berita baru: ' . $request->judul,
-            'waktu'     => now(),
+            'waktu' => now(),
         ]);
 
         $role = auth()->user()->peran;
@@ -140,28 +140,28 @@ class BeritaController extends Controller
         $berita = Berita::findOrFail($id);
 
         $request->validate([
-            'judul'        => 'required|string|max:255',
-            'isi'          => 'required|string',
+            'judul' => 'required|string|max:255',
+            'isi' => 'required|string',
             'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
-            'status'       => 'required|in:tayang,tidak ditayangkan',
-            'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
-            'hapus_foto'   => 'nullable|array',
+            'status' => 'required|in:tayang,tidak ditayangkan',
+            'foto' => 'nullable|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
         $berita->update([
-            'judul'        => $request->judul,
-            'isi_berita'   => $request->isi,
+            'judul' => $request->judul,
+            'isi_berita' => $request->isi,
             'jenis_berita' => $request->jenis_berita,
-            'status'       => $request->status,
+            'status' => $request->status,
         ]);
 
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $berita->id)
-                                  ->where('kategori', 'berita')
-                                  ->find($fotoId);
+                    ->where('kategori', 'berita')
+                    ->find($fotoId);
 
                 if ($fotoLama) {
                     if (Storage::disk('public')->exists($fotoLama->path)) {
@@ -175,21 +175,21 @@ class BeritaController extends Controller
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('berita', 'public');
-                
+
                 Galeri::create([
-                    'sumber_id'    => $berita->id,
-                    'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
-                    'kategori'     => 'berita',
+                    'sumber_id' => $berita->id,
+                    'path' => $path,
+                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori' => 'berita',
                     'is_watermark' => false,
                 ]);
             }
         }
 
         LogAktivitas::create([
-            'user_id'   => auth()->id(),
+            'user_id' => auth()->id(),
             'aktivitas' => 'Memperbarui data berita: ' . $berita->judul,
-            'waktu'     => now(),
+            'waktu' => now(),
         ]);
 
         $role = auth()->user()->peran;
@@ -201,6 +201,23 @@ class BeritaController extends Controller
         } else {
             abort(403, 'Anda tidak memiliki akses.');
         }
+    }
+
+    /**
+     * Endpoint upload gambar dari TinyMCE editor.
+     * Mengembalikan JSON { location: url } sesuai format TinyMCE.
+     */
+    public function uploadGambar(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
+        ]);
+
+        $path = $request->file('file')->store('berita-konten', 'public');
+
+        return response()->json([
+            'location' => Storage::disk('public')->url($path),
+        ]);
     }
 
     /**
@@ -221,9 +238,9 @@ class BeritaController extends Controller
         $berita->delete();
 
         LogAktivitas::create([
-            'user_id'   => auth()->id(),
+            'user_id' => auth()->id(),
             'aktivitas' => 'Menghapus berita: ' . $judulBerita,
-            'waktu'     => now(),
+            'waktu' => now(),
         ]);
 
         $role = auth()->user()->peran;

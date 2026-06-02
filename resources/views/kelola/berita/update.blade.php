@@ -4,7 +4,9 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <style>
         .page-container {
             max-width: 1000px;
@@ -13,7 +15,7 @@
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .form-header {
@@ -184,12 +186,27 @@
             justify-content: center;
             font-size: 0.75rem;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             transition: 0.2s;
         }
+
         .btn-hapus-foto-lama:hover {
             background: #dc2626;
             transform: scale(1.1);
+        }
+
+        /* Menyelaraskan box TinyMCE dengan tema form Anda */
+        .select-status {
+            border: 1px solid #A87C7C;
+            border-radius: 30px;
+        }
+
+        /* TAMBAHKAN KODE BARU INI DI SINI: */
+        .tox-tinymce {
+            border: 1px solid #A87C7C !important;
+            /* Mengubah warna border luar TinyMCE */
+            border-radius: 15px !important;
+            /* Membuat sudut editor menjadi melengkung/modern */
         }
     </style>
 @endsection
@@ -216,18 +233,22 @@
         </div>
 
         <div class="form-body">
-            <form id="formEditBerita" action="{{ route('superadmin.update-berita', $berita->id) }}" method="POST" enctype="multipart/form-data">
+            <form id="formEditBerita"
+                action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.update-berita', $berita->id) : route('admin.update-berita', $berita->id) }}"
+                method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
                 @if(session('success'))
-                    <div style="background:#dcfce7; color:#16a34a; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #16a34a;">
+                    <div
+                        style="background:#dcfce7; color:#16a34a; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #16a34a;">
                         <i class="fas fa-check-circle"></i> {{ session('success') }}
                     </div>
                 @endif
 
                 @if($errors->any())
-                    <div style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
+                    <div
+                        style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
                         <i class="fas fa-exclamation-circle"></i> Harap perbaiki kesalahan pada form.
                         <ul style="margin: 5px 0 0 0; padding-left: 20px; color: #dc2626;">
                             @foreach($errors->all() as $error)
@@ -239,19 +260,21 @@
 
                 {{-- Menampilkan Gambar Header Berita Saat Ini dari Database --}}
                 @if($berita->galeri && $berita->galeri->isNotEmpty())
-                <div class="form-group">
-                    <label>Gambar Header Berita Saat Ini (Klik tombol merah untuk menghapus)</label>
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
-                        @foreach($berita->galeri as $foto)
-                            <div id="foto-lama-box-{{ $foto->id }}" style="position: relative; display: inline-block;">
-                                <img src="{{ asset('storage/' . $foto->path) }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #c0c0c0;">
-                                <button type="button" class="btn-hapus-foto-lama" onclick="tandaiHapusFoto({{ $foto->id }})" title="Hapus gambar ini">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        @endforeach
+                    <div class="form-group">
+                        <label>Gambar Header Berita Saat Ini (Klik tombol merah untuk menghapus)</label>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+                            @foreach($berita->galeri as $foto)
+                                <div id="foto-lama-box-{{ $foto->id }}" style="position: relative; display: inline-block;">
+                                    <img src="{{ asset('storage/' . $foto->path) }}"
+                                        style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #c0c0c0;">
+                                    <button type="button" class="btn-hapus-foto-lama" onclick="tandaiHapusFoto({{ $foto->id }})"
+                                        title="Hapus gambar ini">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
                 @endif
 
                 <div id="wadahInputHapusFoto"></div>
@@ -261,23 +284,35 @@
                     <label>Unggah Gambar Tambahan Baru (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
-                        <span class="file-name-display" id="fileNameDisplay">Kosongkan jika tidak ingin menambah gambar...</span>
-                        <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
+                        <span class="file-name-display" id="fileNameDisplay">Kosongkan jika tidak ingin menambah
+                            gambar...</span>
+                        <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg"
+                            style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
                     </div>
                     <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
-                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
+                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+                    </div>
                 </div>
 
                 {{-- Judul Berita --}}
                 <div class="form-group">
                     <label>Judul Berita</label>
-                    <input type="text" name="judul" value="{{ old('judul', $berita->judul) }}" placeholder="Masukkan judul berita..." required>
+                    <input type="text" name="judul" value="{{ old('judul', $berita->judul) }}"
+                        placeholder="Masukkan judul berita..." required>
                 </div>
 
                 {{-- Isi Berita --}}
-                <div class="form-group">
-                    <label>Isi Berita</label>
-                    <textarea name="isi" rows="6" placeholder="Masukkan isi berita..." required>{{ old('isi', $berita->isi_berita) }}</textarea>
+                <div class="form-group mb-4">
+                    <label class="fw-semibold" style="font-family: 'Poppins', sans-serif; color: #333;">Isi Berita</label>
+                    {{-- Jika ada input lama (old) gunakan itu, jika tidak ada, ambil data isi dari database --}}
+                    <textarea name="isi" id="isi_berita_editor"
+                        rows="10">{!! old('isi') ? e(old('isi')) : $berita->isi_berita !!}</textarea>
+
+                    @error('isi')
+                        <div style="color: #dc2626; font-size: 0.85rem; margin-top: 8px; font-family: 'Poppins', sans-serif;">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
 
                 {{-- Jenis Berita --}}
@@ -287,7 +322,8 @@
                         <option value="Pengumuman" {{ old('jenis_berita', $berita->jenis_berita) == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
                         <option value="Prestasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
                         <option value="Kolaborasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
-                        <option value="Event" {{ old('jenis_berita', $berita->jenis_berita) == 'Event' ? 'selected' : '' }}>Event</option>
+                        <option value="Event" {{ old('jenis_berita', $berita->jenis_berita) == 'Event' ? 'selected' : '' }}>
+                            Event</option>
                         <option value="Lainnya" {{ old('jenis_berita', $berita->jenis_berita) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
                     </select>
                 </div>
@@ -296,7 +332,8 @@
                 <div class="form-group">
                     <label>Status</label>
                     <select name="status" required class="select-status">
-                        <option value="tayang" {{ old('status', $berita->status) == 'tayang' ? 'selected' : '' }}>Tayang</option>
+                        <option value="tayang" {{ old('status', $berita->status) == 'tayang' ? 'selected' : '' }}>Tayang
+                        </option>
                         <option value="tidak ditayangkan" {{ old('status', $berita->status) == 'tidak ditayangkan' ? 'selected' : '' }}>Tidak Ditayangkan</option>
                     </select>
                 </div>
@@ -307,9 +344,9 @@
     <script>
         // FUNGSI BARU: Memasukkan ID foto ke input hidden dan menyembunyikannya dari UI
         function tandaiHapusFoto(idFoto) {
-            if(confirm('Apakah Anda yakin ingin menghapus gambar ini dari berita?')) {
+            if (confirm('Apakah Anda yakin ingin menghapus gambar ini dari berita?')) {
                 const wadah = document.getElementById('wadahInputHapusFoto');
-                
+
                 // Buat elemen input hidden baru
                 const inputHidden = document.createElement('input');
                 inputHidden.type = 'hidden';
@@ -319,7 +356,7 @@
 
                 // Hilangkan box foto dari tampilan layar
                 const boxFoto = document.getElementById('foto-lama-box-' + idFoto);
-                if(boxFoto) {
+                if (boxFoto) {
                     boxFoto.remove();
                 }
             }
@@ -331,7 +368,7 @@
         function updateFileNameAndPreview(input) {
             const display = document.getElementById('fileNameDisplay');
             const container = document.getElementById('imagePreviewContainer');
-            
+
             if (input.files && input.files.length > 0) {
                 for (let i = 0; i < input.files.length; i++) {
                     kumpulanFileBerita.push(input.files[i]);
@@ -339,12 +376,12 @@
 
                 container.innerHTML = '';
                 const dataTransferObat = new DataTransfer();
-                
+
                 kumpulanFileBerita.forEach((file) => {
                     dataTransferObat.items.add(file);
 
                     const reader = new FileReader();
-                    reader.onload = function(e) {
+                    reader.onload = function (e) {
                         const wrapper = document.createElement('div');
                         wrapper.style.position = 'relative';
                         wrapper.style.display = 'inline-block';
@@ -369,4 +406,73 @@
             }
         }
     </script>
+    {{-- Memuat Library Resmi TinyMCE dari CDN Cloud --}}
+    <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
+        referrerpolicy="origin"></script>
+
+    <script>
+        tinymce.init({
+            selector: '#isi_berita_editor', // Mengunci target textarea berdasarkan ID
+            height: 450,                   // Mengatur tinggi kotak teks editor
+            menubar: false,                // Menyembunyikan menu bar atas agar tampilan minimalis
+
+            // Memuat plugin penting untuk teks, link, tabel, dan gambar
+            plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'searchreplace', 'visualblocks', 'code', 'fullscreen', 'table', 'wordcount'],
+
+            // Menyusun tombol apa saja yang muncul di toolbar utama
+            toolbar: 'undo redo | formatselect | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | link image | removeformat code fullscreen',
+
+            // Mengaktifkan fitur unggah gambar otomatis saat gambar ditaruh di editor
+            automatic_uploads: true,
+
+            // Fungsi utama pengiriman gambar ke Controller Laravel (AJAX / XMLHttpRequest)
+            images_upload_handler: function (blobInfo, progress) {
+                return new Promise(function (resolve, reject) {
+                    var xhr = new XMLHttpRequest();
+                    // Mengarahkan ke route POST upload gambar yang sudah kita buat di web.php
+                    xhr.open('POST', '{{ route("berita.upload-gambar") }}');
+
+                    // ANTI-419 EXPIRED: Mengambil Token CSRF langsung dari elemen Meta Head HTML browser
+                    var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+                    xhr.setRequestHeader('X-CSRF-TOKEN', token);
+
+                    // Menghitung progress persentase bar saat proses upload berlangsung
+                    xhr.upload.onprogress = function (e) {
+                        progress(e.loaded / e.total * 100);
+                    };
+
+                    // Ketika respon balik didapatkan dari server Laravel
+                    xhr.onload = function () {
+                        if (xhr.status < 200 || xhr.status >= 300) {
+                            reject('Gagal mengunggah. Kode status HTTP: ' + xhr.status);
+                            return;
+                        }
+
+                        var json = JSON.parse(xhr.responseText);
+
+                        // Jika sukses mendapat URL lokasi gambar baru, sisipkan langsung ke HTML editor
+                        if (json && typeof json.location === 'string') {
+                            resolve(json.location);
+                        } else {
+                            reject('Format respon JSON dari server tidak valid.');
+                        }
+                    };
+
+                    // Jika terjadi kegagalan jaringan internet
+                    xhr.onerror = function () {
+                        reject('Terjadi kesalahan jaringan atau server tidak merespon.');
+                    };
+
+                    // Membungkus file gambar ke bentuk form data biner dan mengirimkannya
+                    var formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    xhr.send(formData);
+                });
+            },
+
+            // Memaksa area mengetik di dalam TinyMCE menggunakan font Poppins agar senada dengan web Anda
+            content_style: "body { font-family: 'Poppins', sans-serif; font-size: 14px; line-height: 1.7; color: #333; }"
+        });
+    </script>
+
 @endsection
