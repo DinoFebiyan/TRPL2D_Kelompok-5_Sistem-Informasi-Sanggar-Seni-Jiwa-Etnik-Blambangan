@@ -23,21 +23,28 @@ class AuthenticatedSessionController extends Controller
      * Handle an incoming authentication request.
      */
     public function store(LoginRequest $request): RedirectResponse
-{
-    $request->authenticate();
+    {
+        $request->authenticate();
 
-    $request->session()->regenerate();
+        $request->session()->regenerate();
 
-    // Redirect berdasarkan peran user
-    $user = Auth::user();
-    
-    if ($user->peran == 'super_admin') {
-        return redirect()->intended(route('superadmin.dashboard'));
-    } elseif ($user->peran == 'admin') {
-        return redirect()->intended(route('admin.dashboard'));
+        // Ambil data user yang login
+        $user = Auth::user();
+        
+        // SINKRONISASI COATING ROLE (Menggunakan route() murni untuk mematikan intended bypass)
+        if ($user->peran === 'superadmin') {
+            return redirect()->route('superadmin.dashboard');
+        } elseif ($user->peran === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        // Jika peran tidak dikenali, logout paksa agar tidak menggantung di sistem
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('error', 'Peran anda tidak diketahui, mohon hubungi pihak terkait.');
     }
-    return redirect()->back()->with('error', 'Peran anda tidak diketahui, mohon hubungi superadmin untuk pengecekan lebih lanjut.');
-}
 
     /**
      * Destroy an authenticated session.

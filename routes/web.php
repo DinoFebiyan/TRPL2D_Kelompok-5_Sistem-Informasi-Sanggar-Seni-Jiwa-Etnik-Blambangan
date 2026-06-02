@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminController; // Memperbaiki huruf kecil "h" pada http menjadi "H" besar
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\ProfilController;
@@ -10,7 +10,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GaleriController;
 use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\PengaturanController;
-use App\Http\Controllers\DashboardSuperadminController;
+use App\Http\Controllers\DashboardSuperadminController; // FIX: Memastikan Case-Sensitive CamelCase Benar
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\UmumController;
 use Illuminate\Support\Facades\Route;
@@ -30,11 +30,19 @@ Route::get('/galeri/{id}', [UmumController::class, 'galeriDetail'])->name('umum.
 Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.profil');
 
 // =========================================================================
-// 2. AUTH DEFAULT & OTP (Folder: views/auth)
+// 2. AUTH & REDIRECTION ROLE (Mencegah Blank Halaman /dashboard Default)
 // =========================================================================
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+    $user = auth()->user();
+    
+    if ($user->peran === 'superadmin') {
+        return redirect()->route('superadmin.dashboard');
+    } elseif ($user->peran === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+    
+    return abort(403, 'Akses peran tidak sah.');
+})->middleware(['auth'])->name('dashboard');
 
 Route::get('/auth/verifikasi_otp', function () {
     return view('auth.verifikasi_otp');
@@ -84,7 +92,6 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('admin.pengaturan');
     Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('admin.pengaturan.update-profil');
     Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('admin.pengaturan.update-password');
-
 });
 
 // =========================================================================

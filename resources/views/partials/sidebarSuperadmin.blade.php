@@ -145,7 +145,8 @@
         </div>
         <div class="modal-footer">
             <button class="btn-batal" onclick="closeLogoutModal()">Batal</button>
-            <form method="POST" action="{{ route('profile.destroy') }}">
+            {{-- PERBAIKAN: Mengarahkan action form ke route('logout') bawaan Breeze --}}
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="btn-simpan">Ya, Keluar</button>
             </form>
