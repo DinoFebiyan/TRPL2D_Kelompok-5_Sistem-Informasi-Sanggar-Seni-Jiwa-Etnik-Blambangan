@@ -30,7 +30,7 @@ Route::get('/galeri/{id}', [UmumController::class, 'galeriDetail'])->name('umum.
 Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.profil');
 
 // =========================================================================
-// 2. AUTH & REDIRECTION ROLE (Mencegah Blank Halaman /dashboard Default)
+// 2. AUTH & REDIRECTION ROLE
 // =========================================================================
 Route::get('/dashboard', function () {
     $user = auth()->user();
