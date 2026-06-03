@@ -1,7 +1,7 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\AdminController; // Memperbaiki huruf kecil "h" pada http menjadi "H" besar
+use App\http\Controllers\AdminController;
 use App\Http\Controllers\LandingPageController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\ProfilController;
@@ -10,7 +10,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\GaleriController;
 use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\PengaturanController;
-use App\Http\Controllers\DashboardSuperadminController; // FIX: Memastikan Case-Sensitive CamelCase Benar
+use App\Http\Controllers\DashboardSuperadminController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\UmumController;
 use Illuminate\Support\Facades\Route;
@@ -33,16 +33,8 @@ Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.pro
 // 2. AUTH & REDIRECTION ROLE
 // =========================================================================
 Route::get('/dashboard', function () {
-    $user = auth()->user();
-    
-    if ($user->peran === 'superadmin') {
-        return redirect()->route('superadmin.dashboard');
-    } elseif ($user->peran === 'admin') {
-        return redirect()->route('admin.dashboard');
-    }
-    
-    return abort(403, 'Akses peran tidak sah.');
-})->middleware(['auth'])->name('dashboard');
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/auth/verifikasi_otp', function () {
     return view('auth.verifikasi_otp');
@@ -92,12 +84,28 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('admin.pengaturan');
     Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('admin.pengaturan.update-profil');
     Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('admin.pengaturan.update-password');
+
 });
+
+// =========================================================================
+// ERROR POPUP ROUTES (bisa diakses tanpa login)
+// =========================================================================
+Route::get('/error/akses', function () {
+    return view('error.akses');
+})->name('error.akses');
+
+Route::get('/error/server', function () {
+    return view('error.server');
+})->name('error.server');
+
+Route::get('/error/path', function () {
+    return view('error.path');
+})->name('error.path');
 
 // =========================================================================
 // 4. ROUTE UNTUK SUPER ADMIN
 // =========================================================================
-Route::prefix('superadmin')->middleware(['auth'])->group(function () {
+Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [DashboardSuperadminController::class, 'index'])->name('superadmin.dashboard');
