@@ -1,19 +1,29 @@
-{{-- Pop Up: Login Diperlukan --}}
-{{-- Cara pakai: tambahkan @include('popups.akses') di blade manapun --}}
-{{-- Trigger tampil: panggil showPopupAkses() --}}
-
-<!-- Overlay Pop Up Login Required -->
-<div id="popup-akses" style="
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Diperlukan — JEB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            background: rgba(0,0,0,0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        @keyframes popupIn {
+            from { opacity: 0; transform: scale(0.92) translateY(16px); }
+            to   { opacity: 1; transform: scale(1)    translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Pop Up: Login Diperlukan (Super Admin) -->
     <div style="
         background: #EFF6FF;
         border-radius: 16px;
@@ -24,7 +34,7 @@
         text-align: center;
         animation: popupIn 0.25s ease;
     ">
-        {{-- Icon --}}
+        <!-- Icon -->
         <div style="
             width: 72px; height: 72px;
             border-radius: 50%;
@@ -35,26 +45,26 @@
             font-size: 30px;
         ">🔒</div>
 
-        {{-- Label --}}
+        <!-- Label -->
         <p style="
             font-size: 11px; font-weight: 800;
             letter-spacing: .14em; text-transform: uppercase;
             color: #475569; margin-bottom: 8px;
         ">Login Required</p>
 
-        {{-- Judul --}}
+        <!-- Judul -->
         <h2 style="
             font-size: 18px; font-weight: 800;
             color: #1E88E5; margin-bottom: 10px;
         ">Login Diperlukan</h2>
 
-        {{-- Pesan --}}
+        <!-- Pesan -->
         <p style="
             font-size: 13.5px; color: #475569;
             line-height: 1.65; margin-bottom: 24px;
-        ">Silakan login untuk mengakses halaman ini.</p>
+        ">Anda harus login sebagai <strong>Super Admin</strong> untuk mengakses halaman ini.</p>
 
-        {{-- Tombol Login --}}
+        <!-- Tombol Login -->
         <a href="{{ route('login') }}" style="
             display: block; width: 100%;
             padding: 13px;
@@ -73,41 +83,16 @@
             Login
         </a>
 
-        {{-- Link Kembali --}}
-        <a onclick="hidePopupAkses()" style="
+        <!-- Link Kembali ke Beranda -->
+        <a href="{{ route('home') }}" style="
             display: block;
             color: #1E88E5; font-size: 13.5px; font-weight: 600;
             cursor: pointer; text-decoration: none;
         "
         onmouseover="this.style.textDecoration='underline'"
         onmouseout="this.style.textDecoration='none'">
-            Kembali
+            Kembali ke Beranda
         </a>
     </div>
-</div>
-
-@push('scripts')
-<script>
-    function showPopupAkses() {
-        var el = document.getElementById('popup-akses');
-        el.style.display = 'flex';
-    }
-    function hidePopupAkses() {
-        var el = document.getElementById('popup-akses');
-        el.style.display = 'none';
-    }
-    // Tutup saat klik overlay
-    document.getElementById('popup-akses').addEventListener('click', function(e) {
-        if (e.target === this) hidePopupAkses();
-    });
-</script>
-@endpush
-
-@push('styles')
-<style>
-    @keyframes popupIn {
-        from { opacity: 0; transform: scale(0.92) translateY(16px); }
-        to   { opacity: 1; transform: scale(1)    translateY(0); }
-    }
-</style>
-@endpush
+</body>
+</html>
