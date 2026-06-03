@@ -33,9 +33,18 @@ Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.pro
 // 2. AUTH & REDIRECTION ROLE
 // =========================================================================
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+     $user = auth()->user();
+    
+    if ($user->peran === 'superadmin') {
+        return redirect()->route('superadmin.dashboard');
+    } elseif ($user->peran === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+    
+    return abort(403, 'Akses peran tidak sah.');
+})->middleware(['auth'])->name('dashboard');
 
+//hfhf
 Route::get('/auth/verifikasi_otp', function () {
     return view('auth.verifikasi_otp');
 })->name('verifikasi.otp');
