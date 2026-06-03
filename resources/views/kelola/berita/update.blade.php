@@ -412,66 +412,56 @@
 
     <script>
         tinymce.init({
-            selector: '#isi_berita_editor', // Mengunci target textarea berdasarkan ID
-            height: 450,                   // Mengatur tinggi kotak teks editor
-            menubar: false,                // Menyembunyikan menu bar atas agar tampilan minimalis
+            selector: '#isi_berita_editor',
 
-            // Memuat plugin penting untuk teks, link, tabel, dan gambar
-            plugins: ['advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview', 'searchreplace', 'visualblocks', 'code', 'fullscreen', 'table', 'wordcount'],
+            height: 600,
 
-            // Menyusun tombol apa saja yang muncul di toolbar utama
-            toolbar: 'undo redo | formatselect | bold italic underline | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist | link image | removeformat code fullscreen',
+            menubar: 'file edit view insert format table tools',
 
-            // Mengaktifkan fitur unggah gambar otomatis saat gambar ditaruh di editor
-            automatic_uploads: true,
+            plugins: [
+                'advlist',
+                'autolink',
+                'lists',
+                'charmap',
+                'preview',
+                'searchreplace',
+                'visualblocks',
+                'fullscreen',
+                'insertdatetime',
+                'table',
+                'wordcount'
+            ],
 
-            // Fungsi utama pengiriman gambar ke Controller Laravel (AJAX / XMLHttpRequest)
-            images_upload_handler: function (blobInfo, progress) {
-                return new Promise(function (resolve, reject) {
-                    var xhr = new XMLHttpRequest();
-                    // Mengarahkan ke route POST upload gambar yang sudah kita buat di web.php
-                    xhr.open('POST', '{{ route("berita.upload-gambar") }}');
+            toolbar: [
+                'undo redo | blocks fontfamily fontsize',
+                '| bold italic underline strikethrough',
+                '| forecolor backcolor',
+                '| alignleft aligncenter alignright alignjustify',
+                '| bullist numlist',
+                '| outdent indent',
+                '| table',
+                '| charmap',
+                '| removeformat',
+                '| fullscreen preview'
+            ].join(' '),
 
-                    // ANTI-419 EXPIRED: Mengambil Token CSRF langsung dari elemen Meta Head HTML browser
-                    var token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-                    xhr.setRequestHeader('X-CSRF-TOKEN', token);
+            font_family_formats:
+                'Arial=arial,helvetica,sans-serif;' +
+                'Calibri=calibri,sans-serif;' +
+                'Cambria=cambria,serif;' +
+                'Times New Roman=times new roman,times;' +
+                'Georgia=georgia,serif;' +
+                'Poppins=Poppins,sans-serif',
 
-                    // Menghitung progress persentase bar saat proses upload berlangsung
-                    xhr.upload.onprogress = function (e) {
-                        progress(e.loaded / e.total * 100);
-                    };
+            fontsize_formats:
+                '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt 72pt',
 
-                    // Ketika respon balik didapatkan dari server Laravel
-                    xhr.onload = function () {
-                        if (xhr.status < 200 || xhr.status >= 300) {
-                            reject('Gagal mengunggah. Kode status HTTP: ' + xhr.status);
-                            return;
-                        }
+            toolbar_mode: 'sliding',
 
-                        var json = JSON.parse(xhr.responseText);
+            branding: false,
 
-                        // Jika sukses mendapat URL lokasi gambar baru, sisipkan langsung ke HTML editor
-                        if (json && typeof json.location === 'string') {
-                            resolve(json.location);
-                        } else {
-                            reject('Format respon JSON dari server tidak valid.');
-                        }
-                    };
-
-                    // Jika terjadi kegagalan jaringan internet
-                    xhr.onerror = function () {
-                        reject('Terjadi kesalahan jaringan atau server tidak merespon.');
-                    };
-
-                    // Membungkus file gambar ke bentuk form data biner dan mengirimkannya
-                    var formData = new FormData();
-                    formData.append('file', blobInfo.blob(), blobInfo.filename());
-                    xhr.send(formData);
-                });
-            },
-
-            // Memaksa area mengetik di dalam TinyMCE menggunakan font Poppins agar senada dengan web Anda
-            content_style: "body { font-family: 'Poppins', sans-serif; font-size: 14px; line-height: 1.7; color: #333; }"
+            content_style:
+                "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }"
         });
     </script>
 
