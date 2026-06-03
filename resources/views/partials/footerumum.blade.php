@@ -8,10 +8,12 @@
     <div class="footer-links">
       <h4>Tautan Singkat</h4>
       <ul>
-        <li><a href="#beranda">Beranda</a></li>
-        <li><a href="#profile">Profile Sanggar</a></li>
-        <li><a href="#berita">Artikel & Berita</a></li>
-        <li><a href="#katalog">Katalog Kostum</a></li>
+        <li><a href="{{ route('home') }}">Beranda</a></li>
+        <li><a href="{{ route('umum.profil') }}">Profile Sanggar</a></li>
+        <li><a href="{{ route('umum.berita') }}">Artikel & Berita</a></li>
+        <li><a href="{{ route('umum.event') }}">Kalender Event</a></li>
+        <li><a href="{{ route('umum.katalog') }}">Katalog Kostum</a></li>
+        <li><a href="{{ route('umum.galeri') }}">Galeri</a></li>
       </ul>
     </div>
 

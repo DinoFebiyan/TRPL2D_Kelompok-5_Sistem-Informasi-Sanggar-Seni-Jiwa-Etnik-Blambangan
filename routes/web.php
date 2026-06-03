@@ -30,7 +30,7 @@ Route::get('/galeri/{id}', [UmumController::class, 'galeriDetail'])->name('umum.
 Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.profil');
 
 // =========================================================================
-// 2. AUTH DEFAULT & OTP (Folder: views/auth)
+// 2. AUTH & REDIRECTION ROLE
 // =========================================================================
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -173,6 +173,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/edit', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/upload-gambar-berita', [BeritaController::class, 'uploadGambar'])->name('berita.upload-gambar');
 });
 
 require __DIR__.'/auth.php';
