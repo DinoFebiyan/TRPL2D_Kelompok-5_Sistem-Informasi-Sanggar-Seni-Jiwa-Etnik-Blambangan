@@ -75,7 +75,7 @@ class KatalogController extends Controller
             'stok'      => 'required|integer|min:0',
             'deskripsi' => 'required|string',
             'status'    => 'required|in:tersedia,tidak tersedia',
-            'foto'      => 'nullable|array', 
+            'foto'      => 'required|array', 
             'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096', 
         ]);
 
@@ -146,7 +146,7 @@ class KatalogController extends Controller
             'stok'         => 'required|integer|min:0',
             'deskripsi'    => 'required|string',
             'status'       => 'required|in:tersedia,tidak tersedia',
-            'foto'         => 'nullable|array',
+            'foto'         => 'required|array',
             'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
             'hapus_foto'   => 'nullable|array', 
             'hapus_foto.*' => 'exists:galeri,id',
