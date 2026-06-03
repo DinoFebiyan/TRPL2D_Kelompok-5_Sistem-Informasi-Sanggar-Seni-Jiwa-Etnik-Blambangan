@@ -204,9 +204,12 @@
         /* TAMBAHKAN KODE BARU INI DI SINI: */
         .tox-tinymce {
             border: 1px solid #A87C7C !important;
-            /* Mengubah warna border luar TinyMCE */
-            border-radius: 15px !important;
-            /* Membuat sudut editor menjadi melengkung/modern */
+            /* Menggunakan warna border khas form Anda */
+            border-radius: 14px !important;
+            /* Membuat sudut melengkung halus */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            /* Memberi bayangan tipis */
+            overflow: hidden;
         }
     </style>
 {{-- Popup Server Error: muncul otomatis jika validasi gagal --}}
@@ -463,7 +466,6 @@
                 'visualblocks',
                 'fullscreen',
                 'insertdatetime',
-                'table',
                 'wordcount'
             ],
 
@@ -474,7 +476,6 @@
                 '| alignleft aligncenter alignright alignjustify',
                 '| bullist numlist',
                 '| outdent indent',
-                '| table',
                 '| charmap',
                 '| removeformat',
                 '| fullscreen preview'

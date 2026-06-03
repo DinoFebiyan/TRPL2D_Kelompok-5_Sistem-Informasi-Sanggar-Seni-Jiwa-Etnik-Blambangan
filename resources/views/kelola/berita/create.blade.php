@@ -440,7 +440,6 @@
                 '| alignleft aligncenter alignright alignjustify',
                 '| bullist numlist',
                 '| outdent indent',
-                '| table',
                 '| charmap',
                 '| removeformat',
                 '| fullscreen preview'
