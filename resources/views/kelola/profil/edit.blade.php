@@ -37,15 +37,15 @@
             </div>
             <div class="header-actions">
                 @if(auth()->user()->peran === 'superadmin')
-                    <a href="{{ route('superadmin.kelola-profil') }}" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-profil') }}'); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
-                    <a href="{{ route('admin.kelola-profil') }}" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal('{{ route('admin.kelola-profil') }}'); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
-                <button type="submit" form="formEditProfil" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="showPopupSimpan('formEditProfil')" form="formEditProfil" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>
 
@@ -203,3 +203,30 @@
         }
     </script>
 @endsection
+
+
+@if ($errors->any())
+<div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
+    <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
+        <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
+        <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
+        <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
+        <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
+        <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
+            @foreach ($errors->all() as $error)
+            <li style="margin-bottom:4px;">{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button onclick="document.getElementById('popup-server-inline').style.display='none';" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
+    </div>
+</div>
+<script>
+    window.addEventListener('load', function() {
+        document.getElementById('popup-server-inline').style.display = 'flex';
+    });
+</script>
+@endif
+
+{{-- Popup Batal & Simpan --}}
+@include('popup.batal')
+@include('popup.simpan')
