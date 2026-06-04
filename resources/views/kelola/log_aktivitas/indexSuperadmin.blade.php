@@ -6,17 +6,34 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
+    /* ==========================================
+       1. GEMBOK UTAMA (ANTI-BLOWOUT HORIZONTAL)
+       ========================================== */
+    .main, .content {
+        min-width: 0 !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+
     .log-wrapper {
         width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
         font-family: 'Poppins', sans-serif;
         color: #333;
     }
     
+    /* ==========================================
+       2. RESPONSIF STATS GRID
+       ========================================== */
     .log-stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 15px;
         margin-bottom: 24px;
+        width: 100%;
+        box-sizing: border-box;
     }
     .log-stat-card {
         background: #ffffff;
@@ -27,6 +44,7 @@
         gap: 15px;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         border: 1px solid #f0f0f0;
+        min-width: 0;
     }
     .log-icon-box {
         width: 45px;
@@ -36,61 +54,104 @@
         align-items: center;
         justify-content: center;
         font-size: 1.2rem;
+        flex-shrink: 0;
     }
     .log-icon-blue { background: #eff6ff; color: #3b82f6; }
     .log-icon-green { background: #f0fdf4; color: #16a34a; }
     .log-icon-yellow { background: #fefce8; color: #eab308; }
     .log-icon-red { background: #fef2f2; color: #ef4444; }
 
+    .log-stat-text {
+        min-width: 0;
+        flex: 1;
+    }
+    .log-stat-text h4 {
+        margin: 0;
+        font-size: 0.7rem;
+        color: #999;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .log-stat-text h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #333;
+        font-weight: 700;
+    }
+
+    /* ==========================================
+       3. SEARCH & FILTER ROW (DIPAKSA 1 BARIS)
+       ========================================== */
     .log-search-row {
         display: flex;
+        flex-direction: row; 
+        flex-wrap: nowrap; 
         gap: 15px;
         margin-bottom: 24px;
+        align-items: stretch;
+        width: 100%;
+        box-sizing: border-box;
     }
     .log-search-box {
-        flex: 1;
+        flex: 1 1 0%;
+        min-width: 0; 
         position: relative;
     }
     .log-search-box input {
         width: 100%;
-        padding: 14px 20px;
+        min-width: 0;
+        padding: 12px 35px 12px 15px;
         border-radius: 12px;
         border: 1px solid #e8dede;
         outline: none;
         font-family: 'Poppins', sans-serif;
         font-size: 0.95rem;
         background: #fff;
+        text-overflow: ellipsis;
+        box-sizing: border-box; 
     }
     .log-search-box .fa-search {
         position: absolute;
-        right: 20px;
+        right: 15px;
         top: 50%;
         transform: translateY(-50%);
         color: #eab308;
-        font-size: 1.2rem;
+        font-size: 1rem;
         cursor: pointer;
     }
     .log-btn-filter {
+        flex: 0 0 auto;
         background: #b91c1c;
         color: #ffffff;
         border: none;
-        padding: 0 35px;
+        padding: 0 24px;
         border-radius: 12px;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 0.9rem;
         display: flex;
         align-items: center;
-        gap: 10px;
+        justify-content: center;
+        gap: 8px;
         cursor: pointer;
+        white-space: nowrap;
     }
     
+    /* ==========================================
+       4. TABEL RESPONSIF (ANTI BOCOR)
+       ========================================== */
     .log-table-card {
         background: #ffffff;
         border-radius: 12px;
         padding: 25px 0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         border: 1px solid #f0f0f0;
-        overflow-x: auto;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
     }
     .log-table-card h3 {
         margin: 0 0 20px 0;
@@ -98,10 +159,19 @@
         font-size: 1.1rem;
         color: #333;
     }
+    
+    .table-responsive-wrapper {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 10px; 
+        padding-bottom: 10px;
+    }
     .log-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 800px;
+        min-width: 800px; /* Batas minimum agar tidak bertumpuk */
     }
     .log-table thead {
         background-color: #F5EBEB;
@@ -114,6 +184,7 @@
         font-size: 0.85rem;
         border-bottom: none;
         text-transform: uppercase;
+        white-space: nowrap;
     }
     .log-table td {
         padding: 15px 25px;
@@ -123,12 +194,17 @@
         color: #333;
     }
     
+    /* ==========================================
+       5. PAGINATION
+       ========================================== */
     .log-pagination {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 25px;
+        margin-top: 15px;
         padding: 0 25px;
+        flex-wrap: wrap;
+        gap: 15px;
     }
     .log-pagination p {
         font-size: 0.85rem;
@@ -139,6 +215,7 @@
     .log-page-controls {
         display: flex;
         gap: 8px;
+        flex-wrap: wrap;
     }
     .log-page-controls a, .log-page-controls span {
         display: inline-flex;
@@ -181,7 +258,7 @@
         z-index: 9999;
     }
     .custom-modal-content {
-        background: #fff; width: 100%; max-width: 480px;
+        background: #fff; width: 90%; max-width: 480px;
         border-radius: 24px; padding: 30px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         animation: popupSlightIn 0.3s ease-out;
@@ -211,6 +288,77 @@
     .btn-modal-batal:hover { background: #D1D5DB; }
     .btn-modal-terapkan { background: #EF4444; color: white; }
     .btn-modal-terapkan:hover { background: #DC2626; }
+
+    /* ==========================================
+       6. MEDIA QUERIES (MOBILE)
+       ========================================== */
+    @media (max-width: 640px) {
+        
+        .log-stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important; /* Terkunci 2 kolom */
+            gap: 10px !important;
+            width: 100% !important;
+        }
+        .log-stat-card {
+            padding: 12px 10px !important;
+            flex-direction: column !important;
+            text-align: center !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 5px !important;
+            min-width: 0 !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        .log-icon-box {
+            width: 35px !important; height: 35px !important; font-size: 1rem !important;
+        }
+        .log-stat-text {
+            width: 100% !important;
+        }
+        .log-stat-text h2 { font-size: 1.25rem !important; }
+        .log-stat-text h4 { font-size: 0.65rem !important; }
+
+        /* MEMAKSA SEARCH DAN FILTER 1 BARIS DI HP */
+        .log-search-row {
+            display: flex !important;
+            flex-direction: row !important; 
+            flex-wrap: nowrap !important;
+            gap: 8px !important;
+            width: 100% !important;
+        }
+        .log-search-box {
+            flex: 1 1 0% !important;
+        }
+        .log-search-box input {
+            padding: 10px 30px 10px 12px !important;
+            font-size: 0.8rem !important;
+            min-width: 0 !important;
+            width: 100% !important;
+        }
+        .log-search-box .fa-search {
+            right: 10px !important;
+            font-size: 0.9rem !important;
+        }
+        .log-btn-filter {
+            flex: 0 0 auto !important;
+            padding: 0 12px !important; 
+            font-size: 0.8rem !important;
+            gap: 5px !important;
+        }
+        .log-btn-filter span { display: none !important; } /* Sembunyikan kata filter */
+
+        /* PERBAIKAN TABEL CARD DI HP */
+        .log-table-card {
+            padding: 15px 10px !important; 
+            width: 100% !important;
+        }
+        
+        .log-pagination {
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
+    }
 
     @keyframes popupSlightIn {
         from { transform: scale(0.95); opacity: 0; }
@@ -254,11 +402,11 @@
     <form method="GET" action="{{ route('superadmin.log-aktivitas') }}" id="formFilterLog">
         <div class="log-search-row">
             <div class="log-search-box">
-                <input type="text" name="search" id="searchLog" placeholder="Cari berdasarkan aktivitas, nama login/aktor..." value="{{ request('search') }}">
+                <input type="text" name="search" id="searchLog" placeholder="Cari berdasarkan aktivitas, nama aktor..." value="{{ request('search') }}">
                 <i class="fas fa-search" onclick="submitFormFilter()"></i>
             </div>
             <button type="button" class="log-btn-filter" onclick="openFilterModal()">
-                <i class="fas fa-filter"></i> Filter
+                <i class="fas fa-filter"></i> <span>Filter</span>
             </button>
         </div>
 
@@ -300,27 +448,31 @@
     </form>
 
     <div class="log-table-card">
-        <h3>Daftar Aktivitas</h3>
-        <table class="log-table" id="logTable">
-            <thead>
-                <tr>
-                    <th>Aktivitas</th>
-                    <th>Aktor</th>
-                    <th>Waktu</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($logs ?? [] as $log)
-                <tr>
-                    <td>{{ $log->aktivitas ?? 'Menambahkan Data' }}</td>
-                    <td><strong style="color:#000;">{{ $log->aktor ?? ($log->user->name ?? 'Login 1') }}</strong></td>
-                    <td>{{ \Carbon\Carbon::parse($log->created_at)->translatedFormat('l/j/F-H:i:s') }}</td>
-                </tr>
-                @empty
-                <tr><td colspan="3" style="text-align:center">Belum ada aktivitas tercatat yang sesuai kriteria.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+        <h3 style="margin-left: 10px;">Daftar Aktivitas</h3>
+        
+        {{-- WRAPPER TABEL SCROLL HORIZONTAL (GEMBOK UKURAN LEBAR) --}}
+        <div class="table-responsive-wrapper">
+            <table class="log-table" id="logTable">
+                <thead>
+                    <tr>
+                        <th>Aktivitas</th>
+                        <th>Aktor</th>
+                        <th>Waktu</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($logs ?? [] as $log)
+                    <tr>
+                        <td>{{ $log->aktivitas ?? 'Menambahkan Data' }}</td>
+                        <td><strong style="color:#000;">{{ $log->aktor ?? ($log->user->name ?? 'Sistem') }}</strong></td>
+                        <td>{{ \Carbon\Carbon::parse($log->created_at)->translatedFormat('l, j F Y - H:i:s') }}</td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="3" style="text-align:center">Belum ada aktivitas tercatat yang sesuai kriteria.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         
         {{-- UNIFIED PAGINATION SYSTEM LOGIC --}}
         <div class="log-pagination">

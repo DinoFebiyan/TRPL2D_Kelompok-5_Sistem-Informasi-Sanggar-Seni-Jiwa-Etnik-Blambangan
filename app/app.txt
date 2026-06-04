@@ -1,0 +1,3001 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use App\Models\Galeri;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+use App\Models\LogAktivitas;
+
+class AdminController extends Controller
+{
+    /**
+     * Menampilkan daftar admin
+     */
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $statuses = $request->input('status', []); // Array status dari form view
+
+        // Base Query khusus untuk peran admin
+        $query = User::where('peran', 'admin');
+
+        // 1. Logika Global Search
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('no_handphone', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Logika Multi-Filter Checkbox Status
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+
+        // Eksekusi pagination dengan mempertahankan parameter URL query string
+        $admins = $query->with('galeri')->latest()->paginate(10)->withQueryString();
+        
+        // Statistik Card (Murni total data tanpa pengaruh filter pencarian)
+        $totalAdmin = User::where('peran', 'admin')->count();
+        $activeAdmins = User::where('peran', 'admin')->where('status', 'aktif')->count();
+        $inactiveAdmins = User::where('peran', 'admin')->where('status', 'nonaktif')->count();
+        
+        return view('kelola.admin.indexSuperadmin', compact('admins', 'totalAdmin', 'activeAdmins', 'inactiveAdmins'));
+    }
+
+    /**
+     * Menampilkan form untuk menambah admin baru
+     */
+    public function create()
+    {
+        return view('kelola.admin.create');
+    }
+
+    /**
+     * Menyimpan data admin baru ke database
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+            'no_handphone' => 'nullable|string|max:12',
+            'status' => 'required|in:aktif,nonaktif',
+        ]);
+
+        $user = User::create([
+            'name'         => $request->name,
+            'email'        => $request->email,
+            'password'     => Hash::make($request->password),
+            'peran'        => 'admin',
+            'no_handphone' => $request->no_handphone,
+            'status'       => $request->status,
+        ]);
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('admin', 'public');
+
+            Galeri::create([
+                'sumber_id'    => $user->id,
+                'path'         => $path,
+                'nama_file'    => uniqid().'_'.$request->file('foto')->getClientOriginalName(),
+                'kategori'     => 'admin',
+                'is_watermark' => false,
+            ]);
+        }
+
+        LogAktivitas::create([
+            'user_id'   => auth()->id(),
+            'aktivitas' => 'Menambahkan admin baru: ' . $request->name,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.kelola-admin')->with('success', 'Admin berhasil ditambahkan.');
+    }
+
+    /**
+     * Menampilkan form untuk mengedit data admin
+     */
+    public function edit(string $id)
+    {
+        $admin = User::where('peran', 'admin')->findOrFail($id);
+        return view('kelola.admin.update', compact('admin'));
+    }
+
+    /**
+     * Menyimpan pembaruan data admin ke database
+     */
+    public function update(Request $request, string $id)
+    {
+        $admin = User::where('peran', 'admin')->findOrFail($id);
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'no_handphone' => 'required|string|max:20',
+            'status' => 'required|in:aktif,nonaktif',
+            'password' => 'nullable|min:8|confirmed',
+            'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+        ]);
+
+        $data = $request->only(['name', 'email', 'no_handphone', 'status']);
+        
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+        
+        $admin->update($data);
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('admin', 'public');
+            $namaFileBaru = uniqid().'_'.$request->file('foto')->getClientOriginalName();
+
+            if ($admin->galeri) {
+                if (Storage::disk('public')->exists($admin->galeri->path)) {
+                    Storage::disk('public')->delete($admin->galeri->path);
+                }
+                $admin->galeri->update([
+                    'path' => $path,
+                    'nama_file' => $namaFileBaru,
+                ]);
+            } else {
+                Galeri::create([
+                    'sumber_id'    => $admin->id,
+                    'path'         => $path,
+                    'nama_file'    => $namaFileBaru,
+                    'kategori'     => 'admin',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        LogAktivitas::create([
+            'user_id'   => auth()->id(),
+            'aktivitas' => 'Memperbarui data admin: ' . $admin->name,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.kelola-admin')->with('success', 'Admin berhasil diperbarui.');
+    }
+
+    /**
+     * Menghapus data admin dari database
+     */
+    public function destroy(string $id)
+    {
+        $admin = User::where('peran', 'admin')->findOrFail($id);
+        
+        if ($admin->galeri) {
+            if (Storage::disk('public')->exists($admin->galeri->path)) {
+                Storage::disk('public')->delete($admin->galeri->path);
+            }
+            $admin->galeri->delete();
+        }
+
+        $admin->delete();
+        
+        LogAktivitas::create([
+            'user_id'   => auth()->id(),
+            'aktivitas' => 'Menghapus admin: ' . $admin->name,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.kelola-admin')->with('success', 'Admin berhasil dihapus.');
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\Berita;
+use App\Models\Galeri;
+use App\Models\LogAktivitas;
+use Illuminate\Support\Facades\Storage;
+
+class BeritaController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $statuses = $request->input('status', []); // Menangkap array status dari filter
+
+        $query = Berita::with(['user', 'galeri']);
+
+        // 1. Global Search (Judul, Isi Berita, Nama Penulis)
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('judul', 'like', '%' . $search . '%')
+                  ->orWhere('isi_berita', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        // 2. Multi-Filter Status Checkbox
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+
+        $beritas = $query->latest()->paginate(10)->withQueryString();
+        
+        // Hitung total statistik riil data murni database
+        $totalBerita = Berita::count();
+        $ditayangkan = Berita::where('status', 'tayang')->count();
+        $tidakDitayangkan = Berita::where('status', 'tidak ditayangkan')->count();
+        
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return view('kelola.berita.indexSuperadmin', compact('beritas', 'totalBerita', 'ditayangkan', 'tidakDitayangkan'));
+        } elseif ($role === 'admin') {
+            return view('kelola.berita.indexAdmin', compact('beritas', 'totalBerita', 'ditayangkan', 'tidakDitayangkan'));
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('kelola.berita.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'judul'        => 'required|string|max:255',
+            'isi'          => 'required|string',
+            'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
+            'status'       => 'required|in:tayang,tidak ditayangkan',
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
+        ]);
+
+        $berita = Berita::create([
+            'judul'        => $request->judul,
+            'isi_berita'   => $request->isi,
+            'jenis_berita' => $request->jenis_berita,
+            'status'       => $request->status,
+            'user_id'      => auth()->id(),
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('berita', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $berita->id, 
+                    'path'         => $path,       
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(), 
+                    'kategori'     => 'berita',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        LogAktivitas::create([
+            'user_id'   => auth()->id(),
+            'aktivitas' => 'Menambahkan berita baru: ' . $request->judul,
+            'waktu'     => now(),
+        ]);
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita berhasil ditambahkan dengan multi-foto.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-berita')->with('success', 'Berita berhasil ditambahkan dengan multi-foto.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        return redirect()->route('superadmin.kelola-berita');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        $berita = Berita::with('galeri')->findOrFail($id);
+        return view('kelola.berita.update', compact('berita'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        $berita = Berita::findOrFail($id);
+
+        $request->validate([
+            'judul'        => 'required|string|max:255',
+            'isi'          => 'required|string',
+            'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
+            'status'       => 'required|in:tayang,tidak ditayangkan',
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto'   => 'nullable|array',
+            'hapus_foto.*' => 'exists:galeri,id',
+        ]);
+
+        $berita->update([
+            'judul'        => $request->judul,
+            'isi_berita'   => $request->isi,
+            'jenis_berita' => $request->jenis_berita,
+            'status'       => $request->status,
+        ]);
+
+        if ($request->filled('hapus_foto')) {
+            foreach ($request->hapus_foto as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $berita->id)
+                                  ->where('kategori', 'berita')
+                                  ->find($fotoId);
+
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('berita', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $berita->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'berita',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        LogAktivitas::create([
+            'user_id'   => auth()->id(),
+            'aktivitas' => 'Memperbarui data berita: ' . $berita->judul,
+            'waktu'     => now(),
+        ]);
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-berita')->with('success', 'Berita berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $berita = Berita::with('galeri')->findOrFail($id);
+        $judulBerita = $berita->judul;
+
+        foreach ($berita->galeri as $foto) {
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
+            }
+            $foto->delete();
+        }
+
+        $berita->delete();
+
+        LogAktivitas::create([
+            'user_id'   => auth()->id(),
+            'aktivitas' => 'Menghapus berita: ' . $judulBerita,
+            'waktu'     => now(),
+        ]);
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-berita')->with('success', 'Berita beserta seluruh gambarnya berhasil dihapus.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-berita')->with('success', 'Berita beserta seluruh gambarnya berhasil dihapus.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+abstract class Controller
+{
+    //
+}
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Katalog;
+use App\Models\Event;
+use App\Models\Berita;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+
+class DashboardAdminController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        // Mendapatkan bulan dan tahun saat ini untuk kalkulasi data bulanan
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // 1. DATA TOTAL STATISTIK (Tanpa Data Admin)
+        $totalKatalog = Katalog::count();
+        $activeEvents = Event::where('status', 'belum selesai')->count();
+        $totalBerita = Berita::count();
+
+        // 2. HITUNG DATA BARU YANG MASUK BULAN INI (Tanpa Data Admin)
+        $newKatalogThisMonth = Katalog::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
+
+        $newEventsThisMonth = Event::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
+
+        $newBeritaThisMonth = Berita::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
+
+        // 3. AMBIL DATA EVENT TERBARU UNTUK DITAMPILKAN DI GRID BAWAH (Substitusi Log Aktivitas)
+        $latestEvents = Event::latest()
+            ->take(5)
+            ->get();
+
+        // 4. AMBIL DATA BERITA TERBARU (Substitusi Tabel Admin)
+        $latestBeritas = Berita::with('user')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Melempar variabel yang sudah disaring ke dalam View
+        return view('kelola.dashboardAdmin', compact(
+            'totalKatalog',
+            'activeEvents',
+            'totalBerita',
+            'newKatalogThisMonth',
+            'newEventsThisMonth',
+            'newBeritaThisMonth',
+            'latestEvents',
+            'latestBeritas'
+        ));
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use App\Models\Katalog;
+use App\Models\Event;
+use App\Models\Berita;
+use App\Models\LogAktivitas;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+
+class DashboardSuperadminController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        // Mendapatkan bulan dan tahun saat ini untuk kalkulasi data bulanan
+        $currentMonth = Carbon::now()->month;
+        $currentYear = Carbon::now()->year;
+
+        // 1. DATA TOTAL STATISTIK
+        $totalAdmin = User::where('peran', 'admin')->count();
+        $totalKatalog = Katalog::count();
+        $activeEvents = Event::where('status', 'belum selesai')->count();
+        $totalBerita = Berita::count();
+
+        // 2. LOGIKA BARU: HITUNG DATA BARU YANG MASUK BULAN INI
+        $newAdminThisMonth = User::where('peran', 'admin')
+            ->whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
+
+        $newKatalogThisMonth = Katalog::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
+
+        $newEventsThisMonth = Event::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
+
+        $newBeritaThisMonth = Berita::whereMonth('created_at', $currentMonth)
+            ->whereYear('created_at', $currentYear)
+            ->count();
+
+        // 3. DAFTAR ADMIN TERBARU (LIMIT 5)
+        $latestAdmins = User::where('peran', 'admin')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // 4. LOG AKTIVITAS TERBARU (LIMIT 5)
+        $recentActivities = LogAktivitas::with('user')
+            ->latest()
+            ->take(5)
+            ->get();
+
+        // Melempar seluruh variabel ke dalam View Blade
+        return view('kelola.dashboardSuperadmin', compact(
+            'totalAdmin',
+            'totalKatalog',
+            'activeEvents',
+            'totalBerita',
+            'newAdminThisMonth',
+            'newKatalogThisMonth',
+            'newEventsThisMonth',
+            'newBeritaThisMonth',
+            'latestAdmins',
+            'recentActivities'
+        ));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Event;
+use App\Models\Galeri;
+use App\Models\LogAktivitas;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+class EventController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $statuses = $request->input('status', []); // Array status checkbox
+
+        $query = Event::with(['user', 'galeri']);
+        
+        // 1. Logika Global Search Multi Kolom
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                  ->orWhere('lokasi', 'like', '%' . $search . '%')
+                  ->orWhere('kategori', 'like', '%' . $search . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $search . '%');
+            });
+        }
+
+        // 2. Logika Multi-Filter Checkbox Status
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+        
+        $events = $query->latest()->paginate(10)->withQueryString();
+        
+        // Menghitung data statistik real data tanpa filter
+        $totalEvent = Event::count();
+        $selesai = Event::where('status', 'selesai')->count();
+        $belumSelesai = Event::where('status', 'belum selesai')->count();
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return view('kelola.event.indexSuperadmin', compact('events', 'totalEvent', 'selesai', 'belumSelesai'));
+        } elseif ($role === 'admin') {
+            return view('kelola.event.indexAdmin', compact('events', 'totalEvent', 'selesai', 'belumSelesai'));
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('kelola.event.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'nama'       => 'required|string|max:255',
+            'tanggal'    => 'required|date',
+            'jam'        => 'required',
+            'lokasi'     => 'required|string',
+            'kategori'   => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
+            'status'     => 'required|in:selesai,belum selesai',
+            'foto'       => 'nullable|array', 
+            'foto.*'     => 'image|mimes:jpeg,png,jpg|max:4096', 
+        ]);
+
+        $event = Event::create([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi ?? '-',
+            'tanggal'   => $request->tanggal,
+            'jam'       => $request->jam,
+            'lokasi'    => $request->lokasi,
+            'kategori'  => $request->kategori,
+            'status'    => $request->status,
+            'user_id'   => Auth::id(),
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('event', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $event->id, 
+                    'path'         => $path,       
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(), 
+                    'kategori'     => 'event',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        LogAktivitas::create([
+            'user_id'   => Auth::id(),
+            'aktivitas' => 'Menambahkan event baru: ' . $request->nama,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.kelola-event')->with('success', 'Event berhasil ditambahkan dengan multi-foto.');
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-event')->with('success', 'Event berhasil ditambahkan dengan multi-foto.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-event')->with('success', 'Event berhasil ditambahkan dengan multi-foto.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
+    {
+        return redirect()->route('superadmin.kelola-event')->with('error', 'Halaman detail tidak tersedia.');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        $event = Event::with('galeri')->findOrFail($id);
+        return view('kelola.event.update', compact('event'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $event = Event::findOrFail($id);
+
+        $request->validate([
+            'nama'         => 'required|string|max:255',
+            'tanggal'      => 'required|date',
+            'jam'          => 'required',
+            'lokasi'       => 'required|string',
+            'kategori'     => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
+            'status'       => 'required|in:selesai,belum selesai',
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto'   => 'nullable|array', 
+            'hapus_foto.*' => 'exists:galeri,id',
+        ]);
+
+        $event->update([
+            'nama'      => $request->nama,
+            'deskripsi' => $request->deskripsi ?? $event->deskripsi,
+            'tanggal'   => $request->tanggal,
+            'jam'       => $request->jam,
+            'lokasi'    => $request->lokasi,
+            'kategori'  => $request->kategori,
+            'status'    => $request->status,
+        ]);
+
+        if ($request->filled('hapus_foto')) {
+            foreach ($request->hapus_foto as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $event->id)
+                                  ->where('kategori', 'event')
+                                  ->find($fotoId);
+
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('event', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $event->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'event',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        LogAktivitas::create([
+            'user_id'   => Auth::id(),
+            'aktivitas' => 'Memperbarui data event: ' . $event->nama,
+            'waktu'     => now(),
+        ]);
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-event')->with('success', 'Event berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-event')->with('success', 'Event berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        $event = Event::with('galeri')->findOrFail($id);
+        $namaEvent = $event->nama;
+
+        foreach ($event->galeri as $foto) {
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
+            }
+            $foto->delete();
+        }
+
+        $event->delete();
+
+        LogAktivitas::create([
+            'user_id'   => Auth::id(),
+            'aktivitas' => 'Menghapus event: ' . $namaEvent,
+            'waktu'     => now(),
+        ]);
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-event')->with('success', 'Event beserta seluruh gambarnya berhasil dihapus.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-event')->with('success', 'Event beserta seluruh gambarnya berhasil dihapus.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+
+class GaleriController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        //
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+}
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Katalog;
+use App\Models\Galeri;
+use App\Models\LogAktivitas;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+
+class KatalogController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        // 1. Ambil data query pencarian & filter dari URL/Request
+        $search = $request->input('search');
+        $statuses = $request->input('status', []); // Array status
+        $categories = $request->input('kategori', []); // Array kategori
+
+        // 2. Buat Base Query dengan Eager Loading
+        $query = Katalog::with(['galeri', 'user']);
+
+        // 3. Tambahkan Logika Global Search (Mencari di Nama, Kategori, Deskripsi, dan Stok)
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_katalog', 'like', '%' . $search . '%')
+                  ->orWhere('kategori', 'like', '%' . $search . '%')
+                  ->orWhere('deskripsi', 'like', '%' . $search . '%')
+                  ->orWhere('stok', 'like', '%' . $search . '%');
+            });
+        }
+
+        // 4. Tambahkan Multi-Filter Status (Checkbox)
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+
+        // 5. Tambahkan Multi-Filter Kategori (Checkbox)
+        if (!empty($categories)) {
+            $query->whereIn('kategori', $categories);
+        }
+
+        // 6. Eksekusi Pagination dengan mempertahankan Query Parameters di URL Links
+        $katalogs = $query->latest()->paginate(10)->withQueryString();
+
+        // 7. Hitung statistik card (Selalu ambil data total murni tanpa filter pencarian)
+        $totalKatalog = Katalog::count();
+        $tersedia = Katalog::where('status', 'tersedia')->count();
+        $tidakTersedia = Katalog::where('status', 'tidak tersedia')->count();
+
+        return view('kelola.katalog.indexSuperadmin', compact('katalogs', 'totalKatalog', 'tersedia', 'tidakTersedia'));
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        return view('kelola.katalog.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        // 1. VALIDASI MULTI-UPLOAD: Memvalidasi 'foto' sebagai tumpukan array berkas
+        $request->validate([
+            'nama_katalog' => 'required|string|max:255',
+            'kategori'  => 'required|string',
+            'stok'      => 'required|integer|min:0',
+            'deskripsi' => 'required|string',
+            'status'    => 'required|in:tersedia,tidak tersedia',
+            'foto'      => 'nullable|array', 
+            'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096', 
+        ]);
+
+        // 2. Simpan informasi teks produk utama ke database
+        $katalog = Katalog::create([
+            'nama_katalog' => $request->nama_katalog,
+            'kategori'     => $request->kategori,
+            'stok'         => $request->stok,
+            'deskripsi'    => $request->deskripsi,
+            'status'       => $request->status,
+            'user_id'      => Auth::id(),
+        ]);
+
+        // 3. LOGIKA MULTI-UPLOAD: Menyimpan tumpukan foto fisik produk ke dalam folder storage
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                
+                // File biner asli disimpan ke: public/storage/katalog/
+                $path = $file->store('katalog', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $katalog->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'katalog',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        // 4. Catat riwayat penambahan barang ke Log Aktivitas
+        LogAktivitas::create([
+            'user_id'   => Auth::id(),
+            'aktivitas' => 'Menambahkan katalog produk baru: ' . $request->nama_katalog,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.kelola-katalog')->with('success', 'Katalog berhasil ditambahkan dengan multi-foto.');
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show($id)
+    {
+        return redirect()->route('superadmin.kelola-katalog')->with('error', 'Halaman detail tidak tersedia.');
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit($id)
+    {
+        $katalog = Katalog::with('galeri')->findOrFail($id);
+        return view('kelola.katalog.update', compact('katalog'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, $id)
+    {
+        $katalog = Katalog::findOrFail($id);
+
+        $request->validate([
+            'nama_katalog' => 'required|string|max:255',
+            'kategori'     => 'required|string',
+            'stok'         => 'required|integer|min:0',
+            'deskripsi'    => 'required|string',
+            'status'       => 'required|in:tersedia,tidak tersedia',
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto'   => 'nullable|array', 
+            'hapus_foto.*' => 'exists:galeri,id',
+        ]);
+
+        // 1. Perbarui teks data utama katalog
+        $katalog->update([
+            'nama_katalog' => $request->nama_katalog,
+            'kategori'     => $request->kategori,
+            'stok'         => $request->stok,
+            'deskripsi'    => $request->deskripsi,
+            'status'       => $request->status,
+        ]);
+
+        // 2. LOGIKA SELEKTIF HAPUS FOTO: Memproses pembuangan gambar lama yang ditandai pengguna
+        if ($request->filled('hapus_foto')) {
+            foreach ($request->hapus_foto as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $katalog->id)
+                                  ->where('kategori', 'katalog')
+                                  ->find($fotoId);
+
+                if ($fotoLama) {
+                    // Singkirkan berkas dari folder public/storage/katalog/
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        // 3. Tambahkan beberapa foto produk baru jika ada berkas yang masuk
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('katalog', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $katalog->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'katalog',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        // 4. Catat riwayat perubahan ke tabel Log Audit Trail
+        LogAktivitas::create([
+            'user_id'   => Auth::id(),
+            'aktivitas' => 'Memperbarui data katalog produk: ' . $katalog->nama_katalog,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.kelola-katalog')->with('success', 'Katalog berhasil diperbarui.');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy($id)
+    {
+        $katalog = Katalog::with('galeri')->findOrFail($id);
+        $namaKatalog = $katalog->nama_katalog;
+
+        // 1. Sapu bersih seluruh berkas fisik gambar di folder lokal komputer sebelum baris record dihapus
+        foreach ($katalog->galeri as $foto) {
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
+            }
+            $foto->delete();
+        }
+
+        // 2. Singkirkan data record dari tabel katalog utama
+        $katalog->delete();
+
+        // 3. Rekam jejak penghapusan barang ke Log Aktivitas
+        LogAktivitas::create([
+            'user_id'   => Auth::id(),
+            'aktivitas' => 'Menghapus data katalog: ' . $namaKatalog,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.kelola-katalog')->with('success', 'Katalog beserta seluruh gambarnya berhasil dihapus.');
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\LogAktivitas;
+
+class LogAktivitasController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $types = $request->input('tipe', []); // Array penampung filter checkbox popup ("menambahkan", "memperbarui", "menghapus")
+
+        $query = LogAktivitas::with('user');
+
+        // 1. Global Search (Mencari teks aktivitas dan nama user aktor log)
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('aktivitas', 'like', '%' . $search . '%')
+                  ->orWhereHas('user', function($userQuery) use ($search) {
+                      $userQuery->where('name', 'like', '%' . $search . '%');
+                  });
+            });
+        }
+
+        // 2. Multi-Filter Jenis Operasi Data (Looping string keyword)
+        if (!empty($types)) {
+            $query->where(function($q) use ($types) {
+                foreach ($types as $type) {
+                    $q->orWhere('aktivitas', 'like', '%' . $type . '%');
+                }
+            });
+        }
+
+        // Jalankan pagination
+        $logs = $query->latest()->paginate(15)->withQueryString();
+
+        // FIX SINKRONISASI VARIABEL: Menggunakan nama variabel persis sesuai yang diminta code view Blade Anda
+        $totalaktivitas = LogAktivitas::count();
+        $tambahaktivitas = LogAktivitas::where('aktivitas', 'like', '%Menambahkan%')->count();
+        $editaktivitas   = LogAktivitas::where('aktivitas', 'like', '%Memperbarui%')->count();
+        $hapusaktivitas  = LogAktivitas::where('aktivitas', 'like', '%Menghapus%')->count();
+
+        return view('kelola.log_aktivitas.indexSuperadmin', compact(
+            'logs', 
+            'totalaktivitas', 
+            'tambahaktivitas', 
+            'editaktivitas', 
+            'hapusaktivitas'
+        ));
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use App\Models\Galeri;
+use App\Models\LogAktivitas;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
+
+class PengaturanController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return view('kelola.pengaturan.indexSuperadmin');
+        } elseif ($role === 'admin') {
+            return view('kelola.pengaturan.indexAdmin');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Update data profil user yang sedang login (termasuk foto profil)
+     */
+    public function updateProfil(Request $request)
+    {
+        $user = auth()->user();
+
+        // Validasi input mengikuti struktur standar AdminController
+        $request->validate([
+            'foto_profil'  => 'nullable|image|mimes:jpeg,png,jpg|max:4096', // Validasi foto baru
+            'name'         => 'required|string|max:255',
+            'email'        => 'required|email|unique:users,email,' . $user->id,
+            'no_handphone' => 'nullable|string|max:20',
+        ]);
+
+        // Mengambil input teks utama
+        $data = $request->only(['name', 'email', 'no_handphone']);
+        
+        // Update data utama user pada tabel users
+        $user->update($data);
+
+        // Logika pengolahan file foto (Identik dengan AdminController)
+        if ($request->hasFile('foto_profil')) {
+            // Simpan file fisik foto baru ke disk public di dalam folder 'admin'
+            $path = $request->file('foto_profil')->store('admin', 'public');
+            $namaFileBaru = uniqid() . '_' . $request->file('foto_profil')->getClientOriginalName();
+
+            // Cek apakah user sudah memiliki relasi foto di tabel galeri
+            if ($user->galeri) {
+                // Hapus berkas foto lama jika filenya ada di storage
+                if (Storage::disk('public')->exists($user->galeri->path)) {
+                    Storage::disk('public')->delete($user->galeri->path);
+                }
+
+                // Perbarui record path data lama di database
+                $user->galeri->update([
+                    'path'      => $path,
+                    'nama_file' => $namaFileBaru,
+                ]);
+            } else {
+                // Jika belum punya foto sama sekali, buat baris record baru di tabel galeri
+                Galeri::create([
+                    'sumber_id'    => $user->id,
+                    'path'         => $path,
+                    'nama_file'    => $namaFileBaru,
+                    'kategori'     => 'admin', // Dikunci sebagai admin sesuai sistem galeri Anda
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        // Mencatat log riwayat aktivitas sistem
+        LogAktivitas::create([
+            'user_id'   => auth()->id(),
+            'aktivitas' => 'Memperbarui profil akun sendiri: ' . $user->name,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.pengaturan')->with('success', 'Profil berhasil diperbarui.');
+    }
+
+    /**
+     * Update password kata sandi user yang sedang login
+     */
+    public function updatePassword(Request $request)
+    {
+        $user = auth()->user();
+        
+        $request->validate([
+            'current_password' => [
+                'required',
+                function ($attribute, $value, $fail) use ($user) {
+                    if (!Hash::check($value, $user->password)) {
+                        $fail('Password saat ini salah.');
+                    }
+                }
+            ],
+            'password' => 'required|min:6|confirmed', // Minimal 6 karakter sesuai instruksi blade Anda
+        ]);
+
+        // Mengenkripsi password baru menggunakan Hash driver
+        $user->update([
+            'password' => Hash::make($request->password)
+        ]);
+
+        // Mencatat log riwayat aktivitas sistem
+        LogAktivitas::create([
+            'user_id'   => auth()->id(),
+            'aktivitas' => 'Mengubah kata sandi akun sendiri: ' . $user->name,
+            'waktu'     => now(),
+        ]);
+
+        return redirect()->route('superadmin.pengaturan')->with('success', 'Password berhasil diubah.');
+    }
+
+    /**
+     * Method kosong lainnya di bawah ini bawaan resource scaffolding
+     */
+    public function create() { }
+    public function store(Request $request) { }
+    public function show(string $id) { }
+    public function edit(string $id) { }
+    public function destroy(string $id) { }
+}<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\ProfilSanggar;
+use App\Models\Personel;
+use App\Models\Galeri;
+use Illuminate\Support\Facades\Storage;
+
+class ProfilController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+    {
+        // Eager load relasi 'headers' baru untuk mencegah N+1 Query Problem
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
+
+        if (!$profil) {
+            $profil = new ProfilSanggar();
+        }
+
+        $pengurus = Personel::with('galeri')->where('peran', 'pengurus')->paginate(10);
+        $pelatih = Personel::with('galeri')->where('peran', 'pelatih')->paginate(10);
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return view('kelola.profil.indexSuperadmin', compact('profil', 'pengurus', 'pelatih'));
+        } elseif ($role === 'admin') {
+            return view('kelola.profil.indexAdmin', compact('profil', 'pengurus', 'pelatih'));
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     */
+    public function show(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit()
+    {
+        // Memuat halaman edit beserta data multi-foto header terpilih
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
+
+        if (!$profil) {
+            $profil = new ProfilSanggar();
+        }
+
+        return view('kelola.profil.edit', compact('profil'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request)
+    {
+        $profil = ProfilSanggar::first();
+
+        if (!$profil) {
+            $profil = ProfilSanggar::create([
+                'deskripsi' => '', 'visi' => '', 'misi' => '', 'sejarah' => '', 'sambutan_pembina' => ''
+            ]);
+        }
+
+        // Jalankan Validasi Input (Termasuk array berkas header_files baru)
+        $request->validate([
+            'deskripsi'        => 'required|string',
+            'visi'             => 'required|string',
+            'misi'             => 'required|string',
+            'sejarah'          => 'required|string',
+            'sambutan_pembina' => 'required|string',
+            'logo'             => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'foto_pembina'     => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'header_files'     => 'nullable|array',
+            'header_files.*'   => 'image|mimes:jpeg,png,jpg|max:16384',
+            'hapus_header'     => 'nullable|array',
+            'hapus_header.*'   => 'exists:galeri,id',
+        ]);
+
+        // LOGIKA A: Bersihkan Foto Header Lama yang Ditandai Admin
+        if ($request->filled('hapus_header')) {
+            foreach ($request->hapus_header as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $profil->id)
+                                  ->where('kategori', 'header')
+                                  ->find($fotoId);
+
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        // LOGIKA B: Upload Kumpulan Foto Header Baru ke Folder 'header'
+        if ($request->hasFile('header_files')) {
+            foreach ($request->file('header_files') as $file) {
+                // Disimpan terpisah di folder public/storage/header/
+                $path = $file->store('header', 'public');
+
+                Galeri::create([
+                    'sumber_id'    => $profil->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'header', // Set kategori khusus header
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        // Proses Simpan Gambar Singgal (Logo)
+        if ($request->hasFile('logo')) {
+            $fileLogo = $request->file('logo');
+            $pathLogo = $fileLogo->store('galeri', 'public');
+
+            if ($profil->logo_id) {
+                $galeriLogoLama = Galeri::find($profil->logo_id);
+                if ($galeriLogoLama) {
+                    if ($galeriLogoLama->path) { Storage::disk('public')->delete($galeriLogoLama->path); }
+                    $galeriLogoLama->update([
+                        'path' => $pathLogo, 'nama_file' => $fileLogo->getClientOriginalName(),
+                    ]);
+                }
+            } else {
+                $galeriLogoBaru = Galeri::create([
+                    'sumber_id' => $profil->id, 'path' => $pathLogo, 'nama_file' => $fileLogo->getClientOriginalName(), 'kategori' => 'profil', 'is_watermark' => false,
+                ]);
+                $profil->logo_id = $galeriLogoBaru->id;
+            }
+        }
+
+        // Proses Simpan Gambar Singgal (Foto Pembina)
+        if ($request->hasFile('foto_pembina')) {
+            $filePembina = $request->file('foto_pembina');
+            $pathPembina = $filePembina->store('galeri', 'public');
+
+            if ($profil->foto_pembina_id) {
+                $galeriPembinaLama = Galeri::find($profil->foto_pembina_id);
+                if ($galeriPembinaLama) {
+                    if ($galeriPembinaLama->path) { Storage::disk('public')->delete($galeriPembinaLama->path); }
+                    $galeriPembinaLama->update([
+                        'path' => $pathPembina, 'nama_file' => $filePembina->getClientOriginalName(),
+                    ]);
+                }
+            } else {
+                $galeriPembinaBaru = Galeri::create([
+                    'sumber_id' => $profil->id, 'path' => $pathPembina, 'nama_file' => $filePembina->getClientOriginalName(), 'kategori' => 'profil', 'is_watermark' => false,
+                ]);
+                $profil->foto_pembina_id = $galeriPembinaBaru->id;
+            }
+        }
+
+        // Simpan Data Teks Umum Ke Database
+        $profil->update([
+            'deskripsi'        => $request->deskripsi,
+            'visi'             => $request->visi,
+            'misi'             => $request->misi,
+            'sejarah'          => $request->sejarah,
+            'sambutan_pembina' => $request->sambutan_pembina,
+            'logo_id'          => $profil->logo_id,
+            'foto_pembina_id'  => $profil->foto_pembina_id,
+        ]);
+
+        if (class_exists('App\Models\LogAktivitas')) {
+            \App\Models\LogAktivitas::create([
+                'user_id'   => auth()->id(),
+                'aktivitas' => 'Memperbarui profil sanggar beserta tumpukan gambar header slideshow',
+                'waktu'     => now(),
+            ]);
+        }
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+           return redirect()->route('superadmin.kelola-profil')->with('success', 'Profil sanggar dan data header baru berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Profil sanggar dan data header baru berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        //
+    }
+
+    /**
+     * Show form for adding new pengurus.
+     */
+    public function tambahPengurus()
+    {
+        return view('kelola.profil.tambah-pengurus');
+    }
+
+    /**
+     * Show form for adding new pelatih.
+     */
+    public function tambahPelatih()
+    {
+        return view('kelola.profil.tambah-pelatih');
+    }
+
+    /**
+     * Store a newly created pengurus in storage (Mendukung Multi-Foto).
+     */
+    public function storePengurus(Request $request)
+    {
+        $request->validate([
+            'nama'      => 'required|string|max:255',
+            'jabatan'   => 'required|string',
+            'instagram' => 'nullable|string|max:255',
+            'no_hp'     => 'required|string|max:20',
+            'status'    => 'required|in:aktif,nonaktif',
+            'foto'      => 'nullable|array',
+            'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096',
+        ]);
+
+        $personel = Personel::create([
+            'nama'         => $request->nama,
+            'jabatan'      => $request->jabatan,
+            'instagram'    => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status'       => $request->status,
+            'peran'        => 'pengurus',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $personel->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        if (class_exists('App\Models\LogAktivitas')) {
+            \App\Models\LogAktivitas::create([
+                'user_id'   => auth()->id(),
+                'aktivitas' => 'Menambahkan pengurus baru: ' . $request->nama,
+                'waktu'     => now(),
+            ]);
+        }
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pengurus baru beserta galeri foto berhasil disimpan.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data pengurus baru beserta galeri foto berhasil disimpan.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Show the form for editing pengurus.
+     */
+    public function editPengurus(string $id)
+    {
+        $pengurus = Personel::with('galeri')->findOrFail($id);
+        return view('kelola.profil.edit-pengurus', compact('pengurus'));
+    }
+
+    /**
+     * Update the specified resource in storage (Mendukung Sinkronisasi Multi-Foto).
+     */
+    public function updatePengurus(Request $request, string $id)
+    {
+        $pengurus = Personel::findOrFail($id);
+
+        $request->validate([
+            'nama'         => 'required|string|max:255',
+            'jabatan'      => 'required|string',
+            'instagram'    => 'nullable|string|max:255',
+            'no_hp'        => 'required|string|max:20',
+            'status'       => 'required|in:aktif,nonaktif',
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto'   => 'nullable|array',
+            'hapus_foto.*' => 'exists:galeri,id',
+        ]);
+
+        $pengurus->update([
+            'nama'         => $request->nama,
+            'jabatan'      => $request->jabatan,
+            'instagram'    => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status'       => $request->status,
+        ]);
+
+        // Hapus foto lama jika ditandai oleh admin
+        if ($request->filled('hapus_foto')) {
+            foreach ($request->hapus_foto as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $pengurus->id)
+                                  ->where('kategori', 'profil')
+                                  ->find($fotoId);
+
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        // Upload foto tambahan baru jika ada
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+
+                Galeri::create([
+                    'sumber_id'    => $pengurus->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        if (class_exists('App\Models\LogAktivitas')) {
+            \App\Models\LogAktivitas::create([
+                'user_id'   => auth()->id(),
+                'aktivitas' => 'Memperbarui data pengurus: ' . $pengurus->nama,
+                'waktu'     => now(),
+            ]);
+        }
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pengurus berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data profil pengurus berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Store a newly created pelatih in storage (Mendukung Multi-Foto).
+     */
+    public function storePelatih(Request $request)
+    {
+        $request->validate([
+            'nama'      => 'required|string|max:255',
+            'jabatan'   => 'required|string',
+            'instagram' => 'nullable|string|max:255',
+            'no_hp'     => 'required|string|max:20',
+            'status'    => 'required|in:aktif,nonaktif',
+            'foto'      => 'nullable|array',
+            'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096',
+        ]);
+
+        $personel = Personel::create([
+            'nama'         => $request->nama,
+            'jabatan'      => $request->jabatan,
+            'instagram'    => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status'       => $request->status,
+            'peran'        => 'pelatih',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+                
+                Galeri::create([
+                    'sumber_id'    => $personel->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pelatih baru berhasil disimpan.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data pelatih baru berhasil disimpan.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Show the form for editing pelatih.
+     */
+    public function editPelatih(string $id)
+    {
+        $pelatih = Personel::with('galeri')->findOrFail($id);
+        return view('kelola.profil.edit-pelatih', compact('pelatih'));
+    }
+
+    /**
+     * Update pelatih in storage.
+     */
+    public function updatePelatih(Request $request, string $id)
+    {
+        $pelatih = Personel::findOrFail($id);
+
+        $request->validate([
+            'nama'         => 'required|string|max:255',
+            'jabatan'      => 'required|string',
+            'instagram'    => 'nullable|string|max:255',
+            'no_hp'        => 'required|string|max:20',
+            'status'       => 'required|in:aktif,nonaktif',
+            'foto'         => 'nullable|array',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto'   => 'nullable|array',
+            'hapus_foto.*' => 'exists:galeri,id',
+        ]);
+
+        $pelatih->update([
+            'nama'         => $request->nama,
+            'jabatan'      => $request->jabatan,
+            'instagram'    => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status'       => $request->status,
+        ]);
+
+        // Hapus foto lama yang ditandai
+        if ($request->filled('hapus_foto')) {
+            foreach ($request->hapus_foto as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $pelatih->id)
+                                  ->where('kategori', 'profil')
+                                  ->find($fotoId);
+                                  
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        // Tambah foto baru jika diunggah
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+
+                Galeri::create([
+                    'sumber_id'    => $pelatih->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pelatih berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data profil pelatih berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
+
+class ProfileController extends Controller
+{
+    /**
+     * Menampilkan halaman form edit profil pengguna (Auth)
+     * Mengarah ke file: resources/views/profile/edit.blade.php
+     */
+    public function edit(Request $request): View
+    {
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Memperbarui informasi profil pengguna
+     */
+    public function update(ProfileUpdateRequest $request): RedirectResponse
+    {
+        $request->user()->fill($request->validated());
+
+        if ($request->user()->isDirty('email')) {
+            $request->user()->email_verified_at = null;
+        }
+
+        $request->user()->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+    /**
+     * Menghapus akun pengguna
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        $request->validateWithBag('userDeletion', [
+            'password' => ['required', 'current_password'],
+        ]);
+
+        $user = $request->user();
+
+        Auth::logout();
+
+        $user->delete();
+
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return Redirect::to('/');
+    }
+}<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Berita;
+use App\Models\Event;
+use App\Models\Katalog;
+use App\Models\Galeri;
+use App\Models\ProfilSanggar;
+use App\Models\Personel;
+use Illuminate\Http\Request;
+use Carbon\Carbon;
+
+class UmumController extends Controller
+{
+    /**
+     * Halaman Beranda / Landing Page Publik
+     */
+    public function index()
+    {
+        $date = now();
+        $daysInMonth = $date->daysInMonth;
+        $blankDays = $date->startOfMonth()->dayOfWeek; 
+        
+        $data = [
+            'profil' => ProfilSanggar::first(),
+            'katalogs' => Katalog::with('galeri')->latest()->take(3)->get(),
+            'beritaUtama' => Berita::with('galeri')->where('status', 'tayang')->latest()->first(),
+            'beritaTerbaru' => Berita::with('galeri')->where('status', 'tayang')->latest()->skip(1)->take(3)->get(),
+            'events' => Event::take(3)->get(),
+            'galeri' => Galeri::whereNotIn('kategori', ['logo', 'pembina']) 
+                ->latest()
+                ->take(6)
+                ->get(),
+            
+            // Variabel untuk Kalender
+            'daysInMonth' => $daysInMonth,
+            'blankDays' => $blankDays,
+            'currentMonthName' => $date->format('F'),
+            'eventDays' => Event::pluck('tanggal')->map(fn($tgl) => (int) Carbon::parse($tgl)->format('d'))->toArray(),
+        ];
+        
+        return view('umum.landing_page', $data);
+    }
+
+    /**
+     * Halaman Daftar Berita Publik (Dengan Fitur Searching & Multi-Filter Kategori)
+     */
+    public function berita(Request $request)
+    {
+        $search = $request->input('search');
+        $categories = $request->input('kategori', []); // Menangkap array checkbox kategori dari form blade
+
+        // Base query: Hanya menampilkan berita yang sudah disetujui untuk 'tayang'
+        $query = Berita::where('status', 'tayang')->with(['user', 'galeri']);
+
+        // 1. Penerapan Fitur Global Searching (Judul atau Isi Teks Berita)
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('judul', 'like', '%' . $search . '%')
+                  ->orWhere('isi_berita', 'like', '%' . $search . '%');
+            });
+        }
+
+        // 2. Penerapan Fitur Multi-Filtering Kategori Konten Berita
+        if (!empty($categories)) {
+            $query->whereIn('jenis_berita', $categories);
+        }
+
+        // Ambil data terbaru dengan sistem pagination (9 data per halaman agar grid 3x3 simetris)
+        $beritas = $query->latest()->paginate(9)->withQueryString();
+
+        return view('umum.berita.index', compact('beritas'));
+    }
+
+    /**
+     * Halaman Detail Konten Berita Publik
+     */
+    public function beritaDetail($id)
+    {
+        $berita = Berita::with(['galeri', 'user'])->where('status', 'tayang')->findOrFail($id);
+
+        $beritaLainnya = Berita::with(['galeri', 'user'])
+            ->where('status', 'tayang')
+            ->where('id', '!=', $id)
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('umum.berita.detail', compact('berita', 'beritaLainnya'));
+    }
+
+    /**
+     * Halaman Daftar Event Publik
+     */
+    public function event(Request $request)
+    {
+        $date = now();
+        $daysInMonth = $date->daysInMonth;
+        $blankDays = $date->startOfMonth()->dayOfWeek; 
+        
+        $search = $request->input('search');
+        $statuses = $request->input('status', []); // Array status dari checkbox
+
+        $query = \App\Models\Event::query();
+
+        // 1. Filter Pencarian Teks
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_event', 'like', '%' . $search . '%')
+                ->orWhere('lokasi', 'like', '%' . $search . '%');
+            });
+        }
+
+        // 2. Filter Status Kegiatan
+        if (!empty($statuses)) {
+            $query->whereIn('status', $statuses);
+        }
+
+        // Mengubah dari ->get() menjadi ->paginate() agar links data halaman bekerja sempurna
+        $events = $query->orderBy('tanggal', 'asc')->paginate(3)->withQueryString();
+
+        return view('umum.event.index', [
+            'events' => $events,
+            'daysInMonth' => $daysInMonth,
+            'blankDays' => $blankDays,
+            'currentMonthName' => $date->format('F'),
+            'currentYear' => $date->format('Y'),
+            'currentMonth' => $date->format('m'),
+            'eventDays' => \App\Models\Event::pluck('tanggal')->map(fn($tgl) => (int) \Carbon\Carbon::parse($tgl)->format('d'))->toArray(),
+        ]);
+    }
+
+    /**
+     * Halaman Detail Event Publik
+     */
+    public function eventDetail($id)
+    {
+        $event = Event::with('galeri')->findOrFail($id);
+
+        $eventLainnya = Event::where('id', '!=', $id)
+            ->orderBy('tanggal', 'desc')
+            ->take(8)
+            ->get();
+
+        return view('umum.event.detail', compact('event', 'eventLainnya'));
+    }
+
+    /**
+     * Halaman Daftar Katalog Publik
+     */
+    public function katalog(Request $request)
+    {
+        $search = $request->input('search');
+        $categories = $request->input('kategori', []); // Menampung array checkbox kategori kostum
+
+        $query = Katalog::with('galeri');
+
+        // 1. Logika Global Searching Kostum (Nama Tari atau Deskripsi)
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_tari', 'like', '%' . $search . '%')
+                ->orWhere('deskripsi', 'like', '%' . $search . '%');
+            });
+        }
+
+        // 2. Logika Multi-Filter Checkbox Kategori Kostum
+        if (!empty($categories)) {
+            $query->whereIn('kategori', $categories);
+        }
+
+        // Membatasi isi grid 8 data per halaman agar simetris (layout grid 4 kolom = 2 baris seimbang)
+        $katalogs = $query->latest()->paginate(9)->withQueryString();
+
+        return view('umum.katalog.index', compact('katalogs'));
+    }
+
+    /**
+     * Halaman Detail Katalog Publik
+     */
+    public function katalogDetail(string $id)
+    {
+        $katalog = Katalog::with('galeri')->findOrFail($id);
+        
+        $katalogLain = Katalog::with('galeri')
+            ->where('id', '!=', $id)
+            ->inRandomOrder()
+            ->take(4)
+            ->get();
+
+        return view('umum.katalog.detail', compact('katalog', 'katalogLain'));
+    }
+
+    /**
+     * Halaman Galeri Foto Publik
+     */
+    public function galeri(Request $request)
+    {
+        // Mengamankan data dari logo dan foto profil pembina
+        $query = Galeri::whereNotIn('kategori', ['logo', 'pembina']);
+
+        $search = $request->input('search');
+        $categories = $request->input('kategori', []); // Array checkbox kategori galeri
+
+        // 1. Logika Global Searching Data File Galeri
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama_file', 'like', '%' . $search . '%')
+                ->orWhere('kategori', 'like', '%' . $search . '%');
+            });
+        }
+
+        // 2. Logika Multi-Filter Checkbox Kategori
+        if (!empty($categories)) {
+            $query->whereIn('kategori', $categories);
+        }
+
+        // Mengubah ->get() menjadi ->paginate(12) agar layout grid (4 kolom x 3 baris) terbagi presisi dan rapi
+        $galeriData = $query->latest()->paginate(12)->withQueryString();
+
+        return view('umum.galeri.index', compact('galeriData'));
+    }
+
+    /**
+     * Halaman Detail Item Galeri Publik
+     */
+    public function galeriDetail($id)
+    {
+        $galeriUtama = Galeri::findOrFail($id);
+
+        $galeriLainnya = Galeri::where('id', '!=', $id)
+            ->where('kategori', $galeriUtama->kategori) 
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('umum.galeri.detail', compact('galeriUtama', 'galeriLainnya'));
+    }
+
+    /**
+     * Halaman Profil Struktur Organisasi Sanggar Publik
+     */
+    public function profil()
+    {
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
+        $pengurus = Personel::where('peran', 'pengurus')->where('status', 'aktif')->get();
+        $pelatih = Personel::where('peran', 'pelatih')->where('status', 'aktif')->get();
+        $prestasi = Berita::where('jenis_berita', 'Prestasi')->where('status', 'tayang')->latest()->take(4)->get();
+
+        return view('umum.profil.index', compact('profil', 'pengurus', 'pelatih', 'prestasi'));
+    }
+}<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
+
+class AuthenticatedSessionController extends Controller
+{
+    /**
+     * Display the login view.
+     */
+    public function create(): View
+    {
+        return view('auth.login');
+    }
+
+    /**
+     * Handle an incoming authentication request.
+     */
+    public function store(LoginRequest $request): RedirectResponse
+    {
+        $request->authenticate();
+
+        $request->session()->regenerate();
+
+        // Ambil data user yang login
+        $user = Auth::user();
+        
+        // SINKRONISASI COATING ROLE (Menggunakan route() murni untuk mematikan intended bypass)
+        if ($user->peran === 'superadmin') {
+            return redirect()->route('superadmin.dashboard');
+        } elseif ($user->peran === 'admin') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        // Jika peran tidak dikenali, logout paksa agar tidak menggantung di sistem
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login')->with('error', 'Peran anda tidak diketahui, mohon hubungi pihak terkait.');
+    }
+
+    /**
+     * Destroy an authenticated session.
+     */
+    public function destroy(Request $request): RedirectResponse
+    {
+        Auth::guard('web')->logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+
+        return redirect('/');
+    }
+}<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+
+class ConfirmablePasswordController extends Controller
+{
+    /**
+     * Show the confirm password view.
+     */
+    public function show(): View
+    {
+        return view('auth.confirm-password');
+    }
+
+    /**
+     * Confirm the user's password.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if (! Auth::guard('web')->validate([
+            'email' => $request->user()->email,
+            'password' => $request->password,
+        ])) {
+            throw ValidationException::withMessages([
+                'password' => __('auth.password'),
+            ]);
+        }
+
+        $request->session()->put('auth.password_confirmed_at', time());
+
+        return redirect()->intended(route('dashboard', absolute: false));
+    }
+}
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+
+class EmailVerificationNotificationController extends Controller
+{
+    /**
+     * Send a new email verification notification.
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(route('dashboard', absolute: false));
+        }
+
+        $request->user()->sendEmailVerificationNotification();
+
+        return back()->with('status', 'verification-link-sent');
+    }
+}
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
+class EmailVerificationPromptController extends Controller
+{
+    /**
+     * Display the email verification prompt.
+     */
+    public function __invoke(Request $request): RedirectResponse|View
+    {
+        return $request->user()->hasVerifiedEmail()
+                    ? redirect()->intended(route('dashboard', absolute: false))
+                    : view('auth.verify-email');
+    }
+}
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+
+class NewPasswordController extends Controller
+{
+    /**
+     * Display the password reset view.
+     */
+    public function create(Request $request): View
+    {
+        return view('auth.reset-password', ['request' => $request]);
+    }
+
+    /**
+     * Handle an incoming new password request.
+     *
+     * @throws ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'token' => ['required'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        // Here we will attempt to reset the user's password. If it is successful we
+        // will update the password on an actual user model and persist it to the
+        // database. Otherwise we will parse the error and return the response.
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function (User $user) use ($request) {
+                $user->forceFill([
+                    'password' => Hash::make($request->password),
+                    'remember_token' => Str::random(60),
+                ])->save();
+
+                event(new PasswordReset($user));
+            }
+        );
+
+        // If the password was successfully reset, we will redirect the user back to
+        // the application's home authenticated view. If there is an error we can
+        // redirect them back to where they came from with their error message.
+        return $status == Password::PASSWORD_RESET
+                    ? redirect()->route('login')->with('status', __($status))
+                    : back()->withInput($request->only('email'))
+                        ->withErrors(['email' => __($status)]);
+    }
+}
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
+
+class PasswordController extends Controller
+{
+    /**
+     * Update the user's password.
+     */
+    public function update(Request $request): RedirectResponse
+    {
+        $validated = $request->validateWithBag('updatePassword', [
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', Password::defaults(), 'confirmed'],
+        ]);
+
+        $request->user()->update([
+            'password' => Hash::make($validated['password']),
+        ]);
+
+        return back()->with('status', 'password-updated');
+    }
+}
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+
+class PasswordResetLinkController extends Controller
+{
+    /**
+     * Display the password reset link request view.
+     */
+    public function create(): View
+    {
+        return view('auth.forgot-password');
+    }
+
+    /**
+     * Handle an incoming password reset link request.
+     *
+     * @throws ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'email' => ['required', 'email'],
+        ]);
+
+        // We will send the password reset link to this user. Once we have attempted
+        // to send the link, we will examine the response then see the message we
+        // need to show to the user. Finally, we'll send out a proper response.
+        $status = Password::sendResetLink(
+            $request->only('email')
+        );
+
+        return $status == Password::RESET_LINK_SENT
+                    ? back()->with('status', __($status))
+                    : back()->withInput($request->only('email'))
+                        ->withErrors(['email' => __($status)]);
+    }
+}
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Auth\Events\Registered;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules;
+use Illuminate\Validation\ValidationException;
+use Illuminate\View\View;
+
+class RegisteredUserController extends Controller
+{
+    /**
+     * Display the registration view.
+     */
+    public function create(): View
+    {
+        return view('auth.register');
+    }
+
+    /**
+     * Handle an incoming registration request.
+     *
+     * @throws ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect(route('dashboard', absolute: false));
+    }
+}
+<?php
+
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Auth\Events\Verified;
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\RedirectResponse;
+
+class VerifyEmailController extends Controller
+{
+    /**
+     * Mark the authenticated user's email address as verified.
+     */
+    public function __invoke(EmailVerificationRequest $request): RedirectResponse
+    {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+        }
+
+        if ($request->user()->markEmailAsVerified()) {
+            event(new Verified($request->user()));
+        }
+
+        return redirect()->intended(route('dashboard', absolute: false).'?verified=1');
+    }
+}
+<?php
+
+namespace App\Http\Requests;
+
+use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
+
+class ProfileUpdateRequest extends FormRequest
+{
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'email' => [
+                'required',
+                'string',
+                'lowercase',
+                'email',
+                'max:255',
+                Rule::unique(User::class)->ignore($this->user()->id),
+            ],
+        ];
+    }
+}
+<?php
+
+namespace App\Http\Requests\Auth;
+
+use Illuminate\Auth\Events\Lockout;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
+
+class LoginRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'email' => ['required', 'string', 'email'],
+            'password' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * Attempt to authenticate the request's credentials.
+     *
+     * @throws ValidationException
+     */
+    public function authenticate(): void
+    {
+        $this->ensureIsNotRateLimited();
+
+        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+            RateLimiter::hit($this->throttleKey());
+
+            throw ValidationException::withMessages([
+                'email' => trans('auth.failed'),
+            ]);
+        }
+
+        RateLimiter::clear($this->throttleKey());
+    }
+
+    /**
+     * Ensure the login request is not rate limited.
+     *
+     * @throws ValidationException
+     */
+    public function ensureIsNotRateLimited(): void
+    {
+        if (! RateLimiter::tooManyAttempts($this->throttleKey(), 5)) {
+            return;
+        }
+
+        event(new Lockout($this));
+
+        $seconds = RateLimiter::availableIn($this->throttleKey());
+
+        throw ValidationException::withMessages([
+            'email' => trans('auth.throttle', [
+                'seconds' => $seconds,
+                'minutes' => ceil($seconds / 60),
+            ]),
+        ]);
+    }
+
+    /**
+     * Get the rate limiting throttle key for the request.
+     */
+    public function throttleKey(): string
+    {
+        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+    }
+}
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Berita extends Model
+{
+    protected $table = 'berita';
+
+    // PERBAIKAN: Hapus 'galeri_id' karena ID berita yang disimpan di tabel galeri (sumber_id)
+    protected $fillable = ['judul', 'isi_berita', 'jenis_berita', 'status', 'user_id'];
+
+    protected $casts = [
+        'tgl_terbit' => 'date',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function galeri()
+    {
+        return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'berita');
+    }
+}<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Event extends Model
+{
+    protected $table = 'event';
+
+    // PERBAIKAN: Sesuaikan dengan nama kolom di migration Anda ('nama', bukan 'nama_event')
+    // Serta hapus 'galeri_id' karena ID event dicatat di tabel galeri (sumber_id)
+    protected $fillable = [
+        'nama', 
+        'deskripsi',
+        'tanggal', 
+        'jam', 
+        'lokasi', 
+        'kategori', 
+        'status', 
+        'user_id'
+    ];
+
+    protected $casts = [
+        'tanggal' => 'date',
+    ];
+
+    /**
+     * Relasi ke User (Pembuat Event)
+     */
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    /**
+     * Relasi ke Galeri (Multi-Foto Slideshow)
+     */
+    public function galeri(): HasMany
+    {
+        // PERBAIKAN: Hubungkan via sumber_id dan kunci kategori khusus 'event'
+        return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'event');
+    }
+}<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class Galeri extends Model
+{
+    protected $table = 'galeri';
+
+    protected $fillable = [
+        'sumber_id',
+        'path',
+        'nama_file',
+        'kategori',
+        'is_watermark',
+        'created_at',
+        'updated_at'
+    ];
+
+    
+    public function event(): BelongsTo
+    {
+        return $this->belongsTo(Event::class, 'sumber_id');
+    }
+
+        public function berita(): BelongsTo
+        {
+            return $this->belongsTo(Berita::class, 'sumber_id');
+        }
+
+        public function katalog(): BelongsTo
+        {
+            return $this->belongsTo(Katalog::class, 'sumber_id');
+        }
+
+        public function admin(): BelongsTo
+        {
+            return $this->belongsTo(User::class, 'sumber_id');
+        }
+
+        public function profilSanggar(): BelongsTo
+        {
+            return $this->belongsTo(ProfilSanggar::class, 'sumber_id');
+        }
+
+        
+};<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Katalog extends Model
+{
+    protected $table = 'katalog';
+
+    // PERBAIKAN: Gunakan nama kolom 'nama_katalog' untuk menampung isian input form 'nama_tari'
+    protected $fillable = ['nama_katalog', 'kategori', 'stok', 'deskripsi', 'status', 'user_id'];
+
+    protected $casts = [
+        'stok' => 'integer',
+    ];
+
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+    
+    // PERBAIKAN: Diubah menjadi HasMany agar satu produk katalog bisa memiliki banyak foto header sekaligus
+    public function galeri(): HasMany
+    {
+        return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'katalog');
+    }
+}<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class LogAktivitas extends Model
+{
+    protected $table = 'log_aktivitas';
+
+    protected $fillable = ['user_id', 'aktivitas', 'waktu'];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+}<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Otp extends Model
+{
+    protected $table = 'otp';
+
+    protected $fillable = ['user_id', 'otp_code', 'expires_at', 'status'];
+
+    // Security: Memudahkan pengecekan apakah OTP sudah kadaluarsa (expired)
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+}<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+class Personel extends Model
+{
+    protected $table = 'personel';
+
+    // Bersihkan 'galeri_id' dari fillable jika Anda menggunakan sistem satu personel banyak foto di tabel galeri
+    protected $fillable = ['nama', 'jabatan', 'no_handphone', 'instagram', 'peran', 'status'];
+
+    /**
+     * Hubungkan Personel ke tabel Galeri (Satu personel memiliki banyak foto)
+     */
+    public function galeri(): HasMany
+    {
+        // Menghubungkan lewat kolom 'sumber_id' dan memfilter hanya kategori 'profil'
+        return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'profil');
+    }
+}<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Galeri;
+
+class ProfilSanggar extends Model
+{
+    protected $table = 'profil_sanggar';
+
+    protected $fillable = [
+        'deskripsi',
+        'visi',
+        'misi',
+        'sejarah',
+        'sambutan_pembina',
+        'logo_id',
+        'foto_pembina_id'
+    ];
+
+    // Relasi untuk Logo dan Foto Pembina (keduanya merujuk ke tabel media)
+    public function logo()
+    {
+        return $this->belongsTo(Galeri::class, 'logo_id');
+    }
+    public function fotoPembina()
+    {
+        return $this->belongsTo(Galeri::class, 'foto_pembina_id');
+    }
+
+    public function headers(): HasMany
+    {
+        return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'header');
+    }
+}<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+
+class User extends Authenticatable
+{
+    use HasFactory, Notifiable;
+
+    // Mass Assignment Protection: Mencegah perubahan kolom sensitif secara ilegal
+    protected $fillable = [
+        'name',
+        'email',
+        'password',
+        'peran',
+        'no_handphone',
+        'status',
+    ];
+
+    // Data Privacy: Menyembunyikan password saat data dikonversi ke Array/JSON
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    // Security Casting: Otomatis menghash password dan mengonversi tipe data waktu
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    /** * Hubungan (Relationships):
+     * Seorang User (Admin) bisa membuat banyak data konten.
+     */
+
+    public function galeri()
+    {
+         return $this->hasOne(Galeri::class, 'sumber_id', 'id')->where('kategori', 'admin');
+    }
+
+    public function berita()
+    {
+        return $this->hasMany(Berita::class, 'user_id', 'id');
+    }
+
+    public function event()
+    {
+        return $this->hasMany(Event::class, 'user_id', 'id');
+    }
+
+    public function katalog()
+    {
+        return $this->hasMany(Katalog::class, 'user_id', 'id');
+    }
+}<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        //
+    }
+}
+<?php
+
+namespace App\View\Components;
+
+use Illuminate\View\Component;
+use Illuminate\View\View;
+
+class AppLayout extends Component
+{
+    /**
+     * Get the view / contents that represents the component.
+     */
+    public function render(): View
+    {
+        return view('layouts.app');
+    }
+}
+<?php
+
+namespace App\View\Components;
+
+use Illuminate\View\Component;
+use Illuminate\View\View;
+
+class GuestLayout extends Component
+{
+    /**
+     * Get the view / contents that represents the component.
+     */
+    public function render(): View
+    {
+        return view('layouts.guest');
+    }
+}
