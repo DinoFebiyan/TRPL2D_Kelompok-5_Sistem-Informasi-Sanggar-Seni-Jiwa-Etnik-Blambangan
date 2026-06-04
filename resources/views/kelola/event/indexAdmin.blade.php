@@ -135,7 +135,7 @@
     }
     .event-table th {
         text-align: left;
-        padding: 14px 25px;
+        padding: 14px 8px;
         color: #b07d7d;
         font-weight: 600;
         font-size: 0.85rem;
@@ -143,7 +143,7 @@
         text-transform: uppercase; 
     }
     .event-table td {
-        padding: 15px 25px;
+        padding: 15px 8px;
         border-bottom: 1px solid #E0E0E0; 
         vertical-align: middle;
         font-size: 0.85rem;
