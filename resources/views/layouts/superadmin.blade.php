@@ -230,50 +230,6 @@
             flex: 1;
         }
 
-        /* ========== MODAL LOGOUT ========== */
-        .modal-overlay {
-            position: fixed; 
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.6); 
-            display: none; 
-            align-items: center; justify-content: center; 
-            z-index: 9999; 
-            backdrop-filter: blur(3px);
-        }
-
-        .modal-box {
-            background: #fff;
-            width: 95%; max-width: 380px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            text-align: center;
-            animation: modalFadeIn 0.3s ease-out;
-        }
-
-        @keyframes modalFadeIn {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .modal-header {
-            background: var(--merah);
-            padding: 16px 20px;
-            display: flex; justify-content: center; align-items: center;
-            color: #fff;
-        }
-
-        .modal-header h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; margin: 0; }
-
-        .modal-body { padding: 30px 20px; }
-        .modal-footer {
-            padding-bottom: 25px;
-            background: #fff;
-            display: flex; justify-content: center; gap: 15px;
-        }
-
-        .btn-batal { background: #fff; border: 1px solid #ddd; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; min-width: 100px; }
-        .btn-simpan { background: var(--merah); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; min-width: 120px; }
-
         /* ========== OVERLAY & TOGGLE (RESPONSIF) ========== */
         .sidebar-overlay {
             display: none;
@@ -366,7 +322,6 @@
     <div id="sidebarOverlay" class="sidebar-overlay"></div>
     <button class="menu-toggle" id="menuToggle"><i class="fas fa-bars"></i></button>
 
-    {{-- PERBEDAANNYA HANYA PADA INCLUDE SIDEBAR INI --}}
     @include('partials.sidebarSuperadmin')
 
     <main class="main">
@@ -377,73 +332,36 @@
         </div>
     </main>
 
-    <div id="modalLogout" class="modal-overlay">
-        <div class="modal-box">
-            <div class="modal-header">
-                <h3>Konfirmasi Keluar</h3>
-            </div>
-            <div class="modal-body">
-                <div style="background: rgba(139, 0, 0, 0.1); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--merah)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                </div>
-                <p style="font-size: 1rem; color: var(--teks); font-weight: 600; margin-bottom: 5px;">Yakin ingin keluar?</p>
-                <p style="font-size: 0.85rem; color: var(--teks-abu);">Anda akan keluar dari sesi Super Admin. Pastikan semua perubahan sudah disimpan sebelum keluar.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn-batal" onclick="closeLogoutModal()">Batal</button>
-                <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
-                    @csrf
-                    <button type="submit" class="btn-simpan">Ya, Keluar</button>
-                </form>
-            </div>
-        </div>
-    </div>
+    {{-- Popup Logout --}}
+    @include('popup.logout')
 
     <script>
-        // Modal Logout
-        function openLogoutModal() {
-            document.getElementById('modalLogout').style.display = 'flex';
-            document.body.style.overflow = 'hidden';
-        }
-        function closeLogoutModal() {
-            document.getElementById('modalLogout').style.display = 'none';
-            document.body.style.overflow = 'auto';
-        }
+        // Sambungkan fungsi lama ke popup baru
+        function openLogoutModal() { showPopupLogout(); }
+        function closeLogoutModal() { hidePopupLogout(); }
 
-        // Script Sidebar Mobile (Toggle & Overlay)
+        // Script Sidebar Mobile
         document.addEventListener("DOMContentLoaded", function() {
             const menuToggle = document.getElementById('menuToggle');
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.getElementById('sidebarOverlay');
 
-            if(menuToggle && sidebar && overlay) {
-                // Saat tombol 3 garis diklik
+            if (menuToggle && sidebar && overlay) {
                 menuToggle.addEventListener('click', function() {
                     sidebar.classList.add('open');
                     overlay.classList.add('active');
-                    document.body.style.overflow = 'hidden'; // Matikan scroll background
+                    document.body.style.overflow = 'hidden';
                 });
 
-                // Saat area gelap diklik, tutup sidebar
                 overlay.addEventListener('click', function() {
                     sidebar.classList.remove('open');
                     overlay.classList.remove('active');
-                    document.body.style.overflow = 'auto'; // Nyalakan scroll
+                    document.body.style.overflow = 'auto';
                 });
             }
         });
-
-        // Tutup modal jika klik di luar area box
-        window.onclick = function(event) {
-            let modal = document.getElementById('modalLogout');
-            if (event.target == modal) closeLogoutModal();
-        }
     </script>
-    
+
     @stack('scripts')
 </body>
 </html>
