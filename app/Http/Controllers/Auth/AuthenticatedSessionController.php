@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
@@ -24,13 +25,39 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        // Validasi wajib centang captcha
+        $request->validate([
+            'g-recaptcha-response' => ['required'],
+        ], [
+            'g-recaptcha-response.required' => 'Silakan centang reCAPTCHA terlebih dahulu.',
+        ]);
+
+        // Verifikasi ke server Google
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            [
+                'secret' => env('RECAPTCHA_SECRET_KEY'),
+                'response' => $request->input('g-recaptcha-response'),
+            ]
+        );
+
+        $hasilCaptcha = $response->json();
+
+        if (!($hasilCaptcha['success'] ?? false)) {
+            return back()
+                ->withErrors([
+                    'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal.'
+                ])
+                ->withInput();
+        }
+
         $request->authenticate();
 
         $request->session()->regenerate();
 
         // Ambil data user yang login
         $user = Auth::user();
-        
+
         // SINKRONISASI COATING ROLE (Menggunakan route() murni untuk mematikan intended bypass)
         if ($user->peran === 'superadmin') {
             return redirect()->route('superadmin.dashboard');

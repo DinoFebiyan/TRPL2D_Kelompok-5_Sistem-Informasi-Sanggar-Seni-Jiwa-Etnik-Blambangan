@@ -98,6 +98,13 @@
       text-align: justify;
     }
 
+    .article-body img {
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 20px auto !important;
+  }
+
     /* Drop Cap: Huruf pertama di paragraf pertama otomatis membesar ala majalah seni */
     .article-body p:first-of-type::first-letter {
       font-family: 'Playfair Display', serif;
@@ -299,7 +306,7 @@
     }
   @endphp
 
-  <div class="news-detail-hero" style="background-image: url('{{ asset($pathUtama) }}');">
+<div class="news-detail-hero" style="background-image: url('{{ asset('storage/' . $pathUtama) }}');">
     <div class="hero-content-wrap">
       <span class="badge-news">Berita Sanggar</span>
       <h1>{{ $berita->judul }}</h1>
@@ -338,7 +345,7 @@
 
         <a href="{{ route('umum.berita-detail', $lain->id) }}" class="lain-card">
           <div class="lain-img-wrapper">
-            <img src="{{ asset($pathLain) }}" alt="{{ $lain->judul }}">
+            <<img src="{{ asset('storage/' . $pathLain) }}" alt="{{ $lain->judul }}">
             <span class="lain-tag">Kegiatan</span>
           </div>
           <div class="lain-content">
