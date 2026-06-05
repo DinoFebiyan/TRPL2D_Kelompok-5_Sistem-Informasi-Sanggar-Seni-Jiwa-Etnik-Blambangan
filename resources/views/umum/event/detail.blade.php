@@ -282,7 +282,7 @@
 
 {{-- SECTION EVENT LAIN (ACAK) --}}
 <section class="event-lain-section">
-    <h3 class="event-lain-title">Event Lain (Rekomendasi)</h3>
+    <h3 class="event-lain-title">Event Lain</h3>
     
     <div class="event-lain-grid">
         @forelse($eventLainnya as $lain)

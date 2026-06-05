@@ -3,7 +3,18 @@
 @section('title', 'Beranda - Sanggar Tari JEB')
 
 @push('styles')
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
+    /* ══ RESET & GLOBAL VARIABLES fallback ══ */
+    :root {
+      --maroon-dark: #6b1414;
+      --maroon-light: #a71818;
+      --gold: #f1c40f;
+      --white: #ffffff;
+      --text-dark: #333333;
+      --text-gray: #555555;
+    }
+
     section {
       padding: 5rem 8%;
     }
@@ -15,7 +26,7 @@
 
     /* ══ HERO ══ */
     #beranda {
-      background: linear-gradient(135deg, #a71818 0%, #c42020 100%);
+      background: linear-gradient(135deg, var(--maroon-light) 0%, #c42020 100%);
       min-height: 90vh;
       display: flex;
       align-items: center;
@@ -74,7 +85,7 @@
       border-radius: 30px;
       text-decoration: none;
       display: inline-block;
-      transition: transform .2s;
+      transition: transform .2s, background-color 0.2s;
     }
 
     .btn-gray-pill:hover {
@@ -98,18 +109,9 @@
     }
 
     /* ══ GLOBAL SECTIONS ══ */
-    section {
-      padding: 5rem 8%;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
     .badge-pill {
       display: inline-block;
-      background: var(--red-bg);
+      background: var(--maroon-dark);
       color: var(--white);
       font-size: 0.7rem;
       font-weight: 600;
@@ -133,9 +135,43 @@
       color: var(--text-gray);
     }
 
+    .section-title-center {
+        font-family: 'Playfair Display', serif; 
+        color: var(--maroon-dark); 
+        font-size: 1.8rem; 
+        font-weight: 700; 
+        margin-top: 0.5rem; 
+        margin-bottom: 0.5rem;
+    }
+
+    /* ══ GARIS PEMBATAS DEKORATIF ══ */
+    .section-divider {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto;
+      width: 80%;
+      max-width: 900px;
+    }
+    .section-divider::before, .section-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to var(--direction, right), transparent, #d4af37);
+    }
+    .section-divider::after {
+      --direction: left;
+    }
+    .section-divider i {
+      color: #d4af37;
+      margin: 0 15px;
+      font-size: 1.2rem;
+    }
+
     /* ══ PROFILE ══ */
     #profile {
       background: var(--white);
+      padding-bottom: 3rem;
     }
 
     .profile-grid {
@@ -154,43 +190,59 @@
     }
 
     .profile-text p {
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       line-height: 1.8;
-      color: var(--text-gray);
+      color: var(--text-dark);
       margin-bottom: 1rem;
     }
 
     .profile-card {
-      background: var(--red-card);
+      background: #7a1212;
       border-radius: 20px;
       padding: 3rem 2rem;
       text-align: center;
       color: var(--white);
       position: relative;
-      margin-top: 2rem;
+      margin-top: 4rem;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     }
 
     .profile-card-img {
       width: 180px;
-      height: auto;
+      height: 180px;
+      object-fit: cover;
       position: absolute;
       top: -100px;
       left: 50%;
       transform: translateX(-50%);
+      border-radius: 50%;
+      border: 5px solid var(--white);
+      background: #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     }
 
     .profile-card h4 {
       font-family: 'Playfair Display', serif;
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--gold);
-      margin: 3rem 0 1rem;
+      margin: 5rem 0 0.5rem;
+    }
+
+    .profile-card .role-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 1rem;
     }
 
     .profile-card p {
-      font-size: 0.85rem;
-      line-height: 1.6;
+      font-size: 0.9rem;
+      line-height: 1.7;
       color: rgba(255, 255, 255, 0.9);
+      font-style: italic;
     }
 
     .center-action {
@@ -200,61 +252,121 @@
       width: 100%;
     }
 
-    /* ══ VISI MISI ══ */
-    #visi-misi {
-      background: var(--white);
+    /* ══ KATALOG KOSTUM ══ */
+    #katalog {
+      background: #f4eae6;
     }
 
-    .vm-container {
-      display: flex;
-      flex-direction: column;
+    .white {
+      color: var(--maroon-dark) !important;
+    }
+
+    .katalog-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 2rem;
-      max-width: 800px;
-      margin: 0 auto;
+      margin-bottom: 3rem;
     }
 
-    .visi-box {
-      background: linear-gradient(135deg, var(--red-bg), var(--maroon-dark));
-      border-radius: 10px;
-      padding: 2.5rem;
-      text-align: center;
-      color: var(--white);
+    .katalog-link-card {
+      text-decoration: none;
+      color: inherit;
+      display: block;
     }
 
-    .visi-box h3 {
-      font-family: 'Playfair Display', serif;
+    .katalog-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s, box-shadow 0.3s;
+      border: 1px solid #eee;
+    }
+    .katalog-link-card:hover .katalog-card {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .katalog-img {
+      height: 220px;
+      background: linear-gradient(to bottom, #b3b3b3, #e5e5e5);
+      position: relative;
+    }
+
+    .katalog-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .katalog-img .badge {
+      position: absolute;
+      top: 1.2rem;
+      left: 1.2rem;
+      background: var(--gold);
+      color: #333;
+      font-size: 0.75rem;
       font-weight: 700;
-      color: var(--gold);
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
+      padding: 0.3rem 1rem;
+      border-radius: 20px;
     }
 
-    .visi-box p {
-      font-size: 0.95rem;
+    .katalog-info {
+      padding: 1.5rem;
+    }
+
+    .katalog-info h4 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .katalog-info p {
+      font-size: 0.85rem;
+      color: var(--text-gray);
+      margin-bottom: 1.5rem;
       line-height: 1.6;
     }
 
-    .misi-box {
-      background: var(--cream);
-      border-radius: 10px;
-      padding: 2.5rem;
-      text-align: center;
-      color: var(--text-dark);
+    .katalog-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #eee;
+      padding-top: 1rem;
     }
 
-    .misi-box h3 {
-      font-family: 'Playfair Display', serif;
+    .katalog-footer .tipe {
+      font-size: 0.9rem;
       font-weight: 700;
-      color: var(--maroon-dark);
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
     }
 
-    .misi-box p {
-      font-size: 0.95rem;
-      line-height: 1.8;
-      margin-bottom: 1rem;
-      color: var(--text-gray);
+    .katalog-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .katalog-actions span {
+      font-size: 0.8rem;
+      font-family: 'Poppins', sans-serif;
+      color: #555;
+    }
+
+    .btn-dark-red-pill {
+      background: var(--maroon-dark);
+      color: var(--white);
+      padding: 0.8rem 2.5rem;
+      border-radius: 30px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transition: background 0.3s;
+    }
+
+    .btn-dark-red-pill:hover {
+      background: #5c0d0d;
     }
 
     /* ══ BERITA ══ */
@@ -346,6 +458,10 @@
       border-radius: 12px;
       border: 1px solid #eee;
       overflow: hidden;
+      transition: background-color 0.2s;
+    }
+    .berita-list a:hover .berita-item {
+      background: #f1f1f1;
     }
 
     .berita-img-placeholder {
@@ -361,7 +477,7 @@
     }
 
     .berita-item-content .tag {
-      color: var(--gold);
+      color: var(--maroon-dark);
       font-size: 0.7rem;
       font-weight: 600;
       margin-bottom: 0.3rem;
@@ -381,11 +497,6 @@
       color: #999;
     }
 
-    .center-action {
-      text-align: center;
-      margin-top: 2rem;
-    }
-
     .btn-dark-pill {
       background: var(--maroon-dark);
       color: var(--white);
@@ -394,107 +505,96 @@
       text-decoration: none;
       font-size: 0.85rem;
       font-weight: 500;
+      transition: background-color 0.2s;
+    }
+    .btn-dark-pill:hover {
+      background: #520e0e;
     }
 
-    /* ══ KATALOG KOSTUM ══ */
-    #katalog {
-      background: var(--red-bg);
+    /* ══ GALERI ══ */
+    #galeri {
+      background: #e8ded7;
     }
 
-    .white {
-      color: var(--white);
-    }
-
-    .katalog-grid {
+    .galeri-mosaik {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 2rem;
-      margin-bottom: 3rem;
+      grid-auto-rows: 240px;
+      gap: 1rem;
+      margin-bottom: 2rem;
     }
 
-    .katalog-card {
-      background: var(--white);
+    .g-box {
+      background: var(--maroon-dark);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .g-box:hover {
+      transform: scale(1.02);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.15);
     }
 
-    .katalog-img {
-      height: 220px;
-      background: linear-gradient(to bottom, #b3b3b3, #e5e5e5);
-      position: relative;
+    /* ══ GRID TIM PENGURUS & PELATIH ══ */
+    .cards-grid { 
+        display: grid; 
+        grid-template-columns: repeat(5, 1fr); 
+        gap: 1.2rem; 
+        margin-top: 1.5rem; 
+        margin-bottom: 3rem; 
     }
+    .profile-card-team { 
+        background: #ffffff; 
+        border-radius: 12px; 
+        overflow: hidden; 
+        box-shadow: 0 4px 12px rgba(0,0,0,0.04); 
+        text-align: center; 
+        padding-bottom: 1rem; 
+        border: 1px solid #f0f0f0;
+    }
+    
+    .avatar-wrapper { 
+        width: 100%; 
+        height: 180px; 
+        overflow: hidden; 
+        background-color: #eee; 
+        position: relative; 
+    }
+    .avatar-wrapper img { 
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover; 
+        position: absolute; 
+        top: 0; left: 0; 
+        opacity: 0; 
+        transition: opacity 0.5s ease-in-out; 
+    }
+    .avatar-wrapper img.active { opacity: 1; }
 
-    .katalog-img .badge {
-      position: absolute;
-      top: 1.2rem;
-      left: 1.2rem;
-      background: #f1c40f;
-      color: #333;
-      font-size: 0.75rem;
-      font-weight: 700;
-      padding: 0.3rem 1rem;
-      border-radius: 20px;
+    .inline-error-fallback {
+        width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; background-color: #e5e7eb; color: #9ca3af; position: absolute; top: 0; left: 0; z-index: 10;
     }
+    .inline-error-fallback.active { display: flex; }
 
-    .katalog-info {
-      padding: 1.5rem;
+    .profile-info { padding: 0.8rem 0.5rem 0.4rem; position: relative; z-index: 15; background: #fff; }
+    .profile-info h4 { margin: 0; font-size: 0.95rem; color: #333; font-weight: 700; }
+    .profile-info p { margin: 2px 0 8px; font-size: 0.75rem; color: #888; font-weight: 500; }
+    .profile-socials { display: flex; justify-content: center; gap: 8px; }
+    
+    .social-btn {
+        width: 28px; 
+        height: 28px; 
+        border-radius: 50%; 
+        background-color: var(--maroon-dark); 
+        color: white; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 0.75rem; 
+        text-decoration: none; 
+        transition: background-color 0.2s;
     }
-
-    .katalog-info h4 {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 0.5rem;
-    }
-
-    .katalog-info p {
-      font-size: 0.85rem;
-      color: var(--text-gray);
-      margin-bottom: 1.5rem;
-      line-height: 1.6;
-    }
-
-    .katalog-footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-top: 1px solid #eee;
-      padding-top: 1rem;
-    }
-
-    .katalog-footer .tipe {
-      color: #28a745;
-      font-size: 0.9rem;
-      font-weight: 700;
-    }
-
-    .katalog-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .katalog-actions span {
-      font-size: 0.8rem;
-      font-family: 'Poppins', sans-serif;
-      color: #555;
-    }
-
-    .btn-dark-red-pill {
-      background: #7a1212;
-      color: var(--white);
-      padding: 0.8rem 2.5rem;
-      border-radius: 30px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      transition: background 0.3s;
-    }
-
-    .btn-dark-red-pill:hover {
-      background: #5c0d0d;
-    }
+    .social-btn:hover { background-color: #b22222; }
 
     /* ══ KALENDER EVENT ══ */
     #kalender {
@@ -589,6 +689,12 @@
         gap: 1.5rem;
     }
 
+    .event-link-card {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
     #kalender .event-card {
         background-color: #ffffff !important;
         border: 1px solid #eee;
@@ -597,12 +703,12 @@
         display: flex;
         gap: 1.5rem;
         align-items: center;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    #kalender .event-card:hover {
+    .event-link-card:hover .event-card {
         transform: translateX(10px);
-        box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
     }
 
     #kalender .event-date {
@@ -644,11 +750,6 @@
         margin-bottom: 12px;
     }
     
-    #kalender .event-info .meta i {
-        color: #b91c1c;
-        font-size: 0.9rem;
-    }
-
     #kalender .event-info .meta span {
         background: transparent !important; 
         color: #b91c1c !important;      
@@ -657,78 +758,6 @@
         display: inline-flex;
         align-items: center;
         gap: 5px;
-    }
-
-    @media (max-width: 992px) {
-        .kalender-grid {
-            grid-template-columns: 1fr;
-        }
-        .cal-widget {
-            max-width: 400px;
-            margin: 0 auto;
-        }
-    }
-
-    /* ══ GALERI ══ */
-    #galeri {
-      background: var(--red-bg);
-    }
-
-    .galeri-mosaik {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      grid-auto-rows: 200px;
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .g-box {
-      background: var(--maroon-dark);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 12px;
-    }
-
-    .g-box.large {
-      grid-row: span 2;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 900px) {
-      .hero-grid,
-      .profile-grid,
-      .berita-grid,
-      .kalender-grid,
-      .footer-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .katalog-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .hero-logo-wrap {
-        justify-content: center;
-        margin-top: 2rem;
-      }
-
-      .galeri-mosaik {
-        grid-template-columns: 1fr 1fr;
-      }
-
-      .g-box.large {
-        grid-row: span 1;
-        grid-column: span 2;
-      }
-    }
-
-    @media (max-width: 600px) {
-      .katalog-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .nav-links {
-        display: none;
-      }
     }
 
     /* ══ SECTION CTA BERGABUNG ══ */
@@ -793,37 +822,46 @@
         transform: translateY(-5px);
     }
 
-    @media (max-width: 968px) {
-        .cta-container {
-            grid-template-columns: 1fr;
-            text-align: center;
-        }
-        .cta-action {
-            text-align: center;
-        }
-        .cta-content h2 {
-            font-size: 2rem;
-        }
+    /* RESPONSIVE DESIGN */
+    @media (max-width: 1024px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 992px) {
+        .hero-grid, .profile-grid, .berita-grid, .kalender-grid, .cta-container { grid-template-columns: 1fr; }
+        .katalog-grid { grid-template-columns: 1fr 1fr; }
+        .hero-logo-wrap, .cta-action { justify-content: center; text-align: center; margin-top: 2rem; }
+        .galeri-mosaik { grid-template-columns: 1fr 1fr; }
+        .cal-widget { max-width: 400px; margin: 0 auto; }
+    }
+    @media (max-width: 768px) {
+        .cards-grid { grid-template-columns: repeat(2, 1fr); }
+        .profile-grid { gap: 2rem; }
+    }
+    @media (max-width: 600px) {
+        .katalog-grid, .galeri-mosaik { grid-template-columns: 1fr; }
+        .cta-content h2 { font-size: 2rem; }
     }
   </style>
 @endpush
 
 @section('content')
+  {{-- ══ HERO SECTION ══ --}}
   <section id="beranda">
     <div class="hero-grid">
       <div class="hero-text">
         <h1>Sanggar Tari <span class="script">Jiwa Etnik Blambangan</span></h1>
         <p>Pusat pelestarian seni dan budaya tari tradisional Banyuwangi. Menggerakkan jiwa, merayakan budaya, melestarikan warisan Nusantara.</p>
-        <a href="#galeri" class="btn-gray-pill">Lihat Galeri</a>
+        <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat Galeri</a>
       </div>
       <div class="hero-logo-wrap">
-      <img src="{{ asset($profil->logo->path ?? 'img/images-landing-page/galeri/logo-jeb.jpg') }}" 
-          alt="Logo Sanggar Jiwa Etnik Blambangan" 
-          class="logo-img-hero" />
-    </div>
+        @if($profil && $profil->logo && $profil->logo->path)
+          <img src="{{ asset('storage/' . $profil->logo->path) }}" alt="Logo Sanggar Jiwa Etnik Blambangan" class="logo-img-hero" />
+        @else
+          <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo Default Sanggar" class="logo-img-hero" />
+        @endif
+      </div>
     </div>
   </section>
 
+  {{-- ══ PROFILE SECTION ══ --}}
   <section id="profile">
     <div class="section-header">
       <span class="badge-pill">TENTANG KAMI</span>
@@ -832,22 +870,19 @@
     </div>
     <div class="profile-grid">
       <div class="profile-text">
-        <h3>{{ $profil->deskripsi ?? 'Melestarikan Budaya Banyuwangi' }}</h3>
-        <p>{{ $profil->deskripsi ?? 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional yang berdedikasi untuk melestarikan kekayaan budaya Banyuwangi.' }}</p>
+        <h3>{{ $profil->tagline ?? 'Melestarikan Budaya Banyuwangi' }}</h3>
+        <p>{!! nl2br(e($profil->deskripsi ?? 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional yang berdedikasi untuk melestarikan kekayaan budaya Banyuwangi.')) !!}</p>
         <p>{{ $profil->sejarah ?? 'Kami membina generasi muda untuk mencintai dan menguasai seni tari tradisional, mulai dari tari Gandrung, hingga tari kreasi baru berbasis budaya lokal Blambangan.' }}</p>
       </div>
       <div class="profile-card">
-        @if($profil && $profil->logo)
-          @if($profil->logo instanceof \Illuminate\Support\Collection)
-            <img src="{{ asset($profil->logo->first()->path ?? 'img/logo-jeb.jpg') }}" alt="Logo" class="profile-card-img">
-          @else
-            <img src="{{ asset($profil->logo->path ?? 'img/logo-jeb.jpg') }}" alt="Logo" class="profile-card-img">
-          @endif
+        @if($profil && $profil->fotoPembina && $profil->fotoPembina->path)
+          <img src="{{ asset('storage/' . $profil->fotoPembina->path) }}" alt="Foto Pembina Sanggar" class="profile-card-img">
         @else
-          <img src="{{ asset('img/logo-jeb.jpg') }}" alt="Ilustrasi Penari" class="profile-card-img">
+          <img src="{{ asset('img/images-landing-page/galeri/foto_pembina.jpeg') }}" alt="Default Pembina Sanggar" class="profile-card-img">
         @endif
-        <h4>Warisan Budaya Blambangan</h4>
-        <p>Tari Tradisional adalah jiwa dari identitas budaya kita. Bersama kami, lestarikan dan rayakan kekayaan seni Nusantara.</p>
+        <h4>{{ $profil->nama_pembina ?? 'Adlin Mustika Alam' }}</h4>
+        <div class="role-title">Pembina Sanggar JEB</div>
+        <p>"{{ $profil->sambutan_pembina ?? 'Tari Tradisional adalah jiwa dari identitas budaya kita. Bersama kami, lestarikan dan rayakan kekayaan seni Nusantara.' }}"</p>
       </div>
     </div>
     <div class="center-action">
@@ -855,61 +890,76 @@
     </div>
   </section>
   
+  {{-- ══ GARIS PEMBATAS ELEGAN VIA FONTAWESOME ══ --}}
+  <div class="section-divider">
+    <i class="fas fa-gopuram"></i>
+  </div>
+
+  {{-- ══ VISI & MISI SECTION ══ --}}
   <section class="section-visi-misi" style="padding: 60px 0; background-color: #fff;">
     <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
-        <h2 style="font-family: 'Playfair Display', serif; color: #3D0C0C; margin-bottom: 40px;">VISI & MISI</h2>
+        <h2 style="font-family: 'Playfair Display', serif; color: #3D0C0C; margin-bottom: 40px; font-weight: 700; font-size: 2.2rem;">VISI & MISI</h2>
 
-        <div class="visi-card" style="background: #a51c1c; color: white; padding: 40px; border-radius: 15px; margin-bottom: 20px;">
-            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif;">VISI</h3>
-            <p style="font-size: 1.1rem; line-height: 1.6;">
-                {{ $profil->visi }}
+        <div class="visi-card" style="background: #a51c1c; color: white; padding: 40px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif; font-weight:700; color:#f1c40f; letter-spacing:1px;">VISI</h3>
+            <p style="font-size: 1.1rem; line-height: 1.6; margin: 0;">
+                {{ $profil->visi ?? 'Menjadi sanggar seni terdepan dalam melestarikan warisan luhur adat tari Blambangan di kancah nasional maupun internasional.' }}
             </p>
         </div>
 
-        <div class="misi-card" style="background: #fdf5e6; color: #3D0C0C; padding: 40px; border-radius: 15px; border: 1px solid #e0d0c0;">
-            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif;">MISI</h3>
-            <p style="font-size: 1.1rem; line-height: 1.8; text-align: left;">
-                {{ $profil->misi }}
-            </p>
+        <div class="misi-card" style="background: #fdf5e6; color: #3D0C0C; padding: 40px; border-radius: 15px; border: 1px solid #e0d0c0; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif; font-weight:700; color:#a51c1c; letter-spacing:1px;">MISI</h3>
+            <div style="font-size: 1.1rem; line-height: 1.8; text-align: left; color:#555; padding-left: 10px;">
+                @if($profil && $profil->misi)
+                    {!! $profil->misi !!}
+                @else
+                    <p>1. Membina generasi muda aktif dalam mencintai kesenian lokal daerah.</p>
+                    <p>2. Menyelenggarakan pelatihan tari berkala bagi masyarakat umum.</p>
+                @endif
+            </div>
         </div>
     </div>
-</section>
+  </section>
+
+  {{-- ══ KATALOG KOSTUM SECTION ══ --}}
   <section id="katalog">
     <div class="section-header">
       <h2 class="section-title white">Katalog Kostum</h2>
-      <p class="section-subtitle white">Koleksi Kostum tari tradisional dan kreasi Sanggar JEB</p>
+      <p class="section-subtitle white" style="color: var(--text-gray) !important;">Koleksi Kostum tari tradisional dan kreasi Sanggar JEB</p>
     </div>
     <div class="katalog-grid">
       @forelse($katalogs as $item)
-      <div class="katalog-card">
-        <div class="katalog-img">
-          @if($item->galeri)
-              @if($item->galeri instanceof \Illuminate\Support\Collection)
-                  <img src="{{ asset($item->galeri->first()->path ?? 'img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}" style="width:100%; height:100%; object-fit:cover;">
+      <a href="{{ route('umum.katalog-detail', $item->id) }}" class="katalog-link-card">
+          <div class="katalog-card">
+            <div class="katalog-img">
+              @if($item->galeri && $item->galeri->isNotEmpty())
+                <img src="{{ asset('storage/' . $item->galeri->first()->path) }}" alt="{{ $item->nama_tari }}">
+              @elseif($item->galeri && !($item->galeri instanceof \Illuminate\Support\Collection) && isset($item->galeri->path))
+                <img src="{{ asset('storage/' . $item->galeri->path) }}" alt="{{ $item->nama_tari }}">
               @else
-                  <img src="{{ asset($item->galeri->path ?? 'img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}" style="width:100%; height:100%; object-fit:cover;">
+                <img src="{{ asset('img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}">
               @endif
-          @else
-              <div style="background:#ddd; height:100%; display:flex; align-items:center; justify-content:center; color:#555;">No Image</div>
-          @endif
-          <span class="badge">{{ $item->kategori }}</span>
-        </div>
-        <div class="katalog-info">
-          <h4>{{ $item->nama_tari }}</h4>
-          <p>{{ Str::limit($item->deskripsi, 80) }}</p>
-          <div class="katalog-footer">
-            <span class="tipe">{{ $item->status == 'tersedia' ? 'Tersedia' : 'Tidak Tersedia' }}</span>
-            <div class="katalog-actions">
-              <span>Stok: {{ $item->stok }}</span>
+              <span class="badge">{{ $item->kategori }}</span>
+            </div>
+            <div class="katalog-info">
+              <h4>{{ $item->nama_tari }}</h4>
+              <p>{{ Str::limit(strip_tags($item->deskripsi), 80) }}</p>
+              <div class="katalog-footer">
+                <span class="tipe" style="color: {{ $item->status == 'tersedia' ? '#28a745' : '#dc3545' }} ;">
+                    {{ $item->status == 'tersedia' ? 'Tersedia' : 'Tidak Tersedia' }}
+                </span>
+                <div class="katalog-actions">
+                  <span>Stok: {{ $item->stok ?? 0 }}</span>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+      </a>
       @empty
-      <div class="katalog-card">
+      <div class="katalog-card" style="grid-column: 1/-1; text-align: center; padding: 30px;">
         <div class="katalog-info">
-          <h4>Belum ada data katalog</h4>
-          <p>Silakan tambah data katalog melalui panel admin.</p>
+          <h4>Belum ada data katalog kostum</h4>
+          <p>Koleksi kostum panggung sanggar menanti untuk diperbarui.</p>
         </div>
       </div>
       @endforelse
@@ -919,6 +969,7 @@
     </div>
   </section>
 
+  {{-- ══ BERITA SECTION ══ --}}
   <section id="berita">
     <div class="section-header">
       <span class="badge-pill">INFORMASI</span>
@@ -927,64 +978,60 @@
     </div>
     <div class="berita-grid">
       @if($beritaUtama)
-      @php
-        $pathBeritaUtama = 'img/images-landing-page/banner_berita.jpeg';
-        if ($beritaUtama->galeri) {
-            if ($beritaUtama->galeri instanceof \Illuminate\Support\Collection) {
-                $pathBeritaUtama = $beritaUtama->galeri->first()->path ?? $pathBeritaUtama;
-            } else {
-                $pathBeritaUtama = $beritaUtama->galeri->path ?? $pathBeritaUtama;
-            }
-        }
-        $coverUtama = asset('storage/' . $pathBeritaUtama);
-      @endphp
-      <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ $coverUtama }}'); background-size: cover; background-position: center;">
-        <span class="badge-yellow">BERITA UTAMA</span>
-        <h3>{{ $beritaUtama->judul }}</h3>
-        <p>{{ Str::limit(strip_tags($beritaUtama->isi_berita), 150) }}</p>
-        <div class="meta">
-          <span>Berita • {{ \Carbon\Carbon::parse($beritaUtama->tgl_terbit)->format('d M Y') }} • {{ $beritaUtama->user->name ?? 'Admin' }}</span>
-          <a href="{{ route('umum.berita-detail', $beritaUtama->id) }}" class="btn-red-pill">Baca Selengkapnya</a>
+        @php
+          $pathBeritaUtama = 'img/images-landing-page/banner_berita.jpeg';
+          if ($beritaUtama->galeri && $beritaUtama->galeri->isNotEmpty()) {
+              $pathBeritaUtama = 'storage/' . $beritaUtama->galeri->first()->path;
+          } elseif ($beritaUtama->galeri && isset($beritaUtama->galeri->path)) {
+              $pathBeritaUtama = 'storage/' . $beritaUtama->galeri->path;
+          }
+          $coverUtama = asset($pathBeritaUtama);
+        @endphp
+        <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ $coverUtama }}'); background-size: cover; background-position: center;">
+          <span class="badge-yellow">BERITA UTAMA</span>
+          <h3>{{ $beritaUtama->judul }}</h3>
+          <p>{{ Str::limit(strip_tags($beritaUtama->isi_berita), 150) }}</p>
+          <div class="meta">
+            <span>Berita • {{ \Carbon\Carbon::parse($beritaUtama->tgl_terbit)->translatedFormat('d M Y') }} • {{ $beritaUtama->user->name ?? 'Admin' }}</span>
+            <a href="{{ route('umum.berita-detail', $beritaUtama->id) }}" class="btn-red-pill">Baca Selengkapnya</a>
+          </div>
         </div>
-      </div>
       @else
-      <div class="berita-main">
-        <span class="badge-yellow">BERITA UTAMA</span>
-        <h3>Belum ada berita utama</h3>
-        <p>Silakan isi konten berita melalui dashboard admin.</p>
-      </div>
+        <div class="berita-main" style="background: #5a1a1a; justify-content: center; align-items: center; text-align: center;">
+          <span class="badge-yellow">BERITA UTAMA</span>
+          <h3 style="margin-top: 1rem;">Belum ada berita utama</h3>
+          <p>Kabar info menarik seputar sanggar tari JEB akan segera hadir.</p>
+        </div>
       @endif
 
       <div class="berita-list">
         @forelse($beritaTerbaru as $item)
-        @php
-          $pathBeritaTerbaru = 'img/images-landing-page/banner_berita.jpeg';
-          if ($item->galeri) {
-              if ($item->galeri instanceof \Illuminate\Support\Collection) {
-                  $pathBeritaTerbaru = $item->galeri->first()->path ?? $pathBeritaTerbaru;
-              } else {
-                  $pathBeritaTerbaru = $item->galeri->path ?? $pathBeritaTerbaru;
-              }
-          }
-          $coverTerbaru = asset('storage/' . $pathBeritaTerbaru);
-        @endphp
-        <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
-          <div class="berita-item">
-            <div class="berita-img-placeholder" style="background: url('{{ $coverTerbaru }}'); background-size: cover; background-position: center; width: 120px; min-width: 120px; height: 100px;"></div>
-            <div class="berita-item-content">
-              <span class="tag">Berita</span>
-              <h5>{{ Str::limit($item->judul, 60) }}</h5>
-              <span>{{ \Carbon\Carbon::parse($item->tgl_terbit)->format('d M Y') }} - {{ $item->user->name ?? 'Admin' }}</span>
+          @php
+            $pathBeritaTerbaru = 'img/images-landing-page/banner_berita.jpeg';
+            if ($item->galeri && $item->galeri->isNotEmpty()) {
+                $pathBeritaTerbaru = 'storage/' . $item->galeri->first()->path;
+            } elseif ($item->galeri && isset($item->galeri->path)) {
+                $pathBeritaTerbaru = 'storage/' . $item->galeri->path;
+            }
+            $coverTerbaru = asset($pathBeritaTerbaru);
+          @endphp
+          <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
+            <div class="berita-item">
+              <div class="berita-img-placeholder" style="background: url('{{ $coverTerbaru }}'); background-size: cover; background-position: center; width: 120px; min-width: 120px; height: 100px;"></div>
+              <div class="berita-item-content">
+                <span class="tag">Berita</span>
+                <h5>{{ Str::limit($item->judul, 60) }}</h5>
+                <span>{{ \Carbon\Carbon::parse($item->tgl_terbit)->translatedFormat('d M Y') }} - {{ $item->user->name ?? 'Admin' }}</span>
+              </div>
+            </div>
+          </a>
+        @empty
+          <div class="berita-item" style="padding: 20px; text-align: center;">
+            <div class="berita-item-content" style="align-items: center; width: 100%;">
+              <span class="tag">Kosong</span>
+              <h5>Belum ada kumpulan berita terbaru</h5>
             </div>
           </div>
-        </a>
-        @empty
-        <div class="berita-item">
-          <div class="berita-item-content">
-            <span class="tag">Belum ada berita</span>
-            <h5>Belum ada berita terbaru</h5>
-          </div>
-        </div>
         @endforelse
       </div>
     </div>
@@ -993,15 +1040,16 @@
     </div>
   </section>
 
+  {{-- ══ GALERI MOSAIK SECTION ══ --}}
   <section id="galeri">
     <div class="section-header">
-      <span class="badge-pill" style="background:transparent; border:1px solid var(--gold); color:var(--gold);">DOKUMENTASI</span>
+      <span class="badge-pill" style="background:transparent; border:1px solid var(--maroon-dark); color:var(--maroon-dark);">DOKUMENTASI</span>
       <h2 class="section-title white">Galeri Sanggar</h2>
-      <p class="section-subtitle white">Momen indah perjalanan seni dan budaya Jiwa Etnik Blambangan</p>
+      <p class="section-subtitle white" style="color: var(--text-gray) !important;">Momen indah perjalanan seni dan budaya Jiwa Etnik Blambangan</p>
     </div>
     <div class="galeri-mosaik">
       @forelse($galeri as $item)
-        <div class="g-box" style="background-image: url('{{ asset($item->path) }}'); background-size: cover; background-position: center;"></div>
+        <a href="{{ route('umum.galeri-detail', $item->id) }}" class="g-box" style="background-image: url('{{ asset('storage/' . $item->path) }}'); background-size: cover; background-position: center; display: block;"></a>
       @empty
         <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/berita/berita_4.jpeg') }}'); background-size: cover; background-position: center;"></div>
         <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/berita/berita_5.jpeg') }}'); background-size: cover; background-position: center;"></div>
@@ -1016,6 +1064,7 @@
     </div>
   </section>
 
+  {{-- ══ KALENDER EVENT SECTION ══ --}}
   <section id="kalender">
     <div class="section-header">
         <span class="badge-pill">KEGIATAN</span>
@@ -1026,19 +1075,19 @@
     <div class="kalender-container">
         <div class="kalender-grid">
             <div class="cal-widget">
-                <div class="cal-header">Mei 2026</div>
+                <div class="cal-header">{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</div>
                 <div class="cal-body">
                     <div class="cal-grid">
-                        <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
+                        <span class="day-name">Su</span><span class="day-name">Mo</span><span class="day-name">Tu</span><span class="day-name">We</span><span class="day-name">Th</span><span class="day-name">Fr</span><span class="day-name">Sa</span>
                         
-                        @for($x = 0; $x < ($blankDays ?? 5); $x++)
+                        @for($x = 0; $x < ($blankDays ?? 0); $x++)
                             <span></span>
                         @endfor
 
-                        @for($i = 1; $i <= ($daysInMonth ?? 31); $i++)
+                        @for($i = 1; $i <= ($daysInMonth ?? 30); $i++)
                             @php 
                                 $isEvent = in_array($i, $eventDays ?? []); 
-                                $isToday = ($i == date('d'));
+                                $isToday = ($i == date('d') && \Carbon\Carbon::now()->month == date('m'));
                             @endphp
                             <span class="{{ $isEvent ? 'event-day' : '' }} {{ $isToday ? 'active-today' : '' }}">
                                 {{ $i }}
@@ -1050,26 +1099,26 @@
             
             <div class="event-list">
                 @forelse($events as $event)
-                <div class="event-card">
-                    <div class="event-date">
-                        <h2>{{ \Carbon\Carbon::parse($event->tanggal)->format('d') }}</h2>
-                        <span>{{ strtoupper(\Carbon\Carbon::parse($event->tanggal)->format('M')) }}</span>
-                    </div>
-                    <div class="event-info">
-                        <h4>
-                            <a href="{{ route('umum.event-detail', $event->id) }}" style="text-decoration:none; color:inherit;">
-                                {{ $event->nama_event }}
-                            </a>
-                        </h4>
-                        <p>{{ $event->deskripsi ?? 'Kegiatan seni Sanggar Tari JEB.' }}</p>
-                        <div class="meta">
-                            <span>📍 {{ $event->lokasi }}</span>
-                            <span style="margin-left: 15px;">🕒 {{ \Carbon\Carbon::parse($event->jam)->format('H:i') }} WIB</span>
+                <a href="{{ route('umum.event-detail', $event->id) }}" class="event-link-card">
+                    <div class="event-card">
+                        <div class="event-date">
+                            <h2>{{ \Carbon\Carbon::parse($event->tanggal)->format('d') }}</h2>
+                            <span>{{ strtoupper(\Carbon\Carbon::parse($event->tanggal)->translatedFormat('M')) }}</span>
+                        </div>
+                        <div class="event-info">
+                            <h4>{{ $event->nama }}</h4>
+                            <p>{{ Str::limit(strip_tags($event->deskripsi), 160) ?? 'Kegiatan pertunjukan seni tari Sanggar Tari JEB.' }}</p>
+                            <div class="meta">
+                                <span>📍 {{ Str::limit($event->lokasi, 40) }}</span>
+                                <span style="margin-left: 15px;">🕒 {{ \Carbon\Carbon::parse($event->jam)->format('H:i') }} WIB</span>
+                            </div>
                         </div>
                     </div>
-                </div>
+                </a>
                 @empty
-                <p>Belum ada event terjadwal.</p>
+                <div class="event-card" style="justify-content: center; padding: 40px; color:#aaa; width:100%;">
+                    <p style="margin:0; font-weight:600;">Belum ada event terjadwal bulan ini.</p>
+                </div>
                 @endforelse
             </div> 
             
@@ -1082,6 +1131,7 @@
     </div> 
   </section>
 
+  {{-- ══ CTA JOIN SECTION ══ --}}
   <section id="cta-join">
     <div class="cta-container">
         <div class="cta-content">
@@ -1094,8 +1144,28 @@
             </p>
         </div>
         <div class="cta-action">
-            <a href="#" class="btn-daftar-cta">DAFTAR SEKARANG</a>
+            <a href="https://wa.me/6282232505355" target="_blank" class="btn-daftar-cta">DAFTAR SEKARANG</a>
         </div>
     </div>
   </section>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // AUTOMATIC SLIDESHOW MULTI-FOTO CARD TIM PENGURUS & PELATIH
+        const containers = document.querySelectorAll('.slideshow-container');
+        containers.forEach(container => {
+            const images = container.querySelectorAll('img');
+            if (images.length > 1) {
+                let currentIndex = 0;
+                setInterval(() => {
+                    images[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % images.length;
+                    images[currentIndex].classList.add('active');
+                }, 5000);
+            }
+        });
+    });
+</script>
+@endpush

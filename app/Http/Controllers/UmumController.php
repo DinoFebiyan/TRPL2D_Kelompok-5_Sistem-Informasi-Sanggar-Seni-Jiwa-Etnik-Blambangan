@@ -13,45 +13,48 @@ use Carbon\Carbon;
 
 class UmumController extends Controller
 {
-    /**
-     * Halaman Beranda / Landing Page Publik
-     */
     public function index()
     {
-        $date = now();
-        $daysInMonth = $date->daysInMonth;
-        $blankDays = $date->startOfMonth()->dayOfWeek; 
+        // 1. Ambil data utama sanggar
+        $profil = \App\Models\ProfilSanggar::first(); // Sesuaikan nama namespace model kamu
         
-        $data = [
-            // Eager load relasi headers untuk banner dinamis beranda jika diperlukan
-            'profil' => ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first(),
-            'katalogs' => Katalog::with('galeri')->latest()->take(3)->get(),
-            'beritaUtama' => Berita::with('galeri')->where('status', 'tayang')->latest()->first(),
-            'beritaTerbaru' => Berita::with('galeri')->where('status', 'tayang')->latest()->skip(1)->take(3)->get(),
-            'events' => Event::take(3)->get(),
-            
-            // PERBAIKAN FILTER: Mengamankan data foto internal sanggar agar tidak bocor di baris pratinjau beranda
-            'galeri' => Galeri::whereNotIn(\DB::raw('LOWER(kategori)'), ['logo', 'pembina', 'profil', 'header', 'admin'])
-                ->where(function($q) {
-                    $q->where('path', 'not like', '%personel%')
-                      ->where('path', 'not like', '%pembina%')
-                      ->where('nama_file', 'not like', '%pengurus%')
-                      ->where('nama_file', 'not like', '%pelatih%')
-                      ->where('nama_file', 'not like', '%pembina%')
-                      ->where('nama_file', 'not like', '%dummy%');
-                })
-                ->latest()
-                ->take(6)
-                ->get(),
-            
-            // Variabel untuk Kalender
-            'daysInMonth' => $daysInMonth,
-            'blankDays' => $blankDays,
-            'currentMonthName' => $date->format('F'),
-            'eventDays' => Event::pluck('tanggal')->map(fn($tgl) => (int) Carbon::parse($tgl)->format('d'))->toArray(),
-        ];
+        // 2. Ambil data katalog secara acak
+        $katalogs = \App\Models\Katalog::inRandomOrder()->take(3)->get();
         
-        return view('umum.landing_page', $data);
+        // 3. Logika pengambilan Berita
+        $beritaUtama = \App\Models\Berita::where('status', 'tayang')->latest()->first();
+        $beritaTerbaru = \App\Models\Berita::where('status', 'tayang')
+                            ->where('id', '!=', $beritaUtama?->id)
+                            ->latest()
+                            ->take(3)
+                            ->get();
+        
+        // 4. Ambil data Galeri secara acak
+        $galeri = \App\Models\Galeri::inRandomOrder()->take(6)->get();
+        
+        // 5. Ambil data Event secara acak
+        $events = \App\Models\Event::inRandomOrder()->take(3)->get();
+        
+
+        // Data pembantu untuk widget kalender bawaan (jika diperlukan)
+        $blankDays = 5; 
+        $daysInMonth = 31;
+        $eventDays = \App\Models\Event::pluck('tanggal')->map(function($tgl) {
+            return (int) \Carbon\Carbon::parse($tgl)->format('d');
+        })->toArray();
+
+        // Kirim SEMUA variabel yang dibutuhkan view di dalam compact()
+        return view('umum.landing_page', compact(
+            'profil', 
+            'katalogs', 
+            'beritaUtama', 
+            'beritaTerbaru', 
+            'galeri', 
+            'events', 
+            'blankDays',
+            'daysInMonth',
+            'eventDays'
+        ));
     }
 
     /**
