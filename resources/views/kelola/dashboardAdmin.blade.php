@@ -1,21 +1,23 @@
 @extends('layouts.admin')
 
 @section('title', 'Dashboard Admin')
-@section('header_title', 'Dashboard Admin')
 
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
     /* =========================================================================
-       SYSTEM INTEGRATION DASHBOARD STYLES (ADMIN ROLE MODE - RESTRICTED ACCESS)
+       SYSTEM INTEGRATION DASHBOARD STYLES (ADMIN ROLE MODE)
        ========================================================================= */
     .dashboard-wrapper {
         width: 100%;
+        max-width: 100%;
         font-family: 'Poppins', sans-serif;
         color: #333;
+        overflow-x: hidden;
+        box-sizing: border-box;
     }
     
-    /* 1. STATS GRID CARD DISPLAY (2 COLUMNS FOR EVENT & NEWS ONLY) */
+    /* 1. STATS GRID CARD DISPLAY */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -52,9 +54,7 @@
         font-weight: 500;
         color: #666;
     }
-    .stat-change.up {
-        color: #16a34a;
-    }
+    .stat-change.up { color: #16a34a; }
     .stat-icon {
         width: 50px;
         height: 50px;
@@ -63,11 +63,12 @@
         align-items: center;
         justify-content: center;
         font-size: 1.4rem;
+        flex-shrink: 0;
     }
-    .stat-icon.merah { background: #fef2f2; color: #ef4444; }
     .stat-icon.hijau { background: #f0fdf4; color: #16a34a; }
+    .stat-icon.merah { background: #fef2f2; color: #ef4444; }
 
-    /* 2. QUICK ACCESS LINKS COMPONENT (3 COLUMNS FOR EVENT, NEWS & PROFILE) */
+    /* 2. QUICK ACCESS LINKS COMPONENT */
     .quick-grid {
         display: grid;
         grid-template-columns: repeat(3, 1fr);
@@ -92,27 +93,10 @@
         border-color: #d4aeae;
     }
     .quick-icon {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
-        display: flex;
-                align-items: center;
-        justify-content: center;
-        font-size: 1.1rem;
-        margin-bottom: 12px;
-        background: #fdf6f6;
+        width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 12px; background: #fdf6f6;
     }
-    .quick-card p {
-        margin: 0;
-        font-weight: 600;
-        font-size: 0.9rem;
-        color: #2D1A1A;
-    }
-    .quick-card span {
-        font-size: 0.75rem;
-        color: #888;
-        margin-top: 4px;
-    }
+    .quick-card p { margin: 0; font-weight: 600; font-size: 0.9rem; color: #2D1A1A; }
+    .quick-card span { font-size: 0.75rem; color: #888; margin-top: 4px; }
 
     /* 3. SPLIT COLUMN LAYOUT (2 COLUMNS) */
     .grid-2 {
@@ -126,6 +110,7 @@
         border: 1px solid #f0f0f0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         padding: 20px 0;
+        overflow: hidden; 
     }
     .card-header {
         display: flex;
@@ -135,122 +120,94 @@
         border-bottom: 1px solid #f3f4f6;
         margin-bottom: 15px;
     }
-    .card-header h3 {
-        margin: 0;
-        font-size: 1.05rem;
-        color: #333;
-        font-weight: 600;
-    }
+    .card-header h3 { margin: 0; font-size: 1.05rem; color: #333; font-weight: 600; }
+    .card-header a { text-decoration: none; color: #5B1A1A; font-weight: 700; font-size: 0.85rem; white-space: nowrap; }
+    
     .table-wrap {
         width: 100%;
         overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: 10px;
     }
     
     .content-table {
         width: 100%;
         border-collapse: collapse;
+        min-width: 450px; 
     }
-    .content-table thead {
-        background-color: #F5EBEB;
-    }
-    .content-table th {
-        text-align: left;
-        padding: 12px 20px;
-        color: #b07d7d;
-        font-weight: 600;
-        font-size: 0.8rem;
-        text-transform: uppercase;
-    }
-    .content-table td {
-        padding: 14px 20px;
-        border-bottom: 1px solid #E0E0E0;
-        vertical-align: middle;
-        font-size: 0.85rem;
-    }
-    .content-table tr:last-child td {
-        border-bottom: none;
-    }
+    .content-table thead { background-color: #F5EBEB; }
+    .content-table th { text-align: left; padding: 12px 20px; color: #b07d7d; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; white-space: nowrap; }
+    .content-table td { padding: 14px 20px; border-bottom: 1px solid #E0E0E0; vertical-align: middle; font-size: 0.85rem; }
+    .content-table tr:last-child td { border-bottom: none; }
     
-    .badge-tayang {
-        background: #dcfce7;
-        color: #16a34a;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-    .badge-draft {
-        background: #fee2e2;
-        color: #ef4444;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
+    .badge-tayang { background: #dcfce7; color: #16a34a; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; display: inline-block; }
+    .badge-draft { background: #fee2e2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; display: inline-block; }
 
     /* TIMELINE SYSTEM FOR LATEST EVENTS */
-    .event-timeline {
-        padding: 0 20px;
-        display: flex;
-        flex-direction: column;
-    }
-    .timeline-item {
-        display: flex;
-        gap: 15px;
-        position: relative;
-    }
-    .timeline-dot-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .timeline-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #eab308;
-        z-index: 2;
-        margin-top: 5px;
-        box-shadow: 0 0 0 4px #FEFCE8;
-    }
-    .timeline-line {
-        flex: 1;
-        width: 2px;
-        background: #E5E7EB;
-        margin: 4px 0;
-    }
-    .timeline-item:last-child .timeline-line {
-        background: transparent;
-    }
-    .timeline-content {
-        padding-bottom: 20px;
-        flex: 1;
-    }
-    .timeline-content p {
-        margin: 0;
-        font-size: 0.85rem;
-        color: #4B5563;
-        line-height: 1.4;
-    }
-    .timeline-content p strong {
-        color: #111827;
-    }
-    .timeline-content span {
-        display: block;
-        font-size: 0.75rem;
-        color: #9CA3AF;
-        margin-top: 4px;
+    .event-timeline { padding: 0 20px; display: flex; flex-direction: column; }
+    .timeline-item { display: flex; gap: 15px; position: relative; }
+    .timeline-dot-wrap { display: flex; flex-direction: column; align-items: center; }
+    .timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: #eab308; z-index: 2; margin-top: 5px; box-shadow: 0 0 0 4px #FEFCE8; }
+    .timeline-line { flex: 1; width: 2px; background: #E5E7EB; margin: 4px 0; }
+    .timeline-item:last-child .timeline-line { background: transparent; }
+    .timeline-content { padding-bottom: 20px; flex: 1; min-width: 0; }
+    .timeline-content p { margin: 0; font-size: 0.85rem; color: #4B5563; line-height: 1.4; word-wrap: break-word; }
+    .timeline-content p strong { color: #111827; }
+    .timeline-content span { display: block; font-size: 0.75rem; color: #9CA3AF; margin-top: 4px; }
+
+    /* ==========================================================
+       MEDIA QUERIES: MENGUBAH LAYOUT JADI 1 KOLOM DI HP (ANTI ERROR)
+       ========================================================== */
+    @media (max-width: 768px) {
+        /* Tabel Berita & Agenda Event ditumpuk atas-bawah */
+        .grid-2 {
+            grid-template-columns: 1fr !important;
+            gap: 15px !important;
+        }
+
+        /* Menu Cepat ditumpuk memanjang ke bawah */
+        .quick-grid {
+            grid-template-columns: 1fr !important;
+            gap: 10px !important;
+        }
+
+        /* Statistik Grid jadi 2 kotak kiri-kanan */
+        .stats-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+        }
+        .stat-card {
+            flex-direction: column !important;
+            text-align: center !important;
+            justify-content: center !important;
+            padding: 15px 10px !important;
+            gap: 8px !important;
+        }
+        .stat-icon {
+            width: 40px !important; 
+            height: 40px !important; 
+            font-size: 1.1rem !important;
+            margin: 0 auto !important;
+        }
+        .stat-info h2 { font-size: 1.4rem !important; margin: 5px 0 !important; }
+
+        .card-header {
+            padding: 0 15px 15px 15px !important;
+        }
+        .table-wrap {
+            padding: 0 15px !important;
+        }
     }
 </style>
 
 <div class="dashboard-wrapper">
-    {{-- STATS GRID (2 COLUMNS) --}}
+    {{-- STATS GRID --}}
     <div class="stats-grid">
         <div class="stat-card">
             <div class="stat-info">
                 <p>Event Aktif</p>
-                <h2>{{ $activeEvents ?? 0 }}</h2>
-                <div class="stat-change up"><i class="fas fa-caret-up"></i> {{ $newEventsThisMonth ?? 0 }} bulan ini</div>
+                <h2>{{ isset($activeEvents) ? $activeEvents : 0 }}</h2>
+                <div class="stat-change up"><i class="fas fa-caret-up"></i> {{ isset($newEventsThisMonth) ? $newEventsThisMonth : 0 }} bulan ini</div>
             </div>
             <div class="stat-icon hijau">
                 <i class="fas fa-calendar-alt"></i>
@@ -260,8 +217,8 @@
         <div class="stat-card">
             <div class="stat-info">
                 <p>Total Berita</p>
-                <h2>{{ $totalBerita ?? 0 }}</h2>
-                <div class="stat-change up"><i class="fas fa-caret-up"></i> {{ $newBeritaThisMonth ?? 0 }} bulan ini</div>
+                <h2>{{ isset($totalBerita) ? $totalBerita : 0 }}</h2>
+                <div class="stat-change up"><i class="fas fa-caret-up"></i> {{ isset($newBeritaThisMonth) ? $newBeritaThisMonth : 0 }} bulan ini</div>
             </div>
             <div class="stat-icon merah">
                 <i class="fas fa-newspaper"></i>
@@ -290,68 +247,69 @@
         </a>
     </div>
 
+    {{-- LAYOUT 2 KOLOM --}}
     <div class="grid-2">
         {{-- TABEL BERITA TERBARU --}}
         <div class="card">
             <div class="card-header">
                 <h3>Berita Terbaru</h3>
-                <a href="{{ url('/admin/kelola-berita') }}" style="text-decoration: none; color: #5B1A1A; font-weight: 700; font-size: 0.85rem;">Kelola Berita <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i></a>
+                <a href="{{ url('/admin/kelola-berita') }}">Kelola Berita <i class="fas fa-arrow-right"></i></a>
             </div>
-            <div class="card-body">
-                <div class="table-wrap">
-                    <table class="content-table">
-                        <thead>
+            <div class="table-wrap">
+                <table class="content-table">
+                    <thead>
+                        <tr>
+                            <th>Judul Berita</th>
+                            <th>Penulis</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if(isset($latestBeritas) && count($latestBeritas) > 0)
+                            @foreach($latestBeritas as $berita)
                             <tr>
-                                <th>Judul Berita</th>
-                                <th>Penulis</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($latestBeritas ?? [] as $berita)
-                            <tr>
-                                <td><strong>{{ \Illuminate\Support\Str::limit($berita->judul, 45) }}</strong></td>
-                                <td style="color: #666;">{{ $berita->user->name ?? 'Admin' }}</td>
+                                <td><strong>{{ \Illuminate\Support\Str::limit($berita->judul ?? 'Tanpa Judul', 45) }}</strong></td>
+                                <td style="color: #666;">{{ isset($berita->user) ? $berita->user->name : 'Admin' }}</td>
                                 <td>
-                                    @if($berita->status == 'tayang')
+                                    @if(isset($berita->status) && $berita->status == 'tayang')
                                         <span class="badge-tayang">Tayang</span>
                                     @else
                                         <span class="badge-draft">Draft</span>
                                     @endif
                                 </td>
                             </tr>
-                            @empty
+                            @endforeach
+                        @else
                             <tr><td colspan="3" style="text-align: center; color: #999;">Belum ada konten berita terbaru.</td></tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-                </div>
+                        @endif
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        {{-- AGENDA EVENT TERBARU / TERDEKAT --}}
+        {{-- AGENDA EVENT TERDEKAT --}}
         <div class="card">
             <div class="card-header">
                 <h3>Agenda Event Terdekat</h3>
-                <a href="{{ url('/admin/kelola-event') }}" style="text-decoration: none; color: #5B1A1A; font-weight: 700; font-size: 0.85rem;">Lihat Semua <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i></a>
+                <a href="{{ url('/admin/kelola-event') }}">Lihat Semua <i class="fas fa-arrow-right"></i></a>
             </div>
-            <div class="card-body">
-                <div class="event-timeline">
-                    @forelse($latestEvents ?? [] as $event)
+            <div class="event-timeline">
+                @if(isset($latestEvents) && count($latestEvents) > 0)
+                    @foreach($latestEvents as $event)
                     <div class="timeline-item">
                         <div class="timeline-dot-wrap">
                             <div class="timeline-dot"></div>
                             <div class="timeline-line"></div>
                         </div>
                         <div class="timeline-content">
-                            <p><strong>{{ $event->nama }}</strong> - Berlokasi di {{ $event->lokasi }}</p>
-                            <span><i class="far fa-calendar-alt"></i> {{ \Carbon\Carbon::parse($event->tanggal)->translatedFormat('d F Y') }}</span>
+                            <p><strong>{{ $event->nama ?? 'Event Baru' }}</strong> - Berlokasi di {{ $event->lokasi ?? '-' }}</p>
+                            <span><i class="far fa-calendar-alt"></i> {{ isset($event->tanggal) ? \Carbon\Carbon::parse($event->tanggal)->translatedFormat('d F Y') : '-' }}</span>
                         </div>
                     </div>
-                    @empty
+                    @endforeach
+                @else
                     <div style="text-align: center; color: #999; font-size: 0.85rem; padding: 20px 0;">Belum ada agenda event yang dijadwalkan.</div>
-                    @endforelse
-                </div>
+                @endif
             </div>
         </div>
     </div>
