@@ -6,8 +6,25 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
+    /* ==========================================
+       1. GEMBOK UTAMA (ANTI-BLOWOUT HORIZONTAL)
+       ========================================== */
+    html, body {
+        max-width: 100vw;
+        overflow-x: hidden;
+    }
+
+    .main, .content {
+        min-width: 0 !important;
+        max-width: 100vw !important;
+        overflow-x: hidden !important;
+    }
+
     .prof-wrapper {
         width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow-x: hidden;
         font-family: 'Poppins', sans-serif;
         color: #333;
     }
@@ -20,6 +37,9 @@
         border: 1px solid #f0f0f0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         margin-bottom: 28px;
+        width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
     }
     .prof-card-card h3 {
         margin: 0 0 20px 0;
@@ -28,6 +48,8 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
+        flex-wrap: wrap;
+        gap: 15px;
     }
     .btn-edit-profil {
         background: #e2c0c0;
@@ -39,6 +61,7 @@
         font-size: 0.85rem;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 8px;
         text-decoration: none;
         transition: 0.2s;
@@ -47,7 +70,7 @@
         background: #d4aeae;
     }
 
-    /* --- NEW STYLING: SLIDESHOW & GRID HEADER SANGGAR --- */
+    /* --- SLIDESHOW & GRID HEADER SANGGAR --- */
     .header-preview-display {
         width: 100%;
         height: 280px;
@@ -73,7 +96,7 @@
     }
     .header-grid-list {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
         gap: 15px;
     }
     .header-grid-item {
@@ -126,6 +149,7 @@
         padding: 12px 16px;
         border-radius: 8px;
         border: 1px solid #e8dede;
+        word-wrap: break-word;
     }
     .full-width {
         grid-column: span 2;
@@ -145,6 +169,7 @@
         display: flex;
         align-items: center;
         gap: 15px;
+        min-width: 0;
     }
     .photo-box img {
         width: 60px;
@@ -153,6 +178,7 @@
         object-fit: cover;
         border: 1px solid #e8dede;
         background: #f3f4f6;
+        flex-shrink: 0;
     }
     .photo-box .photo-text hef {
         margin: 0;
@@ -161,22 +187,26 @@
         color: #333;
     }
 
-    /* --- TABEL STRUKTUR DESIGN --- */
+    /* --- TABEL STRUKTUR DESIGN (ANTI BOCOR) --- */
     .prof-table-card {
         background: #fff;
         border-radius: 12px;
-        padding: 25px 0; 
+        padding: 24px; 
         border: 1px solid #f0f0f0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
-        overflow-x: auto;
         margin-bottom: 28px;
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden; /* Kunci luapan dari tabel */
     }
     .prof-table-card .table-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 0 25px;
         margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 15px;
     }
     .prof-table-card h3 {
         margin: 0;
@@ -201,10 +231,21 @@
     .btn-tambah-personel:hover {
         background: #d4aeae;
     }
+    
+    /* WADAH SCROLL MENDATAR KHUSUS TABEL */
+    .table-responsive-wrapper {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-bottom: 10px;
+        padding-bottom: 15px; /* Ruang lega agar scrollbar tidak numpuk */
+    }
+
     .prof-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 1000px;
+        min-width: 900px; /* Batas minimum lebar tabel */
     }
     .prof-table thead {
         background-color: #F5EBEB; 
@@ -216,6 +257,7 @@
         font-weight: 600;
         font-size: 0.85rem;
         text-transform: uppercase; 
+        white-space: nowrap;
     }
     .prof-table td {
         padding: 12px 25px;
@@ -235,6 +277,7 @@
         border: 1px solid #e8dede;
         background: #f3f4f6;
         position: relative;
+        flex-shrink: 0;
     }
     .prof-foto-frame img {
         width: 100%;
@@ -257,6 +300,7 @@
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 600;
+        white-space: nowrap;
     }
     .badge-nonaktif {
         background: #fee2e2;
@@ -265,6 +309,10 @@
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 600;
+        white-space: nowrap;
+    }
+    .prof-actions {
+        white-space: nowrap;
     }
     .prof-actions a, .prof-actions button {
         border: none;
@@ -281,19 +329,46 @@
     .btn-hapus-prof { background: #fef2f2; color: #ef4444; }
 
     .prof-pagination {
-        margin-top: 20px;
-        padding: 0 25px;
+        margin-top: 25px;
         display: flex;
         justify-content: flex-end;
     }
 
-    @media (max-width: 992px) {
-        .header-grid-list { grid-template-columns: repeat(3, 1fr); }
+    /* ==========================================
+       MEDIA QUERIES UNTUK HP (MOBILE)
+       ========================================== */
+    @media (max-width: 768px) {
+        .prof-card-card {
+            padding: 15px !important;
+        }
+        .header-preview-display {
+            height: 200px;
+        }
+        .info-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .full-width {
+            grid-column: span 1 !important;
+        }
+        .photo-row {
+            flex-direction: column !important;
+            grid-column: span 1 !important;
+        }
+        .prof-table-card {
+            padding: 15px !important; 
+        }
+        .btn-edit-profil, .btn-tambah-personel {
+            width: 100%;
+            justify-content: center;
+        }
+        .header-grid-list {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
-    @media (max-width: 576px) {
-        .header-grid-list { grid-template-columns: repeat(2, 1fr); }
-        .info-grid { grid-template-columns: 1fr; }
-        .full-width { grid-column: span 1; }
+    @media (max-width: 480px) {
+        .header-grid-list {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 
@@ -303,7 +378,7 @@
     <div class="prof-card-card">
         <h3>
             <span><i class="fas fa-images" style="color:#5B1A1A; margin-right:8px;"></i> Header</span>
-            <a href="{{ route('admin.edit-profil') }}" class="btn-edit-profil">
+            <a href="{{ route('superadmin.edit-profil') }}" class="btn-edit-profil">
                 <i class="fas fa-images"></i> Pengaturan Header
             </a>
         </h3>
@@ -317,7 +392,7 @@
             @else
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; color:#9ca3af; gap:10px;">
                     <i class="fas fa-photo-video" style="font-size:2.5rem;"></i>
-                    <span style="font-size:0.9rem;">Belum ada gambar banner slideshow yang diunggah.</span>
+                    <span style="font-size:0.9rem; text-align:center; padding: 0 10px;">Belum ada gambar banner slideshow yang diunggah.</span>
                 </div>
             @endif
         </div>
@@ -330,7 +405,7 @@
                     <span>Header {{ $key + 1 }}</span>
                 </div>
             @empty
-                <div style="grid-column: span 5; text-align:center; padding:15px; font-size:0.85rem; color:#888; background:#fffbfb; border:1px dashed #e8dede; border-radius:8px;">
+                <div style="grid-column: 1/-1; text-align:center; padding:15px; font-size:0.85rem; color:#888; background:#fffbfb; border:1px dashed #e8dede; border-radius:8px;">
                     Daftar header kosong.
                 </div>
             @endforelse
@@ -341,7 +416,7 @@
     <div class="prof-card-card">
         <h3>
             <span>Informasi Umum Sanggar</span>
-            <a href="{{ route('admin.edit-profil') }}" class="btn-edit-profil">
+            <a href="{{ route('superadmin.edit-profil') }}" class="btn-edit-profil">
                 <i class="fas fa-edit"></i> Edit Profil
             </a>
         </h3>
@@ -397,59 +472,62 @@
     <div class="prof-table-card">
         <div class="table-header">
             <h3>Daftar Pengurus</h3>
-            <a href="{{ route('admin.tambah-pengurus') }}" class="btn-tambah-personel">
+            <a href="{{ route('superadmin.tambah-pengurus') }}" class="btn-tambah-personel">
                 <span>+</span> Tambah Pengurus
             </a>
         </div>
         
-        <table class="prof-table">
-            <thead>
-                <tr>
-                    <th>FOTO</th>
-                    <th>NAMA LENGKAP</th>
-                    <th>JABATAN</th>
-                    <th>INSTAGRAM</th>
-                    <th>NO. HANDPHONE</th>
-                    <th>STATUS</th>
-                    <th>AKSI</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($pengurus as $item)
-                <tr>
-                    <td>
-                        <div class="prof-foto-frame slideshow-container">
-                            @if($item->galeri && $item->galeri->isNotEmpty())
-                                @foreach($item->galeri as $index => $foto)
-                                    <img src="{{ asset('storage/' . $foto->path) }}" alt="Foto Pengurus" class="{{ $index === 0 ? 'active' : '' }}">
-                                @endforeach
-                            @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($item->nama) }}&background=5B1A1A&color=fff" alt="Avatar" class="active">
-                            @endif
-                        </div>
-                    </td>
-                    <td style="font-weight:600">{{ $item->nama }}</td>
-                    <td><strong style="color: #555;">{{ $item->jabatan }}</strong></td>
-                    <td>{{ $item->instagram ?? '-' }}</td>
-                    <td>{{ $item->no_handphone }}</td>
-                    <td>
-                        <span class="{{ $item->status == 'aktif' ? 'badge-aktif' : 'badge-nonaktif' }}">
-                            {{ $item->status == 'aktif' ? 'Aktif' : 'Nonaktif' }}
-                        </span>
-                    </td>
-                    <td class="prof-actions">
-                        <a href="{{ route('admin.edit-pengurus', $item->id) }}" class="btn-edit-prof">Edit</a>
-                        <button class="btn-hapus-prof" onclick="confirmDelete('pengurus', {{ $item->id }})">Hapus</button>
-                        <form id="delete-pengurus-{{ $item->id }}" action="{{ route('admin.hapus-pengurus', $item->id) }}" method="POST" style="display:none;">
-                            @csrf @method('DELETE')
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="7" style="text-align:center;">Belum ada data pengurus sanggar.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+        {{-- BUNGKUSAN TABEL SCROLL HORIZONTAL (ANTI BOCOR) --}}
+        <div class="table-responsive-wrapper">
+            <table class="prof-table">
+                <thead>
+                    <tr>
+                        <th>FOTO</th>
+                        <th>NAMA LENGKAP</th>
+                        <th>JABATAN</th>
+                        <th>INSTAGRAM</th>
+                        <th>NO. HANDPHONE</th>
+                        <th>STATUS</th>
+                        <th>AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($pengurus as $item)
+                    <tr>
+                        <td>
+                            <div class="prof-foto-frame slideshow-container">
+                                @if($item->galeri && $item->galeri->isNotEmpty())
+                                    @foreach($item->galeri as $index => $foto)
+                                        <img src="{{ asset('storage/' . $foto->path) }}" alt="Foto Pengurus" class="{{ $index === 0 ? 'active' : '' }}">
+                                    @endforeach
+                                @else
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($item->nama) }}&background=5B1A1A&color=fff" alt="Avatar" class="active">
+                                @endif
+                            </div>
+                        </td>
+                        <td style="font-weight:600">{{ $item->nama }}</td>
+                        <td><strong style="color: #555;">{{ $item->jabatan }}</strong></td>
+                        <td>{{ $item->instagram ?? '-' }}</td>
+                        <td>{{ $item->no_handphone }}</td>
+                        <td>
+                            <span class="{{ $item->status == 'aktif' ? 'badge-aktif' : 'badge-nonaktif' }}">
+                                {{ $item->status == 'aktif' ? 'Aktif' : 'Nonaktif' }}
+                            </span>
+                        </td>
+                        <td class="prof-actions">
+                            <a href="{{ route('superadmin.edit-pengurus', $item->id) }}" class="btn-edit-prof">Edit</a>
+                            <button class="btn-hapus-prof" onclick="confirmDelete('pengurus', {{ $item->id }})">Hapus</button>
+                            <form id="delete-pengurus-{{ $item->id }}" action="{{ route('superadmin.hapus-pengurus', $item->id) }}" method="POST" style="display:none;">
+                                @csrf @method('DELETE')
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="7" style="text-align:center;">Belum ada data pengurus sanggar.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         <div class="prof-pagination">{{ $pengurus->links() }}</div>
     </div>
 
@@ -457,59 +535,62 @@
     <div class="prof-table-card">
         <div class="table-header">
             <h3>Daftar Pelatih</h3>
-            <a href="{{ route('admin.tambah-pelatih') }}" class="btn-tambah-personel">
+            <a href="{{ route('superadmin.tambah-pelatih') }}" class="btn-tambah-personel">
                 <span>+</span> Tambah Pelatih
             </a>
         </div>
         
-        <table class="prof-table">
-            <thead>
-                <tr>
-                    <th>FOTO</th>
-                    <th>NAMA LENGKAP</th>
-                    <th>JABATAN</th>
-                    <th>INSTAGRAM</th>
-                    <th>NO. HANDPHONE</th>
-                    <th>STATUS</th>
-                    <th>AKSI</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($pelatih as $item)
-                <tr>
-                    <td>
-                        <div class="prof-foto-frame slideshow-container">
-                            @if($item->galeri && $item->galeri->isNotEmpty())
-                                @foreach($item->galeri as $index => $foto)
-                                    <img src="{{ asset('storage/' . $foto->path) }}" alt="Foto Pelatih" class="{{ $index === 0 ? 'active' : '' }}">
-                                @endforeach
-                            @else
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($item->nama) }}&background=16a34a&color=fff" alt="Avatar" class="active">
-                            @endif
-                        </div>
-                    </td>
-                    <td style="font-weight:600">{{ $item->nama }}</td>
-                    <td><strong style="color: #555;">{{ $item->jabatan }}</strong></td>
-                    <td>{{ $item->instagram ?? '-' }}</td>
-                    <td>{{ $item->no_handphone }}</td>
-                    <td>
-                        <span class="{{ $item->status == 'aktif' ? 'badge-aktif' : 'badge-nonaktif' }}">
-                            {{ $item->status == 'aktif' ? 'Aktif' : 'Nonaktif' }}
-                        </span>
-                    </td>
-                    <td class="prof-actions">
-                        <a href="{{ route('admin.edit-pelatih', $item->id) }}" class="btn-edit-prof">Edit</a>
-                        <button class="btn-hapus-prof" onclick="confirmDelete('pelatih', {{ $item->id }})">Hapus</button>
-                        <form id="delete-pelatih-{{ $item->id }}" action="{{ route('admin.hapus-pelatih', $item->id) }}" method="POST" style="display:none;">
-                            @csrf @method('DELETE')
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="7" style="text-align:center;">Belum ada data pelatih sanggar.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+        {{-- BUNGKUSAN TABEL SCROLL HORIZONTAL (ANTI BOCOR) --}}
+        <div class="table-responsive-wrapper">
+            <table class="prof-table">
+                <thead>
+                    <tr>
+                        <th>FOTO</th>
+                        <th>NAMA LENGKAP</th>
+                        <th>JABATAN</th>
+                        <th>INSTAGRAM</th>
+                        <th>NO. HANDPHONE</th>
+                        <th>STATUS</th>
+                        <th>AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($pelatih as $item)
+                    <tr>
+                        <td>
+                            <div class="prof-foto-frame slideshow-container">
+                                @if($item->galeri && $item->galeri->isNotEmpty())
+                                    @foreach($item->galeri as $index => $foto)
+                                        <img src="{{ asset('storage/' . $foto->path) }}" alt="Foto Pelatih" class="{{ $index === 0 ? 'active' : '' }}">
+                                    @endforeach
+                                @else
+                                    <img src="https://ui-avatars.com/api/?name={{ urlencode($item->nama) }}&background=16a34a&color=fff" alt="Avatar" class="active">
+                                @endif
+                            </div>
+                        </td>
+                        <td style="font-weight:600">{{ $item->nama }}</td>
+                        <td><strong style="color: #555;">{{ $item->jabatan }}</strong></td>
+                        <td>{{ $item->instagram ?? '-' }}</td>
+                        <td>{{ $item->no_handphone }}</td>
+                        <td>
+                            <span class="{{ $item->status == 'aktif' ? 'badge-aktif' : 'badge-nonaktif' }}">
+                                {{ $item->status == 'aktif' ? 'Aktif' : 'Nonaktif' }}
+                            </span>
+                        </td>
+                        <td class="prof-actions">
+                            <a href="{{ route('superadmin.edit-pelatih', $item->id) }}" class="btn-edit-prof">Edit</a>
+                            <button class="btn-hapus-prof" onclick="confirmDelete('pelatih', {{ $item->id }})">Hapus</button>
+                            <form id="delete-pelatih-{{ $item->id }}" action="{{ route('superadmin.hapus-pelatih', $item->id) }}" method="POST" style="display:none;">
+                                @csrf @method('DELETE')
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="7" style="text-align:center;">Belum ada data pelatih sanggar.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         <div class="prof-pagination">{{ $pelatih->links() }}</div>
     </div>
 </div>

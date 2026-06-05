@@ -502,6 +502,9 @@
             .panel-right { padding: 2.5rem 1.6rem; }
         }
     </style>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 </head>
 
 <body>
@@ -617,6 +620,17 @@
                     @if (Route::has('password.request'))
                         <a class="forgot-link" href="{{ route('password.request') }}">Lupa kata sandi?</a>
                     @endif
+                </div>
+                
+                 {{-- recaptcha --}}
+                <div style="margin-bottom:20px;">
+                    <div class="g-recaptcha"
+                        data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
+                    </div>
+
+                    @error('g-recaptcha-response')
+                    <p class="field-error">{{ $message }}</p>
+                    @enderror
                 </div>
 
                 {{-- Submit --}}

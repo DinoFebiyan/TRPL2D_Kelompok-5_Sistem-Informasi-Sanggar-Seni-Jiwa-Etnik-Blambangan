@@ -53,7 +53,7 @@ Route::get('/auth/verifikasi_otp', function () {
 // =========================================================================
 // 3. ROUTE UNTUK ADMIN BIASA
 // =========================================================================
-Route::prefix('admin')->middleware(['auth'])->group(function () {
+Route::prefix('admin')->middleware(['admin.auth'])->group(function () {
     
     // Dashboard
     Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');

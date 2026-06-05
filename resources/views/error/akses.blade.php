@@ -23,7 +23,6 @@
     </style>
 </head>
 <body>
-    <!-- Pop Up: Login Diperlukan (Super Admin) -->
     <div style="
         background: #EFF6FF;
         border-radius: 16px;
@@ -39,7 +38,6 @@
             width: 72px; height: 72px;
             border-radius: 50%;
             background: #BFDBFE;
-            color: #1E88E5;
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 20px;
             font-size: 30px;
@@ -58,11 +56,11 @@
             color: #1E88E5; margin-bottom: 10px;
         ">Login Diperlukan</h2>
 
-        <!-- Pesan -->
+        <!-- Pesan dinamis sesuai peran -->
         <p style="
             font-size: 13.5px; color: #475569;
             line-height: 1.65; margin-bottom: 24px;
-        ">Anda harus login sebagai <strong>Super Admin</strong> untuk mengakses halaman ini.</p>
+        ">Anda harus login sebagai <strong>{{ $peran ?? 'pengguna' }}</strong> untuk mengakses halaman ini.</p>
 
         <!-- Tombol Login -->
         <a href="{{ route('login') }}" style="

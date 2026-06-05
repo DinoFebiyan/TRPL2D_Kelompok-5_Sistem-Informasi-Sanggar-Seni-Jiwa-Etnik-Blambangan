@@ -6,19 +6,16 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* =========================================================================
-       SYSTEM INTEGRATION DASHBOARD STYLES (MATCHING CORE ARCHITECTURE)
-       ========================================================================= */
     .dashboard-wrapper {
         width: 100%;
         font-family: 'Poppins', sans-serif;
         color: #333;
     }
     
-    /* 1. STATS GRID CARD DISPLAY */
+    /* STATS GRID – otomatis responsif dengan auto-fit */
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
         gap: 15px;
         margin-bottom: 24px;
     }
@@ -52,9 +49,7 @@
         font-weight: 500;
         color: #666;
     }
-    .stat-change.up {
-        color: #16a34a;
-    }
+    .stat-change.up { color: #16a34a; }
     .stat-icon {
         width: 45px;
         height: 45px;
@@ -64,14 +59,13 @@
         justify-content: center;
         font-size: 1.2rem;
     }
-    /* SINKRONISASI WARNA BADGE */
     .stat-icon.merah { background: #fef2f2; color: #ef4444; }
-    .stat-icon.emas { background: #fefce8; color: #eab308; }
+    .stat-icon.emas  { background: #fefce8; color: #eab308; }
 
-    /* 2. QUICK ACCESS LINKS COMPONENT */
+    /* QUICK ACCESS – responsif */
     .quick-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
         gap: 15px;
         margin-bottom: 24px;
     }
@@ -115,11 +109,12 @@
         margin-top: 4px;
     }
 
-    /* 3. SPLIT COLUMN LAYOUT (2 COLUMNS) */
+    /* DUA KOLOM (Admin Terbaru + Aktivitas) */
     .grid-2 {
         display: grid;
-        grid-template-columns: 1.4fr 0.9fr;
+        grid-template-columns: 1fr 1fr;
         gap: 20px;
+        margin-bottom: 18px;
     }
     .card {
         background: #ffffff;
@@ -127,6 +122,7 @@
         border: 1px solid #f0f0f0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         padding: 20px 0;
+        overflow: hidden;
     }
     .card-header {
         display: flex;
@@ -135,6 +131,8 @@
         padding: 0 20px 15px 20px;
         border-bottom: 1px solid #f3f4f6;
         margin-bottom: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
     .card-header h3 {
         margin: 0;
@@ -142,12 +140,17 @@
         color: #333;
         font-weight: 600;
     }
+    .card-header a {
+        text-decoration: none;
+        color: #5B1A1A;
+        font-weight: 700;
+        font-size: 0.85rem;
+        white-space: nowrap;
+    }
     .table-wrap {
         width: 100%;
         overflow-x: auto;
     }
-    
-    /* SINKRONISASI DESIGN TABEL DENGAN MODULE LAIN */
     .admin-table {
         width: 100%;
         border-collapse: collapse;
@@ -169,9 +172,7 @@
         vertical-align: middle;
         font-size: 0.85rem;
     }
-    .admin-table tr:last-child td {
-        border-bottom: none;
-    }
+    .admin-table tr:last-child td { border-bottom: none; }
     .badge-aktif {
         background: #dcfce7;
         color: #16a34a;
@@ -199,10 +200,10 @@
         margin-right: 4px;
         cursor: pointer;
     }
-    .action-btn:nth-child(1) { background: #eff6ff; color: #3b82f6; }
-    .action-btn:nth-child(2) { background: #fef2f2; color: #ef4444; }
+    .action-btn:first-child { background: #eff6ff; color: #3b82f6; }
+    .action-btn:last-child { background: #fef2f2; color: #ef4444; }
 
-    /* TIMELINE LIST AKTIVITAS TERBARU */
+    /* AKTIVITAS LIST */
     .activity-list {
         padding: 0 20px;
         display: flex;
@@ -210,34 +211,26 @@
     }
     .activity-item {
         display: flex;
-        gap: 15px;
-        position: relative;
-    }
-    .act-dot-wrap {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        gap: 12px;
+        align-items: flex-start;
     }
     .act-dot {
         width: 10px;
         height: 10px;
         border-radius: 50%;
         background: #EF4444;
-        z-index: 2;
-        margin-top: 5px;
+        margin-top: 6px;
+        flex-shrink: 0;
     }
-    .act-dot.merah { background: #EF4444; box-shadow: 0 0 0 4px #FFF5F5; }
     .act-line {
-        flex: 1;
         width: 2px;
+        flex: 1;
         background: #E5E7EB;
         margin: 4px 0;
     }
-    .activity-item:last-child .act-line {
-        background: transparent;
-    }
+    .activity-item:last-child .act-line { display: none; }
     .act-content {
-        padding-bottom: 20px;
+        padding-bottom: 16px;
         flex: 1;
     }
     .act-content p {
@@ -246,14 +239,46 @@
         color: #4B5563;
         line-height: 1.4;
     }
-    .act-content p strong {
-        color: #111827;
-    }
+    .act-content p strong { color: #111827; }
     .act-content span {
         display: block;
         font-size: 0.75rem;
         color: #9CA3AF;
         margin-top: 4px;
+    }
+
+    /* RESPONSIF MOBILE */
+    @media (max-width: 768px) {
+        .grid-2 {
+            grid-template-columns: 1fr;  /* jadi satu kolom di HP */
+            gap: 20px;
+        }
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+        .quick-grid {
+            grid-template-columns: 1fr;
+        }
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .admin-table th, .admin-table td {
+            padding: 10px 12px;
+        }
+        .stat-info h2 {
+            font-size: 1.4rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stat-card {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        .stat-icon {
+            align-self: flex-end;
+        }
     }
 </style>
 
@@ -337,7 +362,7 @@
         <div class="card">
             <div class="card-header">
                 <h3>Daftar Admin Terbaru</h3>
-                <a href="{{ url('/superadmin/kelola-admin') }}" style="text-decoration: none; color: #5B1A1A; font-weight: 700; font-size: 0.85rem;">Kelola Semua <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i></a>
+                <a href="{{ url('/superadmin/kelola-admin') }}">Kelola Semua <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
                 <div class="table-wrap">
@@ -354,7 +379,7 @@
                             @forelse($latestAdmins ?? [] as $admin)
                             <tr>
                                 <td><strong>{{ $admin->name }}</strong></td>
-                                <td style="color: #666;">{{ $admin->email }}</td>
+                                <td>{{ $admin->email }}</td>
                                 <td>
                                     @if($admin->status == 'aktif')
                                         <span class="badge-aktif">Aktif</span>
@@ -381,16 +406,14 @@
         <div class="card">
             <div class="card-header">
                 <h3>Aktivitas Terbaru</h3>
-                <a href="{{ url('/superadmin/log-aktivitas') }}" style="text-decoration: none; color: #5B1A1A; font-weight: 700; font-size: 0.85rem;">Lihat Semua <i class="fas fa-arrow-right" style="font-size: 0.75rem;"></i></a>
+                <a href="{{ url('/superadmin/log-aktivitas') }}">Lihat Semua <i class="fas fa-arrow-right"></i></a>
             </div>
             <div class="card-body">
                 <div class="activity-list">
                     @forelse($recentActivities ?? [] as $activity)
                     <div class="activity-item">
-                        <div class="act-dot-wrap">
-                            <div class="act-dot merah"></div>
-                            <div class="act-line"></div>
-                        </div>
+                        <div class="act-dot"></div>
+                        <div class="act-line"></div>
                         <div class="act-content">
                             <p><strong>{{ $activity->user->name ?? 'Sistem' }}</strong> {{ $activity->aktivitas }}</p>
                             <span>{{ $activity->created_at->diffForHumans() }}</span>

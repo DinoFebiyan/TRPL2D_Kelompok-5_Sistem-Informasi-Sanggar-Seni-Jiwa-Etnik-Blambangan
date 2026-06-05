@@ -72,7 +72,7 @@ class BeritaController extends Controller
             'isi' => 'required|string',
             'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
             'status' => 'required|in:tayang,tidak ditayangkan',
-            'foto' => 'nullable|array',
+            'foto' => 'required|array',
             'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 

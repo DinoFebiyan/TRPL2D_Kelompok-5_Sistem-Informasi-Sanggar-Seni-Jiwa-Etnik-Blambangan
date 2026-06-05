@@ -11,7 +11,6 @@
             max-width: 1000px;
             margin: 2rem auto;
             background: #EAEAEA;
-            /* Warna abu-abu muda sesuai desain */
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
@@ -187,58 +186,7 @@
         .select-status:invalid {
             color: #b0b0b0;
         }
-
-        /* Menyelaraskan box TinyMCE dengan tema form Anda */
-        .tox-tinymce {
-            border: 1px solid #A87C7C !important;
-            /* Menggunakan warna border khas form Anda */
-            border-radius: 14px !important;
-            /* Membuat sudut melengkung halus */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            /* Memberi bayangan tipis */
-            overflow: hidden;
-        }
-
-        /* Jarak vertikal antar input form group */
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
     </style>
-{{-- Popup Server Error: muncul otomatis jika validasi gagal --}}
-@if ($errors->any())
-<div id="popup-server-inline" style="
-    display: flex;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-">
-    <div style="
-        background: #FFF5F5;
-        border-radius: 16px;
-        padding: 36px 28px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-        width: 100%;
-        max-width: 420px;
-        text-align: center;
-    ">
-        <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
-        <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
-        <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
-        <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
-        <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
-            @foreach ($errors->all() as $error)
-            <li style="margin-bottom:4px;">{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button onclick="document.getElementById('popup-server-inline').style.display='none'" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
-    </div>
-</div>
-@endif
 @endsection
 
 @section('content')
@@ -250,23 +198,28 @@
             </div>
             <div class="header-actions">
                 @if(auth()->user()->peran === 'superadmin')
-                    <a href="{{ route('superadmin.kelola-berita') }}" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-berita') }}'); return false;"
+                        class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
-                    <a href="{{ route('admin.kelola-berita') }}" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal('{{ route('admin.kelola-berita') }}'); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
 
-                <button type="submit" form="formTambahBerita" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="showPopupSimpan('formTambahBerita')" form="formTambahBerita"
+                    class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>
 
         <div class="form-body">
-            <form id="formTambahBerita" action="{{ auth()->user()->peran === 'superadmin'
-        ? route('superadmin.store-berita')
-        : route('admin.store-berita') }}" method="POST" enctype="multipart/form-data">
+            <form id="formTambahBerita" 
+            action="{{ auth()->user()->peran == 'superadmin'
+                ? route('superadmin.store-berita')
+                : route('admin.store-berita') }}" 
+                method="POST"
+                enctype="multipart/form-data">
                 @csrf
 
                 @if(session('success'))
@@ -311,17 +264,11 @@
                 </div>
 
                 {{-- Isi Berita --}}
-                <div class="form-group mb-4">
-                    <label class="fw-semibold" style="font-family: 'Poppins', sans-serif; color: #333;">Isi Berita</label>
-                    {{-- Menggunakan e(old('isi')) agar teks HTML aman jika validasi Laravel gagal --}}
-                    <textarea name="isi" id="isi_berita_editor" rows="10">{!! old('isi') ? e(old('isi')) : '' !!}</textarea>
-
-                    {{-- Menampilkan pesan error validasi di bawah kotak editor --}}
-                    @error('isi')
-                        <div style="color: #dc2626; font-size: 0.85rem; margin-top: 8px; font-family: 'Poppins', sans-serif;">
-                            {{ $message }}
-                        </div>
-                    @enderror
+                <div class="form-group">
+                    <label>Isi Berita</label>
+                    <textarea id="isi_berita_editor" name="isi" rows="6" value="{{ old('isi_berita') }}"
+                        placeholder="Masukkan isi berita..." class="{{ $errors->has('isi_berita') ? 'is-invalid' : '' }}"
+                        required>{{ old('isi_berita') }}</textarea>
                 </div>
 
                 {{-- Jenis Berita --}}
@@ -424,6 +371,10 @@
                 'advlist',
                 'autolink',
                 'lists',
+                'link',
+                'image',
+                'media',
+                'table',
                 'charmap',
                 'preview',
                 'searchreplace',
@@ -440,10 +391,52 @@
                 '| alignleft aligncenter alignright alignjustify',
                 '| bullist numlist',
                 '| outdent indent',
+                '| link image media',
+                '| table',
                 '| charmap',
                 '| removeformat',
                 '| fullscreen preview'
             ].join(' '),
+
+            images_upload_url: '/upload-gambar-berita',
+
+            automatic_uploads: true,
+
+            image_title: true,
+
+            images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
+
+                let xhr = new XMLHttpRequest();
+
+                xhr.open('POST', '/upload-gambar-berita');
+
+                xhr.setRequestHeader(
+                    'X-CSRF-TOKEN',
+                    document.querySelector('meta[name="csrf-token"]').content
+                );
+
+                xhr.onload = function () {
+
+                    if (xhr.status !== 200) {
+                        reject('HTTP Error: ' + xhr.status);
+                        return;
+                    }
+
+                    let json = JSON.parse(xhr.responseText);
+
+                    if (!json.location) {
+                        reject('Upload gagal');
+                        return;
+                    }
+
+                    resolve(json.location);
+                };
+
+                let formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+
+                xhr.send(formData);
+            }),
 
             font_family_formats:
                 'Arial=arial,helvetica,sans-serif;' +
@@ -464,39 +457,29 @@
                 "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }"
         });
     </script>
-{{-- Popup Server Error: muncul otomatis jika validasi gagal --}}
-@if ($errors->any())
-<div id="popup-server-inline" style="
-    display: flex;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-">
-    <div style="
-        background: #FFF5F5;
-        border-radius: 16px;
-        padding: 36px 28px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-        width: 100%;
-        max-width: 420px;
-        text-align: center;
-    ">
-        <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
-        <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
-        <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
-        <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
-        <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
-            @foreach ($errors->all() as $error)
-            <li style="margin-bottom:4px;">{{ $error }}</li>
-            @endforeach
-        </ul>
-        <button onclick="document.getElementById('popup-server-inline').style.display='none'" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
+    @if ($errors->any())
+    <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
+        <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
+            <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
+            <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
+            <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
+            <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
+            <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
+                @foreach ($errors->all() as $error)
+                <li style="margin-bottom:4px;">{{ $error }}</li>
+                @endforeach
+            </ul>
+            <button onclick="document.getElementById('popup-server-inline').style.display='none';" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
+        </div>
     </div>
-</div>
-@endif
+    <script>
+        window.addEventListener('load', function() {
+            document.getElementById('popup-server-inline').style.display = 'flex';
+        });
+    </script>
+    @endif
+
+    {{-- Popup Batal & Simpan --}}
+    @include('popup.batal')
+    @include('popup.simpan')
 @endsection

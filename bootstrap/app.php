@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Daftarkan alias middleware SuperAdminAuth
         $middleware->alias([
             'superadmin.auth' => \App\Http\Middleware\SuperAdminAuth::class,
+            'admin.auth'      => \App\Http\Middleware\AdminAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

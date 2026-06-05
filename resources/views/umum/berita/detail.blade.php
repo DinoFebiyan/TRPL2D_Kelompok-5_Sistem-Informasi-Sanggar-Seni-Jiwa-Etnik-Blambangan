@@ -99,6 +99,14 @@
       text-align: justify;
     }
 
+    .article-body img {
+    display: block !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 20px auto !important;
+  }
+
+    /* Drop Cap: Huruf pertama di paragraf pertama otomatis membesar ala majalah seni */
     .article-body p:first-of-type::first-letter {
       font-family: 'Playfair Display', serif;
       font-size: 4rem;

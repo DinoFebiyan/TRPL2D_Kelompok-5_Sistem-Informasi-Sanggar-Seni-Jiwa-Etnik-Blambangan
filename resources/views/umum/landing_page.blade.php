@@ -936,7 +936,7 @@
                 $pathBeritaUtama = $beritaUtama->galeri->path ?? $pathBeritaUtama;
             }
         }
-        $coverUtama = asset($pathBeritaUtama);
+        $coverUtama = asset('storage/' . $pathBeritaUtama);
       @endphp
       <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ $coverUtama }}'); background-size: cover; background-position: center;">
         <span class="badge-yellow">BERITA UTAMA</span>
@@ -966,7 +966,7 @@
                   $pathBeritaTerbaru = $item->galeri->path ?? $pathBeritaTerbaru;
               }
           }
-          $coverTerbaru = asset($pathBeritaTerbaru);
+          $coverTerbaru = asset('storage/' . $pathBeritaTerbaru);
         @endphp
         <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
           <div class="berita-item">

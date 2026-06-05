@@ -3,7 +3,6 @@
 @section('title', 'Tambah Event — JEB')
 
 @section('styles')
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         .page-container {
@@ -238,32 +237,34 @@
                 <p>Kelola Event</p>
             </div>
             <div class="header-actions">
-                @if(auth()->user()->peran === 'superadmin')
-                    <a href="{{ route('superadmin.kelola-event') }}" class="btn-batal">
+                   @if(auth()->user()->peran === 'superadmin')
+                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-event') }}'); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
-                    <a href="{{ route('admin.kelola-event') }}" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal('{{ route('admin.kelola-event') }}'); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
-                {{-- PERBAIKAN: Mengubah tipe button menjadi murni submit formulir tanpa memicu JS popup yang rusak akibat sisa data berita --}}
-                <button type="submit" form="formTambahEvent" class="btn-simpan">
-                    <i class="fas fa-save"></i> Simpan
-                </button>
+                <button type="button" onclick="showPopupSimpan('formTambahEvent')" form="formTambahEvent" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>
         <div class="form-body">
-            {{-- MODIFIKASI: Mengubah rute pengiriman data formulir secara otomatis menyesuaikan hak akses akun login --}}
-            @php
-                $routeAction = auth()->user()->peran === 'superadmin' 
-                    ? route('superadmin.store-event') 
-                    : route('admin.store-event');
-            @endphp
-
-            <form id="formTambahEvent" action="{{ $routeAction }}" method="POST" enctype="multipart/form-data">
+            <form id="formTambahEvent" action="{{ route('superadmin.store-event') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
+                @if($errors->any())
+                    <div style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
+                        <i class="fas fa-exclamation-circle"></i> Harap perbaiki kesalahan pada form.
+                        <ul style="margin: 5px 0 0 0; padding-left: 20px; color: #dc2626;">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
+                {{-- PERBAIKAN MULTIPLE PHOTO: Menggunakan nama array foto[] dan multiple picker --}}
                 <div class="form-group">
                     <label>Foto Event (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper">
@@ -328,6 +329,7 @@
     </div>
     
     <script>
+        // JS Akumulasi Foto Baru Sesuai Pola Sukses Berita
         let kumpulanFileEvent = [];
 
         function updateFileNameAndPreview(input) {
@@ -371,4 +373,30 @@
             }
         }
     </script>
+
+@if ($errors->any())
+<div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
+    <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
+        <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
+        <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
+        <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
+        <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
+        <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
+            @foreach ($errors->all() as $error)
+            <li style="margin-bottom:4px;">{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button onclick="document.getElementById('popup-server-inline').style.display='none';" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
+    </div>
+</div>
+<script>
+    window.addEventListener('load', function() {
+        document.getElementById('popup-server-inline').style.display = 'flex';
+    });
+</script>
+@endif
 @endsection
+
+{{-- Popup Batal & Simpan --}}
+@include('popup.batal')
+@include('popup.simpan')
