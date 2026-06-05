@@ -11,7 +11,6 @@
         background-color: #ffffff;
     }
 
-    /* Mengikuti spesifikasi CSS canvas yang kamu berikan */
     .galeri-detail-wrapper {
         background: #FFFFFF;
         width: 100%;
@@ -40,6 +39,7 @@
         position: relative;
         width: 100%;
         height: 550px;
+        background-color: #333;
     }
 
     .hero-image-box img {
@@ -62,6 +62,7 @@
         border-radius: 6px;
         text-transform: uppercase;
         letter-spacing: 0.5px;
+        z-index: 5;
     }
 
     /* ══ 2. HEADER INFO (JUDUL & META) ══ */
@@ -136,19 +137,19 @@
 
     .other-gallery-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
     }
 
     .grid-item-card {
-        background: #ffffff;
-        border-radius: 16px;
-        display: flex;
+        display: block; 
+        border-radius: 12px; 
         overflow: hidden;
-        text-decoration: none;
-        color: inherit;
         border: 1px solid #E2E8F0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.03);
         transition: transform 0.3s, box-shadow 0.3s;
+        background-color: #f3f4f6;
+        height: 200px;
     }
 
     .grid-item-card:hover {
@@ -156,62 +157,25 @@
         box-shadow: 0 12px 30px rgba(0,0,0,0.08);
     }
 
-    .card-date-side {
-        background: #3D0C0C;
-        color: #ffffff;
-        width: 100px;
-        min-width: 100px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        font-family: 'Poppins', sans-serif;
-        text-align: center;
-    }
-
-    .card-date-side .day-num {
-        font-size: 1.8rem;
-        font-weight: 700;
-        line-height: 1;
-    }
-
-    .card-date-side .month-txt {
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        font-weight: 600;
-        margin-top: 5px;
-    }
-
-    .card-details-side {
-        padding: 25px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        flex-grow: 1;
-        font-family: 'Poppins', sans-serif;
-    }
-
-    .card-details-side h4 {
-        margin: 0 0 10px 0;
-        font-size: 1.25rem;
-        color: #111111;
-        font-weight: 700;
-    }
-
-    .card-meta-line {
-        display: flex;
-        gap: 20px;
-        font-size: 0.85rem;
-        color: #555555;
+    .grid-item-card img {
+        width: 100%; 
+        height: 100%; 
+        object-fit: cover;
     }
 
     /* RESPONSIVE DESIGN BREAKPOINTS */
+    @media (max-width: 1024px) {
+        .other-gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
     @media (max-width: 992px) {
         .hero-image-box { height: 400px; }
         .info-header-row { flex-direction: column; gap: 20px; }
         .info-meta-right { text-align: left; min-width: 100%; }
         .info-meta-right .meta-item { justify-content: flex-start; }
+    }
+
+    @media (max-width: 576px) {
         .other-gallery-grid { grid-template-columns: 1fr; }
     }
 </style>
@@ -221,65 +185,99 @@
 <div class="galeri-detail-wrapper">
     <div class="detail-container">
         
-        <div class="hero-image-card">
-            <div class="hero-image-box">
-                <img src="{{ asset($galeriUtama->path) }}" alt="{{ $galeriUtama->nama_file }}">
-                <span class="category-badge">{{ $galeriUtama->kategori }}</span>
-            </div>
+    <div class="hero-image-card">
+        {{-- IMAGE BOX UTAMA (STORAGE PENYIMPANAN) --}}
+        <div class="hero-image-box">
+            <img src="{{ asset('storage/' . $galeriUtama->path) }}" alt="{{ $galeriUtama->nama_file }}" onerror="this.src='{{ asset('img/images-landing-page/banner_berita.jpeg') }}';">
+            <span class="category-badge">{{ $galeriUtama->kategori }}</span>
+        </div>
 
-            <div class="hero-info-box">
-                <div class="info-header-row">
-                    <h1 class="info-title">
-                        {{ $galeriUtama->event->nama_event ?? 'Dokumentasi ' . ucwords(str_replace('_', ' ', pathinfo($galeriUtama->nama_file, PATHINFO_FILENAME))) }}
-                    </h1>
+        @php
+        // Inisialisasi variabel fallback default
+        $judulTeks = 'Dokumentasi ' . ucwords(str_replace('_', ' ', pathinfo($galeriUtama->nama_file, PATHINFO_FILENAME)));
+        $tanggalTeks = \Carbon\Carbon::parse($galeriUtama->created_at)->translatedFormat('d F Y');
+        $lokasiTeks = 'Lokasi Sanggar JEB';
+        $jamTeks = null;
+        $deskripsiTeks = 'Dokumentasi resmi dari Sanggar Tari Jiwa Etnik Blambangan (JEB) menampilkan keindahan gerak, busana adat tradisional, dan ekspresi budaya khas masyarakat Bumi Blambangan.';
+
+        // Pengkondisian nama dinamis berdasarkan Kategori Galeri
+        $kategoriTerpilih = strtolower($galeriUtama->kategori);
+
+        if ($kategoriTerpilih === 'event' && isset($galeriUtama->event)) {
+            $judulTeks = $galeriUtama->event->nama;
+            $tanggalTeks = \Carbon\Carbon::parse($galeriUtama->event->tanggal)->translatedFormat('d F Y');
+            $lokasiTeks = $galeriUtama->event->lokasi ?? $lokasiTeks;
+            $jamTeks = $galeriUtama->event->jam ? \Carbon\Carbon::parse($galeriUtama->event->jam)->format('H:i') . ' WIB' : null;
+            $deskripsiTeks = $galeriUtama->event->deskripsi ?? $deskripsiTeks;
+
+        } elseif ($kategoriTerpilih === 'katalog' && isset($galeriUtama->katalog)) {
+            // DIUBAH: Langsung mengambil nama tarian tanpa teks "Kostum / Alat:"
+            $judulTeks = $galeriUtama->katalog->nama_katalog; 
+            $lokasiTeks = 'Koleksi Sanggar JEB (Stok: ' . $galeriUtama->katalog->stok . ')';
+            $deskripsiTeks = $galeriUtama->katalog->deskripsi ?? $deskripsiTeks;
+
+        } elseif ($kategoriTerpilih === 'berita' && isset($galeriUtama->berita)) {
+            $judulTeks = $galeriUtama->berita->judul;
+            $tanggalTeks = \Carbon\Carbon::parse($galeriUtama->berita->tgl_terbit ?? $galeriUtama->berita->created_at)->translatedFormat('d F Y');
+            $lokasiTeks = 'Ditulis oleh: ' . ($galeriUtama->berita->user->name ?? 'Admin');
+            $deskripsiTeks = strip_tags($galeriUtama->berita->isi_berita);
+        }
+    @endphp
+
+        <div class="hero-info-box">
+            <div class="info-header-row">
+                <h1 class="info-title">
+                    {{ $judulTeks }}
+                </h1>
+                
+                <div class="info-meta-right">
+                    <div class="main-date">
+                        {{ $tanggalTeks }}
+                    </div>
                     
-                    <div class="info-meta-right">
-                        <div class="main-date">
-                            {{ \Carbon\Carbon::parse($galeriUtama->event->tanggal ?? $galeriUtama->created_at)->format('d M Y') }}
-                        </div>
-                        
+                    <div class="meta-item">
+                        <span>📍</span> 
+                        <span>{{ $lokasiTeks }}</span>
+                    </div>
+
+                    @if($jamTeks)
                         <div class="meta-item">
-                            <span>📍</span> 
-                            <span>{{ $galeriUtama->event->lokasi ?? 'Lokasi Sanggar JEB' }}</span>
+                            <span>🕒</span> 
+                            <span>{{ $jamTeks }}</span>
                         </div>
-
-                        @if(isset($galeriUtama->event->jam))
-                            <div class="meta-item">
-                                <span>🕒</span> 
-                                <span>{{ \Carbon\Carbon::parse($galeriUtama->event->jam)->format('H:i') }} WIB</span>
-                            </div>
-                        @endif
-                    </div>
+                    @endif
                 </div>
+            </div>
 
-                <div class="info-caption">
-                    <p>
-                        {{ $galeriUtama->event->deskripsi ?? 'Dokumentasi resmi dari Sanggar Tari Jiwa Etnik Blambangan (JEB) menampilkan keindahan gerak, busana adat tradisional, dan ekspresi budaya khas masyarakat Bumi Blambangan yang diabadikan dalam berbagai pertunjukan seni.' }}
+            <div class="info-caption">
+                <p>
+                    {!! nl2br(e(\Illuminate\Support\Str::limit($deskripsiTeks, 400))) !!}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    </div>
+
+    {{-- SECTION SEPARATOR REKOMENDASI GALERI LAIN (ACAK) --}}
+    <div class="section-separator">
+        <div class="detail-container">
+            <h3 class="other-section-title">Foto Lainnya</h3>
+            
+            <div class="other-gallery-grid">
+                @forelse($galeriLainnya as $item)
+                    {{-- REDIREKSI LINK & IMAGE STORAGE REKOMENDASI --}}
+                    <a href="{{ route('umum.galeri-detail', $item->id) }}" class="grid-item-card">
+                        <img src="{{ asset('storage/' . $item->path) }}" alt="{{ $item->nama_file }}" onerror="this.src='{{ asset('img/images-landing-page/banner_berita.jpeg') }}';">
+                    </a>
+                @empty
+                    <p style="grid-column: 1/-1; text-align: center; color: #666; font-family: 'Poppins', sans-serif;">
+                        Belum ada foto dokumentasi lainnya saat ini.
                     </p>
-                </div>
+                @endforelse
             </div>
         </div>
-
     </div>
-
-                <div class="section-separator">
-                <div class="detail-container">
-                    <h3 class="other-section-title">Galeri Lainnya</h3>
-                    
-                    <div class="other-gallery-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;">
-                        @forelse($galeriLainnya as $item)
-                            <a href="{{ route('umum.galeri-detail', $item->id) }}" class="grid-item-card" style="display: block; border-radius: 12px; overflow: hidden;">
-                                <img src="{{ asset($item->path) }}" alt="{{ $item->nama_file }}" style="width: 100%; height: 200px; object-fit: cover;">
-                            </a>
-                        @empty
-                            <p style="grid-column: 1/-1; text-align: center; color: #666;">Belum ada foto lainnya.</p>
-                        @endforelse
-                    </div>
-                </div>
-            </div>
-                        
-
-        </div>
-    </div>
+    
 </div>
 @endsection

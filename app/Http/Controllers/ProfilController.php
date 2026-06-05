@@ -88,7 +88,7 @@ class ProfilController extends Controller
             ]);
         }
 
-        // Jalankan Validasi Input (Termasuk array berkas header_files baru)
+        // Jalankan Validasi Input
         $request->validate([
             'deskripsi'        => 'required|string',
             'visi'             => 'required|string',
@@ -122,20 +122,19 @@ class ProfilController extends Controller
         // LOGIKA B: Upload Kumpulan Foto Header Baru ke Folder 'header'
         if ($request->hasFile('header_files')) {
             foreach ($request->file('header_files') as $file) {
-                // Disimpan terpisah di folder public/storage/header/
                 $path = $file->store('header', 'public');
 
                 Galeri::create([
                     'sumber_id'    => $profil->id,
                     'path'         => $path,
                     'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
-                    'kategori'     => 'header', // Set kategori khusus header
+                    'kategori'     => 'header',
                     'is_watermark' => false,
                 ]);
             }
         }
 
-        // Proses Simpan Gambar Singgal (Logo)
+        // Proses Simpan Gambar Single (Logo) -> Kategori 'logo'
         if ($request->hasFile('logo')) {
             $fileLogo = $request->file('logo');
             $pathLogo = $fileLogo->store('galeri', 'public');
@@ -145,18 +144,24 @@ class ProfilController extends Controller
                 if ($galeriLogoLama) {
                     if ($galeriLogoLama->path) { Storage::disk('public')->delete($galeriLogoLama->path); }
                     $galeriLogoLama->update([
-                        'path' => $pathLogo, 'nama_file' => $fileLogo->getClientOriginalName(),
+                        'path' => $pathLogo, 
+                        'nama_file' => $fileLogo->getClientOriginalName(),
+                        'kategori' => 'logo'
                     ]);
                 }
             } else {
                 $galeriLogoBaru = Galeri::create([
-                    'sumber_id' => $profil->id, 'path' => $pathLogo, 'nama_file' => $fileLogo->getClientOriginalName(), 'kategori' => 'profil', 'is_watermark' => false,
+                    'sumber_id' => $profil->id, 
+                    'path' => $pathLogo, 
+                    'nama_file' => $fileLogo->getClientOriginalName(), 
+                    'kategori' => 'logo', 
+                    'is_watermark' => false,
                 ]);
                 $profil->logo_id = $galeriLogoBaru->id;
             }
         }
 
-        // Proses Simpan Gambar Singgal (Foto Pembina)
+        // Proses Simpan Gambar Single (Foto Pembina) -> Kategori 'pembina'
         if ($request->hasFile('foto_pembina')) {
             $filePembina = $request->file('foto_pembina');
             $pathPembina = $filePembina->store('galeri', 'public');
@@ -166,12 +171,18 @@ class ProfilController extends Controller
                 if ($galeriPembinaLama) {
                     if ($galeriPembinaLama->path) { Storage::disk('public')->delete($galeriPembinaLama->path); }
                     $galeriPembinaLama->update([
-                        'path' => $pathPembina, 'nama_file' => $filePembina->getClientOriginalName(),
+                        'path' => $pathPembina, 
+                        'nama_file' => $filePembina->getClientOriginalName(),
+                        'kategori' => 'pembina'
                     ]);
                 }
             } else {
                 $galeriPembinaBaru = Galeri::create([
-                    'sumber_id' => $profil->id, 'path' => $pathPembina, 'nama_file' => $filePembina->getClientOriginalName(), 'kategori' => 'profil', 'is_watermark' => false,
+                    'sumber_id' => $profil->id, 
+                    'path' => $pathPembina, 
+                    'nama_file' => $filePembina->getClientOriginalName(), 
+                    'kategori' => 'pembina', 
+                    'is_watermark' => false,
                 ]);
                 $profil->foto_pembina_id = $galeriPembinaBaru->id;
             }
@@ -232,7 +243,7 @@ class ProfilController extends Controller
     }
 
     /**
-     * Store a newly created pengurus in storage (Mendukung Multi-Foto).
+     * Store a newly created pengurus in storage.
      */
     public function storePengurus(Request $request)
     {
@@ -294,11 +305,11 @@ class ProfilController extends Controller
     public function editPengurus(string $id)
     {
         $pengurus = Personel::with('galeri')->findOrFail($id);
-        return view('kelola.profil.edit-pengurus', compact('pengurus'));
+        return view('kelola.profil.edit_pengurus', compact('pengurus'));
     }
 
     /**
-     * Update the specified resource in storage (Mendukung Sinkronisasi Multi-Foto).
+     * Update the specified resource in storage.
      */
     public function updatePengurus(Request $request, string $id)
     {
@@ -324,7 +335,6 @@ class ProfilController extends Controller
             'status'       => $request->status,
         ]);
 
-        // Hapus foto lama jika ditandai oleh admin
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pengurus->id)
@@ -340,7 +350,6 @@ class ProfilController extends Controller
             }
         }
 
-        // Upload foto tambahan baru jika ada
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
@@ -375,7 +384,40 @@ class ProfilController extends Controller
     }
 
     /**
-     * Store a newly created pelatih in storage (Mendukung Multi-Foto).
+     * TAMBAHAN BARU: Menghapus data Pengurus beserta relasi file fotonya
+     */
+    public function hapusPengurus(string $id)
+    {
+        $pengurus = Personel::where('peran', 'pengurus')->findOrFail($id);
+
+        // Ambil dan hapus semua file foto fisik di folder storage
+        $fotoPersonel = Galeri::where('sumber_id', $pengurus->id)->where('kategori', 'profil')->get();
+        foreach ($fotoPersonel as $foto) {
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
+            }
+            $foto->delete();
+        }
+
+        $namaPengurus = $pengurus->nama;
+        $pengurus->delete();
+
+        if (class_exists('App\Models\LogAktivitas')) {
+            \App\Models\LogAktivitas::create([
+                'user_id'   => auth()->id(),
+                'aktivitas' => 'Menghapus data pengurus: ' . $namaPengurus,
+                'waktu'     => now(),
+            ]);
+        }
+
+        $role = auth()->user()->peran;
+        $route = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
+
+        return redirect()->route($route)->with('success', 'Data pengurus dan file foto terkait berhasil dihapus.');
+    }
+
+    /**
+     * Store a newly created pelatih in storage.
      */
     public function storePelatih(Request $request)
     {
@@ -459,7 +501,6 @@ class ProfilController extends Controller
             'status'       => $request->status,
         ]);
 
-        // Hapus foto lama yang ditandai
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pelatih->id)
@@ -475,7 +516,6 @@ class ProfilController extends Controller
             }
         }
 
-        // Tambah foto baru jika diunggah
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
@@ -499,5 +539,38 @@ class ProfilController extends Controller
         } else {
             abort(403, 'Anda tidak memiliki akses.');
         }
+    }
+
+    /**
+     * TAMBAHAN BARU: Menghapus data Pelatih beserta relasi file fotonya
+     */
+    public function hapusPelatih(string $id)
+    {
+        $pelatih = Personel::where('peran', 'pelatih')->findOrFail($id);
+
+        // Ambil dan hapus semua file foto fisik di folder storage
+        $fotoPersonel = Galeri::where('sumber_id', $pelatih->id)->where('kategori', 'profil')->get();
+        foreach ($fotoPersonel as $foto) {
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
+            }
+            $foto->delete();
+        }
+
+        $namaPelatih = $pelatih->nama;
+        $pelatih->delete();
+
+        if (class_exists('App\Models\LogAktivitas')) {
+            \App\Models\LogAktivitas::create([
+                'user_id'   => auth()->id(),
+                'aktivitas' => 'Menghapus data pelatih: ' . $namaPelatih,
+                'waktu'     => now(),
+            ]);
+        }
+
+        $role = auth()->user()->peran;
+        $route = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
+
+        return redirect()->route($route)->with('success', 'Data pelatih dan file foto terkait berhasil dihapus.');
     }
 }

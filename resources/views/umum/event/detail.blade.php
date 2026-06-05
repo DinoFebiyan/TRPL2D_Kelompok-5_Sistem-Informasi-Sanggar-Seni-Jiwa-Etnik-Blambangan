@@ -1,6 +1,6 @@
 @extends('layouts.umum')
 
-@section('title', $event->nama_event . ' - Sanggar Tari JEB')
+@section('title', $event->nama . ' - Sanggar Tari JEB')
 
 @push('styles')
 <style>
@@ -28,12 +28,23 @@
         position: relative;
         width: 100%;
         height: 520px;
+        background-color: #333;
+        overflow: hidden;
     }
 
     .event-image-wrapper img {
         width: 100%;
         height: 100%;
         object-fit: cover;
+        position: absolute;
+        top: 0; left: 0;
+        opacity: 0;
+        transition: opacity 0.8s ease-in-out;
+        z-index: 1;
+    }
+
+    .event-image-wrapper img.active {
+        opacity: 1;
     }
 
     .badge-kategori {
@@ -47,6 +58,7 @@
         font-weight: 700;
         border-radius: 6px;
         text-transform: uppercase;
+        z-index: 10;
     }
 
     .event-info-body {
@@ -113,6 +125,7 @@
         gap: 25px;
     }
 
+    /* MODIFIKASI: Penataan ulang card agar layout foto berada penuh di kiri */
     .lain-card {
         background: #ffffff;
         border-radius: 16px;
@@ -120,66 +133,105 @@
         overflow: hidden;
         text-decoration: none;
         color: inherit;
-        transition: transform 0.3s;
+        transition: transform 0.3s, box-shadow 0.3s;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
     }
 
     .lain-card:hover {
         transform: translateY(-4px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.08);
     }
 
-    .lain-date-box {
-        background: #3D0C0C;
-        color: white;
-        width: 95px;
-        min-width: 95px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-        font-family: 'Poppins', sans-serif;
+    /* MODIFIKASI: Lebar box slideshow diperbesar agar menampung aspek rasio foto komersial */
+    .lain-slideshow-box {
+        width: 180px;
+        min-width: 180px;
+        height: auto;
+        position: relative;
+        background-color: #f3f4f6;
+        overflow: hidden;
     }
 
-    .lain-date-box .day {
-        font-size: 1.8rem;
-        font-weight: 700;
+    .lain-slideshow-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        position: absolute;
+        top: 0; left: 0;
+        opacity: 0;
+        transition: opacity 0.5s ease-in-out;
+        z-index: 1;
     }
 
-    .lain-date-box .month {
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        margin-top: 5px;
+    .lain-slideshow-box img.active {
+        opacity: 1;
+        position: relative;
     }
 
+    /* MODIFIKASI: Menghapus .lain-date-box lama yang berwarna marun di samping */
+    
     .lain-details-box {
         padding: 25px;
         display: flex;
         flex-direction: column;
-        justify-content: center;
+        justify-content: space-between; /* Membuat metadata otomatis berada di baris paling bawah */
         flex-grow: 1;
+        background: #fff;
     }
 
     .lain-details-box h4 {
-        margin: 0 0 10px 0;
-        font-size: 1.2rem;
+        margin: 0 0 8px 0;
+        font-size: 1.25rem;
         color: #111;
         font-weight: 700;
         font-family: 'Poppins', sans-serif;
+        line-height: 1.4;
     }
 
+    /* MODIFIKASI: Cuplikan deskripsi singkat event */
+    .lain-desc-excerpt {
+        font-size: 0.88rem;
+        color: #666;
+        line-height: 1.5;
+        margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* MODIFIKASI: Desain grid informasi waktu & tempat di bawah deskripsi */
     .lain-meta-info {
         display: flex;
-        gap: 20px;
-        font-size: 0.82rem;
+        flex-wrap: wrap;
+        gap: 12px 18px;
+        font-size: 0.8rem;
         color: #555;
         font-family: 'Poppins', sans-serif;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 12px;
     }
+    
+    .lain-meta-info span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    .inline-error-fallback {
+        width: 100%; height: 100%; display: none; flex-direction: column;
+        align-items: center; justify-content: center; background: #e5e7eb; color: #9ca3af;
+        position: absolute; top: 0; left: 0; z-index: 2;
+    }
+    .inline-error-fallback.active { display: flex; }
 
     @media (max-width: 992px) {
         .event-image-wrapper { height: 380px; }
         .event-header-row { flex-direction: column; gap: 15px; }
         .event-time-place { text-align: left; }
         .event-lain-grid { grid-template-columns: 1fr; }
+        .lain-card { flex-direction: column; }
+        .lain-slideshow-box { width: 100%; height: 200px; }
     }
 </style>
 @endpush
@@ -189,24 +241,30 @@
 <div class="detail-event-container">
     <div class="event-main-card">
         
-        <div class="event-image-wrapper">
-            @php
-                $gambarPath = 'img/images-landing-page/banner_berita.jpeg';
-                if ($event->galeri) {
-                    $gambarPath = $event->galeri instanceof \Illuminate\Support\Collection 
-                        ? ($event->galeri->first()->path ?? $gambarPath)
-                        : ($event->galeri->path ?? $gambarPath);
-                }
-            @endphp
-            <img src="{{ asset($gambarPath) }}" alt="{{ $event->nama_event }}">
+        {{-- SLIDESHOW UTAMA: Foto Detail Event --}}
+        <div class="event-image-wrapper slideshow-container-main">
             <span class="badge-kategori">{{ $event->kategori }}</span>
+            
+            @if($event->galeri && $event->galeri->isNotEmpty())
+                @foreach($event->galeri as $index => $foto)
+                    <img src="{{ asset('storage/' . $foto->path) }}" 
+                         alt="{{ $event->nama }}" 
+                         class="{{ $index === 0 ? 'active' : '' }}"
+                         onerror="this.style.display='none'; document.getElementById('main-fallback').classList.add('active');">
+                @endforeach
+                <div id="main-fallback" class="inline-error-fallback">
+                    <i class="fas fa-image" style="font-size: 3.5rem; color: #9ca3af;"></i>
+                </div>
+            @else
+                <img src="{{ asset('img/images-landing-page/banner_berita.jpeg') }}" alt="{{ $event->nama }}" class="active">
+            @endif
         </div>
 
         <div class="event-info-body">
             <div class="event-header-row">
-                <h1 class="event-title">{{ $event->nama_event }}</h1>
+                <h1 class="event-title">{{ $event->nama }}</h1>
                 <div class="event-time-place">
-                    <div class="date">{{ \Carbon\Carbon::parse($event->tanggal)->format('d M Y') }}</div>
+                    <div class="date">{{ \Carbon\Carbon::parse($event->tanggal)->translatedFormat('d F Y') }}</div>
                     <div>{{ $event->lokasi ?? 'Lokasi belum ditentukan' }}</div>
                     <div style="font-size: 0.9rem; color: #666; margin-top: 4px;">
                         🕒 {{ \Carbon\Carbon::parse($event->jam)->format('H:i') }} WIB
@@ -222,22 +280,43 @@
     </div>
 </div>
 
+{{-- SECTION EVENT LAIN (ACAK) --}}
 <section class="event-lain-section">
-    <h3 class="event-lain-title">Event lain</h3>
+    <h3 class="event-lain-title">Event Lain (Rekomendasi)</h3>
     
     <div class="event-lain-grid">
         @forelse($eventLainnya as $lain)
             <a href="{{ route('umum.event-detail', $lain->id) }}" class="lain-card">
-                <div class="lain-date-box">
-                    <span class="day">{{ \Carbon\Carbon::parse($lain->tanggal)->format('d') }}</span>
-                    <span class="month">{{ \Carbon\Carbon::parse($lain->tanggal)->format('M') }}</span>
+                
+                {{-- SLIDESHOW MINI: Foto pada kartu rekomendasi event --}}
+                <div class="lain-slideshow-box slideshow-container-mini">
+                    @if($lain->galeri && $lain->galeri->isNotEmpty())
+                        @foreach($lain->galeri as $index => $fotoLain)
+                            <img src="{{ asset('storage/' . $fotoLain->path) }}" 
+                                 alt="{{ $lain->nama }}" 
+                                 class="{{ $index === 0 ? 'active' : '' }}"
+                                 onerror="this.style.display='none'; document.getElementById('lain-fallback-{{ $lain->id }}').classList.add('active');">
+                        @endforeach
+                        <div id="lain-fallback-{{ $lain->id }}" class="inline-error-fallback">
+                            <i class="fas fa-image" style="font-size: 1.5rem;"></i>
+                        </div>
+                    @else
+                        <img src="{{ asset('img/images-landing-page/banner_berita.jpeg') }}" alt="{{ $lain->nama }}" class="active">
+                    @endif
                 </div>
                 
                 <div class="lain-details-box">
-                    <h4>{{ $lain->nama_event }}</h4>
+                    <div>
+                        <h4>{{ $lain->nama }}</h4>
+                        {{-- Menampilkan cuplikan deskripsi pendek --}}
+                        <div class="lain-desc-excerpt">{{ strip_tags($lain->deskripsi) }}</div>
+                    </div>
+                    
+                    {{-- MODIFIKASI: Komponen tanggal digabungkan ke bagian paling bawah dari deskripsi --}}
                     <div class="lain-meta-info">
-                        <span>📍 {{ Str::limit($lain->lokasi, 25) }}</span>
-                        <span>🕒 {{ \Carbon\Carbon::parse($lain->jam)->format('H:i') }} WIB</span>
+                        <span><i class="far fa-calendar-alt" style="color: #3D0C0C;"></i> {{ \Carbon\Carbon::parse($lain->tanggal)->translatedFormat('d M Y') }}</span>
+                        <span><i class="fas fa-map-marker-alt" style="color: #3D0C0C;"></i> {{ Str::limit($lain->lokasi, 20) }}</span>
+                        <span><i class="far fa-clock" style="color: #3D0C0C;"></i> {{ \Carbon\Carbon::parse($lain->jam)->format('H:i') }} WIB</span>
                     </div>
                 </div>
             </a>
@@ -249,4 +328,36 @@
     </div>
 </section>
 
+{{-- JAVASCRIPT SYSTEM AUTOMATIC SLIDESHOW --}}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 1. Slideshow untuk Foto Utama Event (7 Detik)
+        const mainContainer = document.querySelector('.slideshow-container-main');
+        if (mainContainer) {
+            const mainImages = mainContainer.querySelectorAll('img');
+            if (mainImages.length > 1) {
+                let mainIndex = 0;
+                setInterval(() => {
+                    mainImages[mainIndex].classList.remove('active');
+                    mainIndex = (mainIndex + 1) % mainImages.length;
+                    mainImages[mainIndex].classList.add('active');
+                }, 7000);
+            }
+        }
+
+        // 2. Slideshow untuk Setiap Kartu Event Lainnya (5 Detik)
+        const miniContainers = document.querySelectorAll('.slideshow-container-mini');
+        miniContainers.forEach(container => {
+            const miniImages = container.querySelectorAll('img');
+            if (miniImages.length > 1) {
+                let miniIndex = 0;
+                setInterval(() => {
+                    miniImages[miniIndex].classList.remove('active');
+                    miniIndex = (miniIndex + 1) % miniImages.length;
+                    miniImages[miniIndex].classList.add('active');
+                }, 5000);
+            }
+        });
+    });
+</script>
 @endsection

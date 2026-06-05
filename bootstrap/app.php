@@ -36,9 +36,9 @@ return Application::configure(basePath: dirname(__DIR__))
             }
         });
 
-        $exceptions->render(function (\Exception $e, $request) {
-            if ($request->is('superadmin/*') || $request->is('superadmin')) {
-                return response()->view('error.server', ['message' => $e->getMessage()], 500);
-            }
-        });
+        // $exceptions->render(function (\Exception $e, $request) {
+        //     if ($request->is('superadmin/*') || $request->is('superadmin')) {
+        //         return response()->view('error.server', ['message' => $e->getMessage()], 500);
+        //     }
+        // });
     })->create();

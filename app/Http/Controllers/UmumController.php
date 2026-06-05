@@ -23,12 +23,23 @@ class UmumController extends Controller
         $blankDays = $date->startOfMonth()->dayOfWeek; 
         
         $data = [
-            'profil' => ProfilSanggar::first(),
+            // Eager load relasi headers untuk banner dinamis beranda jika diperlukan
+            'profil' => ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first(),
             'katalogs' => Katalog::with('galeri')->latest()->take(3)->get(),
             'beritaUtama' => Berita::with('galeri')->where('status', 'tayang')->latest()->first(),
             'beritaTerbaru' => Berita::with('galeri')->where('status', 'tayang')->latest()->skip(1)->take(3)->get(),
             'events' => Event::take(3)->get(),
-            'galeri' => Galeri::whereNotIn('kategori', ['logo', 'pembina']) 
+            
+            // PERBAIKAN FILTER: Mengamankan data foto internal sanggar agar tidak bocor di baris pratinjau beranda
+            'galeri' => Galeri::whereNotIn(\DB::raw('LOWER(kategori)'), ['logo', 'pembina', 'profil', 'header', 'admin'])
+                ->where(function($q) {
+                    $q->where('path', 'not like', '%personel%')
+                      ->where('path', 'not like', '%pembina%')
+                      ->where('nama_file', 'not like', '%pengurus%')
+                      ->where('nama_file', 'not like', '%pelatih%')
+                      ->where('nama_file', 'not like', '%pembina%')
+                      ->where('nama_file', 'not like', '%dummy%');
+                })
                 ->latest()
                 ->take(6)
                 ->get(),
@@ -51,6 +62,9 @@ class UmumController extends Controller
         $search = $request->input('search');
         $categories = $request->input('kategori', []); // Menangkap array checkbox kategori dari form blade
 
+        // Ambil data profil beserta tumpukan gambar header untuk banner atas
+        $profil = ProfilSanggar::with('headers')->first();
+
         // Base query: Hanya menampilkan berita yang sudah disetujui untuk 'tayang'
         $query = Berita::where('status', 'tayang')->with(['user', 'galeri']);
 
@@ -68,9 +82,9 @@ class UmumController extends Controller
         }
 
         // Ambil data terbaru dengan sistem pagination (9 data per halaman agar grid 3x3 simetris)
-        $beritas = $query->latest()->paginate(9)->withQueryString();
+        $beritas = $query->latest()->paginate(12)->withQueryString();
 
-        return view('umum.berita.index', compact('beritas'));
+        return view('umum.berita.index', compact('beritas', 'profil'));
     }
 
     /**
@@ -78,16 +92,18 @@ class UmumController extends Controller
      */
     public function beritaDetail($id)
     {
+        $profil = ProfilSanggar::with('headers')->first();
         $berita = Berita::with(['galeri', 'user'])->where('status', 'tayang')->findOrFail($id);
 
+        // Urutan diacak (Random)
         $beritaLainnya = Berita::with(['galeri', 'user'])
             ->where('status', 'tayang')
             ->where('id', '!=', $id)
-            ->latest()
+            ->inRandomOrder()
             ->take(4)
             ->get();
 
-        return view('umum.berita.detail', compact('berita', 'beritaLainnya'));
+        return view('umum.berita.detail', compact('berita', 'beritaLainnya', 'profil'));
     }
 
     /**
@@ -95,39 +111,35 @@ class UmumController extends Controller
      */
     public function event(Request $request)
     {
-        $date = now();
-        $daysInMonth = $date->daysInMonth;
-        $blankDays = $date->startOfMonth()->dayOfWeek; 
-        
         $search = $request->input('search');
-        $statuses = $request->input('status', []); // Array status dari checkbox
+        $statuses = $request->input('status', []);
 
-        $query = \App\Models\Event::query();
+        $profil = ProfilSanggar::with('headers')->first();
+        $query = Event::query();
 
-        // 1. Filter Pencarian Teks
+        // Filter Pencarian Teks
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
-                $q->where('nama_event', 'like', '%' . $search . '%')
+                $q->where('nama', 'like', '%' . $search . '%')
                 ->orWhere('lokasi', 'like', '%' . $search . '%');
             });
         }
 
-        // 2. Filter Status Kegiatan
+        // Filter Status Kegiatan
         if (!empty($statuses)) {
             $query->whereIn('status', $statuses);
         }
 
-        // Mengubah dari ->get() menjadi ->paginate() agar links data halaman bekerja sempurna
+        // Ambil SEMUA data tanpa paginasi khusus untuk suplai KALENDER penuh
+        $allEvents = $query->clone()->orderBy('tanggal', 'asc')->get();
+
+        // Tetap menggunakan paginasi 3 data untuk list kartu awal di sebelah kanan
         $events = $query->orderBy('tanggal', 'asc')->paginate(3)->withQueryString();
 
         return view('umum.event.index', [
             'events' => $events,
-            'daysInMonth' => $daysInMonth,
-            'blankDays' => $blankDays,
-            'currentMonthName' => $date->format('F'),
-            'currentYear' => $date->format('Y'),
-            'currentMonth' => $date->format('m'),
-            'eventDays' => \App\Models\Event::pluck('tanggal')->map(fn($tgl) => (int) \Carbon\Carbon::parse($tgl)->format('d'))->toArray(),
+            'allEvents' => $allEvents, 
+            'profil' => $profil,
         ]);
     }
 
@@ -136,14 +148,17 @@ class UmumController extends Controller
      */
     public function eventDetail($id)
     {
+        $profil = ProfilSanggar::with('headers')->first();
         $event = Event::with('galeri')->findOrFail($id);
 
+        // Mengubah pengurutan agar acak (Random)
         $eventLainnya = Event::where('id', '!=', $id)
-            ->orderBy('tanggal', 'desc')
-            ->take(8)
+            ->inRandomOrder()
+            ->take(4)
+            // Pas dengan layout grid baru kita
             ->get();
 
-        return view('umum.event.detail', compact('event', 'eventLainnya'));
+        return view('umum.event.detail', compact('event', 'eventLainnya', 'profil'));
     }
 
     /**
@@ -153,6 +168,9 @@ class UmumController extends Controller
     {
         $search = $request->input('search');
         $categories = $request->input('kategori', []); // Menampung array checkbox kategori kostum
+
+        // Ambil data profil beserta tumpukan gambar header untuk banner atas
+        $profil = ProfilSanggar::with('headers')->first();
 
         $query = Katalog::with('galeri');
 
@@ -169,10 +187,10 @@ class UmumController extends Controller
             $query->whereIn('kategori', $categories);
         }
 
-        // Membatasi isi grid 8 data per halaman agar simetris (layout grid 4 kolom = 2 baris seimbang)
-        $katalogs = $query->latest()->paginate(9)->withQueryString();
+        // Membatasi isi grid 12 data per halaman agar simetris
+        $katalogs = $query->latest()->paginate(12)->withQueryString();
 
-        return view('umum.katalog.index', compact('katalogs'));
+        return view('umum.katalog.index', compact('katalogs', 'profil'));
     }
 
     /**
@@ -180,6 +198,7 @@ class UmumController extends Controller
      */
     public function katalogDetail(string $id)
     {
+        $profil = ProfilSanggar::with('headers')->first();
         $katalog = Katalog::with('galeri')->findOrFail($id);
         
         $katalogLain = Katalog::with('galeri')
@@ -188,21 +207,32 @@ class UmumController extends Controller
             ->take(4)
             ->get();
 
-        return view('umum.katalog.detail', compact('katalog', 'katalogLain'));
+        return view('umum.katalog.detail', compact('katalog', 'katalogLain', 'profil'));
     }
 
     /**
-     * Halaman Galeri Foto Publik
+     * Halaman Galeri Foto Publik (Menampilkan Tepat 12 Card)
      */
     public function galeri(Request $request)
     {
-        // Mengamankan data dari logo dan foto profil pembina
-        $query = Galeri::whereNotIn('kategori', ['logo', 'pembina']);
+        // Ambil data profil beserta tumpukan gambar header untuk banner atas
+        $profil = ProfilSanggar::with('headers')->first();
+
+        // 1. BLOKIR FOTO INTERNAL: Menghalang kategori internal, file dummy, dan path personel langsung dari query database
+        $query = Galeri::whereNotIn(\DB::raw('LOWER(kategori)'), ['logo', 'pembina', 'profil', 'header', 'admin'])
+            ->where(function($q) {
+                $q->where('path', 'not like', '%personel%')
+                  ->where('path', 'not like', '%pembina%')
+                  ->where('nama_file', 'not like', '%pengurus%')
+                  ->where('nama_file', 'not like', '%pelatih%')
+                  ->where('nama_file', 'not like', '%pembina%')
+                  ->where('nama_file', 'not like', '%dummy%');
+            });
 
         $search = $request->input('search');
         $categories = $request->input('kategori', []); // Array checkbox kategori galeri
 
-        // 1. Logika Global Searching Data File Galeri
+        // 2. Logika Global Searching Data File Galeri
         if (!empty($search)) {
             $query->where(function($q) use ($search) {
                 $q->where('nama_file', 'like', '%' . $search . '%')
@@ -210,15 +240,15 @@ class UmumController extends Controller
             });
         }
 
-        // 2. Logika Multi-Filter Checkbox Kategori
+        // 3. Logika Multi-Filter Checkbox Kategori
         if (!empty($categories)) {
             $query->whereIn('kategori', $categories);
         }
 
-        // Mengubah ->get() menjadi ->paginate(12) agar layout grid (4 kolom x 3 baris) terbagi presisi dan rapi
+        // Ambil data terbaru dengan batasan tepat 12 data per halaman
         $galeriData = $query->latest()->paginate(12)->withQueryString();
 
-        return view('umum.galeri.index', compact('galeriData'));
+        return view('umum.galeri.index', compact('galeriData', 'profil'));
     }
 
     /**
@@ -226,15 +256,17 @@ class UmumController extends Controller
      */
     public function galeriDetail($id)
     {
-        $galeriUtama = Galeri::findOrFail($id);
+        $profil = ProfilSanggar::with('headers')->first();
+        $galeriUtama = Galeri::with(['event', 'katalog', 'berita'])->findOrFail($id);
 
+        // Menggunakan inRandomOrder() untuk mengacak rekomendasi dokumentasi
         $galeriLainnya = Galeri::where('id', '!=', $id)
             ->where('kategori', $galeriUtama->kategori) 
-            ->latest()
+            ->inRandomOrder()
             ->take(4)
             ->get();
 
-        return view('umum.galeri.detail', compact('galeriUtama', 'galeriLainnya'));
+        return view('umum.galeri.detail', compact('galeriUtama', 'galeriLainnya', 'profil'));
     }
 
     /**
@@ -242,11 +274,17 @@ class UmumController extends Controller
      */
     public function profil()
     {
-        $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
-        $pengurus = Personel::where('peran', 'pengurus')->where('status', 'aktif')->get();
-        $pelatih = Personel::where('peran', 'pelatih')->where('status', 'aktif')->get();
-        $prestasi = Berita::where('jenis_berita', 'Prestasi')->where('status', 'tayang')->latest()->take(4)->get();
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
+        
+        // PERBAIKAN: Kunci relasi galeri hanya untuk kategori 'profil' (foto personel resmi)
+        $pengurus = Personel::with(['galeri' => function($query) {
+            $query->where('kategori', 'profil');
+        }])->where('peran', 'pengurus')->where('status', 'aktif')->get();
 
-        return view('umum.profil.index', compact('profil', 'pengurus', 'pelatih', 'prestasi'));
+        $pelatih = Personel::with(['galeri' => function($query) {
+            $query->where('kategori', 'profil');
+        }])->where('peran', 'pelatih')->where('status', 'aktif')->get();
+
+        return view('umum.profil.index', compact('profil', 'pengurus', 'pelatih'));
     }
 }

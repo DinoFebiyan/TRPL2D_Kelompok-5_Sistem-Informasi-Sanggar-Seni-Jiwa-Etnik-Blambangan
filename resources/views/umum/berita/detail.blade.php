@@ -18,17 +18,18 @@
       height: 480px; 
       background-size: cover;
       background-position: center;
+      background-repeat: no-repeat;
       display: flex;
       align-items: flex-end;
       padding-bottom: 4rem;
+      background-color: #333;
     }
 
-    /* Overlay gradasi gelap agar teks putih di atas gambar penari tetap kontras */
     .news-detail-hero::before {
       content: '';
       position: absolute;
       top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.85));
+      background: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.85));
       z-index: 1;
     }
 
@@ -42,7 +43,7 @@
     }
 
     .badge-news {
-      background-color: #d4af37; /* Warna Gold Tradisional */
+      background-color: #d4af37;
       color: #3d0c0c;
       padding: 0.4rem 1.2rem;
       font-size: 0.75rem;
@@ -98,7 +99,6 @@
       text-align: justify;
     }
 
-    /* Drop Cap: Huruf pertama di paragraf pertama otomatis membesar ala majalah seni */
     .article-body p:first-of-type::first-letter {
       font-family: 'Playfair Display', serif;
       font-size: 4rem;
@@ -109,7 +109,6 @@
       color: #3d0c0c;
     }
 
-    /* Style Heading di dalam artikel */
     .article-body h2, .article-body h3 {
       font-family: 'Playfair Display', serif;
       color: #3d0c0c;
@@ -119,44 +118,6 @@
     
     .article-body h2 { font-size: 1.8rem; }
     .article-body h3 { font-size: 1.5rem; }
-
-    /* Gambar Pendukung di Tengah Konten */
-    .article-mid-image {
-      margin: 3.5rem 0;
-      text-align: center;
-    }
-
-    .article-mid-image img {
-      width: 100%;
-      max-height: 500px;
-      object-fit: cover;
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-    }
-
-    .image-caption {
-      font-size: 0.85rem;
-      color: #666666;
-      margin-top: 1rem;
-      font-style: italic;
-    }
-
-    /* Blockquote / Kutipan dari Ketua Dewan Juri */
-    .article-body blockquote {
-      border-left: 4px solid #a8762e;
-      background-color: #fff9f0;
-      padding: 1.8rem 2.5rem;
-      margin: 3rem 0;
-      border-radius: 0 16px 16px 0;
-    }
-
-    .article-body blockquote p {
-      font-style: italic;
-      color: #444444;
-      font-size: 1.1rem;
-      line-height: 1.7;
-      margin-bottom: 0.8rem;
-    }
 
     /* ══ 3. SECTION BERITA LAIN (BAWAH) ══ */
     .berita-lain-section {
@@ -195,15 +156,29 @@
       box-shadow: 0 12px 25px rgba(0,0,0,0.08);
     }
 
+    /* MODIFIKASI: Ditambahkan sistem posisi relative & ganti background */
     .lain-img-wrapper {
       height: 160px;
       position: relative;
+      background-color: #f3f4f6;
+      overflow: hidden;
     }
 
+    /* MODIFIKASI: Gambar diatur absolute dengan transisi opacity seperti di list utama */
     .lain-img-wrapper img {
       width: 100%;
       height: 100%;
       object-fit: cover;
+      position: absolute;
+      top: 0; left: 0;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+      z-index: 1;
+    }
+
+    .lain-img-wrapper img.active {
+      opacity: 1;
+      position: relative; /* Menjaga kestabilan aspek rasio grid layout box */
     }
 
     .lain-tag {
@@ -217,6 +192,7 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      z-index: 10; /* Berada di atas tumpukan gambar */
     }
 
     .lain-content {
@@ -224,6 +200,9 @@
       display: flex;
       flex-direction: column;
       flex-grow: 1;
+      position: relative;
+      z-index: 5;
+      background: #fff;
     }
 
     .lain-content h5 {
@@ -258,28 +237,22 @@
       padding-top: 0.8rem;
     }
 
-    /* ══ RESPONSIVE BREAKPOINTS (MOBILE FRIENDLY) ══ */
-    @media (max-width: 1200px) {
-      .berita-lain-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-      }
+    /* Fallback sistem jika semua gambar eror */
+    .inline-error-fallback {
+      width: 100%; height: 100%; display: none; flex-direction: column;
+      align-items: center; justify-content: center; background: #e5e7eb; color: #9ca3af;
+      position: absolute; top: 0; left: 0; z-index: 2;
     }
+    .inline-error-fallback.active { display: flex; }
 
+    @media (max-width: 1200px) {
+      .berita-lain-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+    }
     @media (max-width: 768px) {
-      .news-detail-hero {
-        height: 380px;
-      }
-      .news-detail-hero h1 {
-        font-size: 2rem;
-      }
-      .news-meta-bar {
-        gap: 0.8rem;
-        flex-direction: column;
-      }
-      .berita-lain-grid {
-        grid-template-columns: 1fr;
-      }
+      .news-detail-hero { height: 380px; }
+      .news-detail-hero h1 { font-size: 2rem; }
+      .news-meta-bar { gap: 0.8rem; flex-direction: column; }
+      .berita-lain-grid { grid-template-columns: 1fr; }
     }
   </style>
 @endpush
@@ -287,25 +260,25 @@
 @section('content')
 
   @php
-    // 1. Logika pengamanan gambar utama berita
-    $pathUtama = 'img/images-landing-page/banner_berita.jpeg'; // default fallback
+    // Logika pengamanan gambar utama berita (Hero Atas)
+    $urlGambarUtama = asset('img/images-landing-page/banner_berita.jpeg'); 
     
     if ($berita->galeri) {
-        if ($berita->galeri instanceof \Illuminate\Support\Collection) {
-            $pathUtama = $berita->galeri->first()->path ?? $pathUtama;
-        } else {
-            $pathUtama = $berita->galeri->path ?? $pathUtama;
+        if ($berita->galeri instanceof \Illuminate\Support\Collection && $berita->galeri->isNotEmpty()) {
+            $urlGambarUtama = asset('storage/' . $berita->galeri->first()->path);
+        } elseif (!($berita->galeri instanceof \Illuminate\Support\Collection) && isset($berita->galeri->path)) {
+            $urlGambarUtama = asset('storage/' . $berita->galeri->path);
         }
     }
   @endphp
 
-  <div class="news-detail-hero" style="background-image: url('{{ asset($pathUtama) }}');">
+  <div class="news-detail-hero" style="background-image: url('{{ $urlGambarUtama }}');">
     <div class="hero-content-wrap">
-      <span class="badge-news">Berita Sanggar</span>
+      <span class="badge-news">{{ $berita->jenis_berita ?? 'Berita' }}</span>
       <h1>{{ $berita->judul }}</h1>
       
       <div class="news-meta-bar">
-        <span>📅 {{ \Carbon\Carbon::parse($berita->tgl_terbit)->format('d F Y') }}</span>
+        <span>📅 {{ \Carbon\Carbon::parse($berita->tgl_terbit)->translatedFormat('d F Y') }}</span>
         <span>👤 Oleh: {{ $berita->user->name ?? 'Admin JEB' }}</span>
       </div>
     </div>
@@ -313,7 +286,6 @@
 
   <div class="article-container">
     <div class="article-body">
-      {{-- {!! !!} Digunakan agar format tag HTML dari text editor admin bisa dirender sempurna --}}
       {!! $berita->isi_berita !!}
     </div>
   </div>
@@ -323,29 +295,35 @@
     
     <div class="berita-lain-grid">
       @forelse($beritaLainnya as $lain)
-        @php
-          // 2. Logika pengamanan gambar perulangan berita lainnya
-          $pathLain = 'img/images-landing-page/banner_berita.jpeg'; // default fallback
-          
-          if ($lain->galeri) {
-              if ($lain->galeri instanceof \Illuminate\Support\Collection) {
-                  $pathLain = $lain->galeri->first()->path ?? $pathLain;
-              } else {
-                  $pathLain = $lain->galeri->path ?? $pathLain;
-              }
-          }
-        @endphp
-
         <a href="{{ route('umum.berita-detail', $lain->id) }}" class="lain-card">
-          <div class="lain-img-wrapper">
-            <img src="{{ asset($pathLain) }}" alt="{{ $lain->judul }}">
-            <span class="lain-tag">Kegiatan</span>
+          
+          {{-- MODIFIKASI: Container diganti/ditambahkan class .slideshow-container --}}
+          <div class="lain-img-wrapper slideshow-container">
+            <span class="lain-tag">{{ $lain->jenis_berita ?? 'Kegiatan' }}</span>
+            
+            @if($lain->galeri && $lain->galeri->isNotEmpty())
+              {{-- MODIFIKASI: Looping mengeluarkan seluruh gambar dari database relasi galeri berita terkait --}}
+              @foreach($lain->galeri as $index => $foto)
+                <img src="{{ asset('storage/' . $foto->path) }}" 
+                     alt="{{ $lain->judul }}" 
+                     class="{{ $index === 0 ? 'active' : '' }}"
+                     onerror="this.style.display='none'; document.getElementById('lain-fallback-{{ $lain->id }}').classList.add('active');">
+              @endforeach
+              
+              <div id="lain-fallback-{{ $lain->id }}" class="inline-error-fallback">
+                <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 5px;"></i>
+              </div>
+            @else
+              {{-- Fallback default asset jika data galeri di DB kosong --}}
+              <img src="{{ asset('img/images-landing-page/banner_berita.jpeg') }}" alt="{{ $lain->judul }}" class="active">
+            @endif
           </div>
+
           <div class="lain-content">
             <h5>{{ $lain->judul }}</h5>
             <p>{{ Str::limit(strip_tags($lain->isi_berita), 85) }}</p>
             <div class="lain-meta">
-              {{ \Carbon\Carbon::parse($lain->tgl_terbit)->format('d M Y') }} • {{ $lain->user->name ?? 'Admin' }}
+              {{ \Carbon\Carbon::parse($lain->tgl_terbit)->translatedFormat('d M Y') }} • {{ $lain->user->name ?? 'Admin' }}
             </div>
           </div>
         </a>
@@ -355,4 +333,23 @@
     </div>
   </section>
 
+  {{-- SCRIPT JAVASCRIPT SLIDESHOW --}}
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // AUTOMATIC SLIDESHOW BERITA LAIN (Berganti setiap 5 detik)
+        const containers = document.querySelectorAll('.slideshow-container');
+        containers.forEach(container => {
+            const images = container.querySelectorAll('img');
+            // Hanya aktifkan interval jika gambar di dalam card lebih dari 1
+            if (images.length > 1) {
+                let currentIndex = 0;
+                setInterval(() => {
+                    images[currentIndex].classList.remove('active');
+                    currentIndex = (currentIndex + 1) % images.length;
+                    images[currentIndex].classList.add('active');
+                }, 5000); 
+            }
+        });
+    });
+  </script>
 @endsection

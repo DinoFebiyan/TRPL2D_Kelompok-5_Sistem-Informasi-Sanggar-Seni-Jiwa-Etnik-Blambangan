@@ -21,10 +21,13 @@
         .form-group textarea { border-radius: 15px; resize: vertical; }
         .custom-file-wrapper { display: flex; border: 1px solid #A87C7C; border-radius: 30px; overflow: hidden; background: #fff; align-items: center; }
         .btn-pilih-file { background: #531919; color: white !important; padding: 12px 25px; cursor: pointer; border-right: 1px solid #A87C7C; margin-bottom: 0 !important; font-weight: 500; font-size: 0.9rem; }
-        .file-name-display { padding: 0 15px; display: flex; align-items: center; color: #b0b0b0; flex-grow: 1; font-size: 0.9rem; }
+        .file-name-display { padding: 0 15px; display: flex; align-items: center; color: #b0b0b0; flex-grow: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .form-helper { font-size: 0.8rem; color: #888; margin-top: 6px; margin-left: 10px; }
         .btn-hapus-foto-lama { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: 0.2s; }
         .btn-hapus-foto-lama:hover { background: #dc2626; transform: scale(1.1); }
+        
+        /* Preview item khusus upload tunggal */
+        .single-preview-box { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px dashed #A87C7C; margin-top: 12px; display: none; }
     </style>
 @endsection
 
@@ -52,6 +55,7 @@
         <div class="form-body">
             <form id="formEditProfil" action="{{ route('superadmin.update-profil') }}" method="POST" enctype="multipart/form-data">
                 @csrf
+                @csrf
                 @method('PUT')
 
                 @if($errors->any())
@@ -65,7 +69,7 @@
                     </div>
                 @endif
 
-                {{-- ==================== SEKSI HEADER BARU (MULTI-FOTO) ==================== --}}
+                {{-- ==================== SEKSI HEADER (MULTI-FOTO SLIDESHOW) ==================== --}}
                 @if($profil->headers && $profil->headers->isNotEmpty())
                 <div class="form-group">
                     <label>Gambar Header Utama Saat Ini (Klik tombol merah untuk menghapus)</label>
@@ -95,28 +99,32 @@
                     <div class="form-helper">Format: JPG, PNG. Gambar akan disimpan dalam folder 'header'. Maks 2MB per file.</div>
                     <div id="headerPreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
                 </div>
-                {{-- ======================================================================== --}}
 
-                {{-- Logo & Foto Pembina Standar --}}
+                {{-- ==================== SEKSI LOGO SANGGAR (SINGLE FOTO) ==================== --}}
                 <div class="form-group">
                     <label>Ubah Logo Sanggar</label>
                     <div class="custom-file-wrapper">
                         <label for="logo" class="btn-pilih-file">Pilih Logo</label>
-                        <span class="file-name-display">Pilih jika ingin mengganti logo...</span>
-                        <input type="file" id="logo" name="logo" accept="image/*" style="display:none">
+                        <span class="file-name-display" id="logoNameDisplay">Pilih jika ingin mengganti logo...</span>
+                        <input type="file" id="logo" name="logo" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="previewSingleFile(this, 'logoPreview', 'logoNameDisplay')">
                     </div>
+                    <div class="form-helper">Format: JPG, PNG. Maks 4MB.</div>
+                    <img id="logoPreview" class="single-preview-box" alt="Pratinjau Logo">
                 </div>
 
+                {{-- ==================== SEKSI FOTO PEMBINA (SINGLE FOTO) ==================== --}}
                 <div class="form-group">
                     <label>Ubah Foto Pembina</label>
                     <div class="custom-file-wrapper">
                         <label for="foto_pembina" class="btn-pilih-file">Pilih Foto</label>
-                        <span class="file-name-display">Pilih jika ingin mengganti foto pembina...</span>
-                        <input type="file" id="foto_pembina" name="foto_pembina" accept="image/*" style="display:none">
+                        <span class="file-name-display" id="pembinaNameDisplay">Pilih jika ingin mengganti foto pembina...</span>
+                        <input type="file" id="foto_pembina" name="foto_pembina" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="previewSingleFile(this, 'pembinaPreview', 'pembinaNameDisplay')">
                     </div>
+                    <div class="form-helper">Format: JPG, PNG. Maks 4MB.</div>
+                    <img id="pembinaPreview" class="single-preview-box" alt="Pratinjau Pembina">
                 </div>
 
-                {{-- Konten Teks Profil --}}
+                {{-- ==================== KONTEN TEKS PROFIL SANGGAR ==================== --}}
                 <div class="form-group">
                     <label>Deskripsi Sanggar</label>
                     <textarea name="deskripsi" rows="4" required>{{ old('deskripsi', $profil->deskripsi) }}</textarea>
@@ -161,7 +169,7 @@
             }
         }
 
-        // Live preview penumpukan file baru dinamis
+        // Live preview penumpukan file baru dinamis (Multi-Upload)
         let tumpukanHeaderBaru = [];
         function updateHeaderPreview(input) {
             const display = document.getElementById('headerNameDisplay');
@@ -199,6 +207,31 @@
                 input.files = dt.files;
                 display.textContent = tumpukanHeaderBaru.length + " file header baru dipilih (terakumulasi)";
                 display.style.color = "#333";
+            }
+        }
+
+        // Fitur Baru: Live preview fungsional untuk Single File Upload (Logo & Pembina)
+        function previewSingleFile(input, previewImageId, displayNameId) {
+            const previewImage = document.getElementById(previewImageId);
+            const nameDisplay = document.getElementById(displayNameId);
+
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewImage.style.display = 'block'; // Memunculkan element gambar preview
+                }
+
+                reader.readAsDataURL(file);
+                nameDisplay.textContent = file.name; // Mengubah label display menjadi nama file asli
+                nameDisplay.style.color = "#333";
+            } else {
+                previewImage.src = '';
+                previewImage.style.display = 'none';
+                nameDisplay.textContent = "Pilih file kembali...";
+                nameDisplay.style.color = "#b0b0b0";
             }
         }
     </script>
