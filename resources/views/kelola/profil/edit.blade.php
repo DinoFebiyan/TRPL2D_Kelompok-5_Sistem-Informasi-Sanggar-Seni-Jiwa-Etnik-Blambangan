@@ -53,7 +53,7 @@
         </div>
 
         <div class="form-body">
-            <form id="formEditProfil" action="{{ route('superadmin.update-profil') }}" method="POST" enctype="multipart/form-data">
+            <form id="formEditProfil" action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.update-profil') : route('admin.update-profil') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @csrf
                 @method('PUT')

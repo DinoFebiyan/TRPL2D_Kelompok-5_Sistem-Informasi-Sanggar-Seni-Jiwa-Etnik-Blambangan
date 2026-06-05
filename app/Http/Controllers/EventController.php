@@ -74,7 +74,7 @@ class EventController extends Controller
             'lokasi'     => 'required|string',
             'kategori'   => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
             'status'     => 'required|in:selesai,belum selesai',
-            'foto'       => 'required|array', 
+            'foto'       => 'nullable|array', 
             'foto.*'     => 'image|mimes:jpeg,png,jpg|max:4096', 
         ]);
 

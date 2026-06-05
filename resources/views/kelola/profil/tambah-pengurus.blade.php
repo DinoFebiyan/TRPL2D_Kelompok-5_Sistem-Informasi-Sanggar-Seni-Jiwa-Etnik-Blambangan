@@ -182,7 +182,7 @@
         </div>
 
         <div class="form-body">
-            <form id="formTambahPengurus" action="{{ route('superadmin.store-pengurus') }}" method="POST" enctype="multipart/form-data">
+            <form id="formTambahPengurus" action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.store-pengurus') : route('admin.store-pengurus') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 @if($errors->any())

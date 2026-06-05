@@ -219,7 +219,7 @@
 
     {{-- CARD 1: FORM UPDATE DATA PROFIL --}}
     <div class="settings-card">
-        <form method="POST" action="{{ route('superadmin.pengaturan.update-profil') }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('admin.pengaturan.update-profil') }}" enctype="multipart/form-data">
             @csrf
             @method('PUT')
             
@@ -271,7 +271,7 @@
 
     {{-- CARD 2: FORM UPDATE PASSWORD --}}
     <div class="settings-card">
-        <form method="POST" action="{{ route('superadmin.pengaturan.update-password') }}">
+        <form method="POST" action="{{ route('admin.pengaturan.update-password') }}">
             @csrf
             @method('PUT')
 

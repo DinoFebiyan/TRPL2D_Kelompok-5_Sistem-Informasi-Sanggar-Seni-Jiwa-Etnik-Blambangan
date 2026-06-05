@@ -137,7 +137,7 @@
         </div>
 
         <div class="form-body">
-            <form id="formTambahPelatih" action="{{ route('superadmin.store-pelatih') }}" method="POST" enctype="multipart/form-data">
+            <form id="formTambahPelatih" action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.store-pelatih') : route('admin.store-pelatih') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 @if($errors->any())

@@ -85,7 +85,7 @@ class PengaturanController extends Controller
             'waktu'     => now(),
         ]);
 
-        return redirect()->route('superadmin.pengaturan')->with('success', 'Profil berhasil diperbarui.');
+        return redirect()->route(auth()->user()->peran === 'superadmin' ? 'superadmin.pengaturan' : 'admin.pengaturan')->with('success', 'Profil berhasil diperbarui.');
     }
 
     /**
@@ -119,7 +119,7 @@ class PengaturanController extends Controller
             'waktu'     => now(),
         ]);
 
-        return redirect()->route('superadmin.pengaturan')->with('success', 'Password berhasil diubah.');
+        return redirect()->route(auth()->user()->peran === 'superadmin' ? 'superadmin.pengaturan' : 'admin.pengaturan')->with('success', 'Password berhasil diubah.');
     }
 
     /**

@@ -250,7 +250,7 @@
             </div>
         </div>
         <div class="form-body">
-            <form id="formTambahEvent" action="{{ route('superadmin.store-event') }}" method="POST" enctype="multipart/form-data">
+            <form id="formTambahEvent" action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.store-event') : route('admin.store-event') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 
                 @if($errors->any())

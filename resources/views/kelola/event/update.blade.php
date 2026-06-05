@@ -251,7 +251,7 @@
         </div>
 
         <div class="form-body">
-            <form id="formEditEvent" action="{{ route('superadmin.update-event', $event->id) }}" method="POST" enctype="multipart/form-data">
+            <form id="formEditEvent" action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.update-event', $event->id) : route('admin.update-event', $event->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
