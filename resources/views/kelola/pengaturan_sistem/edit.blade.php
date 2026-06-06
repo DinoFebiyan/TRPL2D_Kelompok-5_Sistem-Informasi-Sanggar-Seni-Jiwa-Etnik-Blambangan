@@ -138,3 +138,8 @@
     @include('popup.batal')
     @include('popup.simpan')
 @endsection
+@push('scripts')
+<script>
+    document.body.classList.add('page-form');
+</script>
+@endpush

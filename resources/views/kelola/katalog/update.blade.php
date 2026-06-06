@@ -382,3 +382,9 @@
 {{-- Popup Batal & Simpan --}}
 @include('popup.batal')
 @include('popup.simpan')
+
+@push('scripts')
+<script>
+    document.body.classList.add('page-form');
+</script>
+@endpush

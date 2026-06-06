@@ -365,7 +365,24 @@
         });
     </script>
 
-    <script src="{{ asset('js/back-button-handler.js') }}"></script>
+    <script>
+        // ── Back Button Handler ──
+        window.addEventListener('load', function () {
+            var isFormPage = document.body.classList.contains('page-form');
+            setTimeout(function () {
+                history.pushState({ jeb: 'blocked' }, '', window.location.href);
+            }, 200);
+            window.addEventListener('popstate', function () {
+                history.pushState({ jeb: 'blocked' }, '', window.location.href);
+                if (isFormPage) {
+                    var el = document.getElementById('popup-batal');
+                    if (el) { el.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+                } else {
+                    if (typeof showPopupLogout === 'function') showPopupLogout();
+                }
+            });
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>
