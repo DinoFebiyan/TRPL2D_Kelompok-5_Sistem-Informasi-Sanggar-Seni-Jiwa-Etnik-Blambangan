@@ -12,7 +12,7 @@
         color: #333;
     }
     
-    /* STATS GRID – otomatis responsif dengan auto-fit */
+    /* STATS GRID */
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -62,7 +62,7 @@
     .stat-icon.merah { background: #fef2f2; color: #ef4444; }
     .stat-icon.emas  { background: #fefce8; color: #eab308; }
 
-    /* QUICK ACCESS – responsif */
+    /* QUICK ACCESS */
     .quick-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -109,7 +109,7 @@
         margin-top: 4px;
     }
 
-    /* DUA KOLOM (Admin Terbaru + Aktivitas) */
+    /* DUA KOLOM */
     .grid-2 {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -203,50 +203,52 @@
     .action-btn:first-child { background: #eff6ff; color: #3b82f6; }
     .action-btn:last-child { background: #fef2f2; color: #ef4444; }
 
-    /* AKTIVITAS LIST */
+    /* ========== AKTIVITAS LIST - TIDAK KELUAR & LEGA ========== */
     .activity-list {
-        padding: 0 20px;
         display: flex;
         flex-direction: column;
+        gap: 0;
+        /* Penting: beri padding kiri agar titik tidak menempel ke tepi card */
+        padding-left: 20px;
+        padding-right: 20px;
     }
+
     .activity-item {
         display: flex;
-        gap: 12px;
+        gap: 14px;
         align-items: flex-start;
+        margin-bottom: 24px;  /* jarak antar item lega */
     }
+
+    .activity-item:last-child {
+        margin-bottom: 0;
+    }
+
     .act-dot {
         width: 10px;
         height: 10px;
         border-radius: 50%;
         background: #EF4444;
-        margin-top: 6px;
         flex-shrink: 0;
+        margin-top: 5px;  /* sejajar dengan teks baris pertama */
     }
-    .act-line {
-        width: 2px;
-        flex: 1;
-        background: #E5E7EB;
-        margin: 4px 0;
-    }
-    .activity-item:last-child .act-line { display: none; }
+
     .act-content {
-        padding-bottom: 16px;
         flex: 1;
-        /* Tambahan agar elemen ini tidak melampaui batas lebarnya */
-        min-width: 0; 
     }
+
     .act-content p {
-        margin: 0;
+        margin: 0 0 4px 0;
         font-size: 0.85rem;
+        line-height: 1.5;
         color: #4B5563;
-        line-height: 1.4;
-        
-        /* ATURAN BARU: Memaksa teks jadi satu baris lurus */
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        word-break: break-word;
     }
-    .act-content p strong { color: #111827; }
+
+    .act-content p strong {
+        color: #111827;
+    }
+
     .act-content span {
         display: block;
         font-size: 0.75rem;
@@ -254,10 +256,10 @@
         margin-top: 4px;
     }
 
-    /* RESPONSIF MOBILE */
+    /* RESPONSIF */
     @media (max-width: 768px) {
         .grid-2 {
-            grid-template-columns: 1fr;  /* jadi satu kolom di HP */
+            grid-template-columns: 1fr;
             gap: 20px;
         }
         .stats-grid {
@@ -275,6 +277,10 @@
         }
         .stat-info h2 {
             font-size: 1.4rem;
+        }
+        .activity-list {
+            padding-left: 16px;
+            padding-right: 16px;
         }
     }
 
@@ -409,7 +415,7 @@
             </div>
         </div>
 
-        {{-- AKTIVITAS TERBARU --}}
+        {{-- AKTIVITAS TERBARU (TITIK TIDAK KELUAR) --}}
         <div class="card">
             <div class="card-header">
                 <h3>Aktivitas Terbaru</h3>
@@ -420,7 +426,6 @@
                     @forelse($recentActivities ?? [] as $activity)
                     <div class="activity-item">
                         <div class="act-dot"></div>
-                        <div class="act-line"></div>
                         <div class="act-content">
                             <p><strong>{{ $activity->user->name ?? 'Sistem' }}</strong> {{ $activity->aktivitas }}</p>
                             <span>{{ $activity->created_at->diffForHumans() }}</span>
