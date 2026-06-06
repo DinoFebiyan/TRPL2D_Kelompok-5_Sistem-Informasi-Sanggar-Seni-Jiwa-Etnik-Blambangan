@@ -345,25 +345,25 @@
 
     {{-- QUICK ACCESS --}}
     <div class="quick-grid">
-        <a class="quick-card" href="{{ url('/superadmin/kelola-admin') }}">
+        <a class="quick-card" href="{{ url('/superadmin/kelola-admin/tambah-admin') }}">
             <div class="quick-icon"><i class="fas fa-user-plus" style="color: #ef4444;"></i></div>
             <p>Tambah Admin</p>
             <span>Buat akun baru</span>
         </a>
         
-        <a class="quick-card" href="{{ url('/superadmin/kelola-katalog') }}">
+        <a class="quick-card" href="{{ url('/superadmin/kelola-katalog/tambah-katalog') }}">
             <div class="quick-icon"><i class="fas fa-folder-plus" style="color: #eab308;"></i></div>
             <p>Tambah Katalog</p>
             <span>Upload tari baru</span>
         </a>
 
-        <a class="quick-card" href="{{ url('/superadmin/kelola-event') }}">
+        <a class="quick-card" href="{{ url('/superadmin/kelola-event/tambah-event') }}">
             <div class="quick-icon"><i class="fas fa-calendar-plus" style="color: #16a34a;"></i></div>
             <p>Buat Event</p>
             <span>Jadwalkan kegiatan</span>
         </a>
 
-        <a class="quick-card" href="{{ url('/superadmin/kelola-berita') }}">
+        <a class="quick-card" href="{{ url('/superadmin/kelola-berita/tambah-berita') }}">
             <div class="quick-icon"><i class="fas fa-newspaper" style="color: #a16207;"></i></div>
             <p>Kelola Berita</p>
             <span>Buat berita baru</span>
