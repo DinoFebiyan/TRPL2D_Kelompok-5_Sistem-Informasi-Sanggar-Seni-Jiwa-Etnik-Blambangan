@@ -1156,8 +1156,21 @@
                 pertunjukan seni, serta kegiatan budaya yang menginspirasi dan mempererat kebersamaan.
             </p>
         </div>
+
+        {{-- Mengambil data sistem dinamis dari database untuk kebutuhan pendaftaran --}}
+        @php
+            $sistemCta = \App\Models\PengaturanSistem::first();
+            
+            if ($sistemCta && $sistemCta->link_wa) {
+                $nomorPendaftaran = preg_replace('/[^0-9]/', '', $sistemCta->link_wa);
+            } else {
+                // Cadangan jika nomor di database belum diisi
+                $nomorPendaftaran = '6282232505355';
+            }
+        @endphp
+
         <div class="cta-action">
-            <a href="https://wa.me/6282232505355" target="_blank" class="btn-daftar-cta">DAFTAR SEKARANG</a>
+            <a href="https://wa.me/{{ $nomorPendaftaran }}" target="_blank" class="btn-daftar-cta">DAFTAR SEKARANG</a>
         </div>
     </div>
   </section>

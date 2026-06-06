@@ -1,7 +1,7 @@
 @extends('layouts.superadmin')
 
-@section('title', 'Pengaturan — JEB')
-@section('header_title', 'Pengaturan')
+@section('title', 'Pengaturan Akun — JEB')
+@section('header_title', 'Pengaturan Akun')
 
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -12,7 +12,6 @@
         color: #333;
     }
 
-    /* ══ KARTU PENGATURAN (SERASI DENGAN KELOLA PROFIL) ══ */
     .settings-card {
         background: #fff;
         border-radius: 12px;
@@ -36,7 +35,6 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        font-family: 'Poppins', sans-serif;
         font-weight: 600;
     }
 
@@ -44,7 +42,6 @@
         color: #5B1A1A;
     }
 
-    /* ══ SEKSI FOTO PROFIL AVATAR ══ */
     .avatar-row {
         display: flex;
         gap: 20px;
@@ -90,7 +87,6 @@
         letter-spacing: 0.5px;
     }
 
-    /* ══ GRID & COMPONENT ENTRY FORM ══ */
     .form-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
@@ -134,7 +130,6 @@
         grid-column: span 2;
     }
 
-    /* ══ STYLING FILE UPLOAD KAPSUL ══ */
     .custom-file-wrapper {
         display: flex;
         align-items: stretch;
@@ -167,7 +162,6 @@
         flex-grow: 1;
     }
 
-    /* ══ DESIGN BUTTONS SIMPAN ══ */
     .btn-save-settings {
         background: #e2c0c0;
         color: #5a1a1a;
@@ -230,7 +224,6 @@
                 </button>
             </div>
             
-            {{-- Bagian Upload Avatar --}}
             <div class="avatar-row">
                 <div class="avatar-preview-frame">
                     @if(auth()->user()->galeri && auth()->user()->galeri->path)

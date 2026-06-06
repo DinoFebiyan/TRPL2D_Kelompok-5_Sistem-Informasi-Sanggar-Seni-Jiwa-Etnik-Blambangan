@@ -45,5 +45,8 @@ class Galeri extends Model
             return $this->belongsTo(ProfilSanggar::class, 'sumber_id', 'id');
         }
 
-        
+        public function pengaturanSistem(): BelongsTo
+        {
+            return $this->belongsTo(PengaturanSistem::class, 'sumber_id', 'id');
+        }
 };

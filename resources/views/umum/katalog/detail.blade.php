@@ -129,7 +129,20 @@
     <div class="main-detail-card">
         <div class="detail-header">
             <h1 style="margin: 0; font-family: 'Playfair Display', serif; color: #3d0c0c;">{{ $katalog->nama_katalog }}</h1>
-            <a href="https://wa.me/6282232505355" target="_blank" class="sewa-btn">Sewa Via Whatsapp</a>
+            
+            {{-- Mengambil data sistem dinamis dari database untuk kebutuhan tombol Whatsapp --}}
+            @php
+                $sistemDetail = \App\Models\PengaturanSistem::first();
+                
+                // Cari nomor HP aktif dari DB, jika kosong gunakan default nomor sanggar lama
+                if ($sistemDetail && $sistemDetail->link_wa) {
+                    $whatsappNumber = preg_replace('/[^0-9]/', '', $sistemDetail->link_wa);
+                } else {
+                    $whatsappNumber = '6282232505355';
+                }
+            @endphp
+
+            <a href="https://wa.me/{{ $whatsappNumber }}" target="_blank" class="sewa-btn">Sewa Via Whatsapp</a>
         </div>
         
         {{-- MODIFIKASI: Merender seluruh isi galeri dari folder storage ke dalam container slideshow utama --}}

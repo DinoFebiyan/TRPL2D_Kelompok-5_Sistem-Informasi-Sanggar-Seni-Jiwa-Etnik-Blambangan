@@ -26,7 +26,7 @@
     <nav class="sidebar-nav">
         <div class="nav-label">Menu Utama</div>
 
-        <a class="nav-item {{ request()->is('superadmin/dashboard*') ? 'active' : '' }}" href="{{ route('superadmin.dashboard') }}">
+        <a class="nav-item {{ request()->routeIs('superadmin.dashboard*') ? 'active' : '' }}" href="{{ route('superadmin.dashboard') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="7" height="7"/>
                 <rect x="14" y="3" width="7" height="7"/>
@@ -36,7 +36,7 @@
             Dashboard
         </a>
         
-        <a class="nav-item {{ request()->is('superadmin/kelola-admin*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-admin') }}">
+        <a class="nav-item {{ request()->routeIs('superadmin.kelola-admin*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-admin') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
@@ -46,7 +46,7 @@
             Kelola Admin
         </a>
         
-        <a class="nav-item {{ request()->is('superadmin/log-aktivitas*') ? 'active' : '' }}" href="{{ route('superadmin.log-aktivitas') }}">
+        <a class="nav-item {{ request()->routeIs('superadmin.log-aktivitas*') ? 'active' : '' }}" href="{{ route('superadmin.log-aktivitas') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
             </svg>
@@ -55,7 +55,7 @@
         
         <div class="nav-label">Konten</div>
 
-        <a class="nav-item {{ request()->is('superadmin/kelola-katalog*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-katalog') }}">
+        <a class="nav-item {{ request()->routeIs('superadmin.kelola-katalog*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-katalog') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="3" width="18" height="18" rx="2"/>
                 <path d="M3 9h18M9 21V9"/>
@@ -63,7 +63,7 @@
             Kelola Katalog
         </a>
 
-        <a class="nav-item {{ request()->is('superadmin/kelola-event*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-event') }}">
+        <a class="nav-item {{ request()->routeIs('superadmin.kelola-event*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-event') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2"/>
                 <line x1="16" y1="2" x2="16" y2="6"/>
@@ -73,7 +73,7 @@
             Kelola Event
         </a>
 
-        <a class="nav-item {{ request()->is('superadmin/kelola-berita*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-berita') }}">
+        <a class="nav-item {{ request()->routeIs('superadmin.kelola-berita*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-berita') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                 <polyline points="14 2 14 8 20 8"/>
@@ -81,7 +81,7 @@
             Kelola Berita
         </a>
 
-        <a class="nav-item {{ request()->is('superadmin/kelola-profil*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-profil') }}">
+        <a class="nav-item {{ request()->routeIs('superadmin.kelola-profil*') ? 'active' : '' }}" href="{{ route('superadmin.kelola-profil') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="16" rx="2"/>
                 <line x1="7" y1="8" x2="17" y2="8"/>
@@ -93,12 +93,22 @@
 
         <div class="nav-label">Sistem</div>
 
-        <a class="nav-item {{ request()->is('superadmin/pengaturan*') ? 'active' : '' }}" href="{{ route('superadmin.pengaturan') }}">
+        {{-- PERBAIKAN: Deteksi Active menggunakan Route Name --}}
+        <a class="nav-item {{ request()->routeIs('superadmin.pengaturan-sistem*') ? 'active' : '' }}" href="{{ route('superadmin.pengaturan-sistem.index') }}">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
             </svg>
-            Pengaturan
+            Pengaturan Sistem
+        </a>
+
+        {{-- PERBAIKAN: Deteksi Active menggunakan Route Name --}}
+        <a class="nav-item {{ request()->routeIs('superadmin.pengaturan') ? 'active' : '' }}" href="{{ route('superadmin.pengaturan') }}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Pengaturan Akun
         </a>
     </nav>
 
@@ -145,7 +155,6 @@
         </div>
         <div class="modal-footer">
             <button class="btn-batal" onclick="closeLogoutModal()">Batal</button>
-            {{-- PERBAIKAN: Mengarahkan action form ke route('logout') bawaan Breeze --}}
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="btn-simpan">Ya, Keluar</button>

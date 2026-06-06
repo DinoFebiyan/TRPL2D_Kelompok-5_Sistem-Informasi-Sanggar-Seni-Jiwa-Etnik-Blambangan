@@ -13,6 +13,7 @@ use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\DashboardSuperadminController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\UmumController;
+use App\Http\Controllers\PengaturanSistemController;
 use Illuminate\Support\Facades\Route;
 
 // =========================================================================
@@ -166,7 +167,12 @@ Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () 
     Route::get('/kelola-profil/edit-pelatih/{id}', [ProfilController::class, 'editPelatih'])->name('superadmin.edit-pelatih');
     Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('superadmin.update-pelatih');
 
-    // Pengaturan
+    // Pengaturan Sistem
+    Route::get('/pengaturan-sistem', [PengaturanSistemController::class, 'index'])->name('superadmin.pengaturan-sistem.index');
+    Route::get('/pengaturan-sistem/edit', [PengaturanSistemController::class, 'edit'])->name('superadmin.pengaturan-sistem.edit');
+    Route::put('/pengaturan-sistem/update', [PengaturanSistemController::class, 'update'])->name('superadmin.pengaturan-sistem.update');
+
+    // Pengaturan   
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('superadmin.pengaturan');
     Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('superadmin.pengaturan.update-profil');
     Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('superadmin.pengaturan.update-password');
