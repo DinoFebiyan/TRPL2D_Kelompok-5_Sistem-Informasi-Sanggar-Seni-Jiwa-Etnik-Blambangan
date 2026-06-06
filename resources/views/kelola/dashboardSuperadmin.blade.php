@@ -232,12 +232,19 @@
     .act-content {
         padding-bottom: 16px;
         flex: 1;
+        /* Tambahan agar elemen ini tidak melampaui batas lebarnya */
+        min-width: 0; 
     }
     .act-content p {
         margin: 0;
         font-size: 0.85rem;
         color: #4B5563;
         line-height: 1.4;
+        
+        /* ATURAN BARU: Memaksa teks jadi satu baris lurus */
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .act-content p strong { color: #111827; }
     .act-content span {
