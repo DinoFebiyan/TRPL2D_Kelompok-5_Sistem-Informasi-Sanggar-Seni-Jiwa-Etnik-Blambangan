@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Berita;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
+use App\Helpers\SanitizeHelper;
+use App\Helpers\UploadHelper;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
@@ -127,6 +129,16 @@ class BeritaController extends Controller
             'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
+        $request->merge(['isi' => SanitizeHelper::sanitize($request->isi)]);
+
+        if ($request->hasFile('foto')) {
+        foreach ($request->file('foto') as $file) {
+            if (!UploadHelper::isImageMimeValid($file)) {
+                return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+            }
+        }
+    }
+
         $berita = Berita::create([
             'judul' => $request->judul,
             'isi_berita' => $request->isi,
@@ -200,6 +212,16 @@ class BeritaController extends Controller
             'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
+
+         $request->merge(['isi' => SanitizeHelper::sanitize($request->isi)]);
+
+           if ($request->hasFile('foto')) {
+             foreach ($request->file('foto') as $file) {
+            if (!UploadHelper::isImageMimeValid($file)) {
+                return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+            }
+        }
+    }
 
         $berita->update([
             'judul' => $request->judul,

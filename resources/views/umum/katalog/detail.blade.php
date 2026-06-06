@@ -32,13 +32,15 @@
         border: none;
         border-radius: 12px;
         font-weight: bold;
+        text-decoration: none; /* Mencegah underline karena tag <a> */
+        display: inline-block;
         cursor: pointer;
         transition: 0.3s;
     }
 
     .sewa-btn:hover { background: #5a0000; }
 
-    /* MODIFIKASI: Container slideshow foto utama katalog */
+    /* Container slideshow foto utama katalog */
     .katalog-main-slideshow {
         position: relative;
         width: 100%;
@@ -82,7 +84,7 @@
 
     .lain-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
 
-    /* MODIFIKASI: Wrapper slideshow kartu katalog rekomendasi bawah */
+    /* Wrapper slideshow kartu katalog rekomendasi bawah */
     .lain-card-slideshow {
         position: relative;
         width: 100%;
@@ -105,7 +107,7 @@
 
     .lain-card-slideshow img.active {
         opacity: 1;
-        position: relative; /* Menjaga konsistensi tinggi box card */
+        position: relative; 
     }
 
     .inline-error-fallback {
@@ -130,22 +132,39 @@
         <div class="detail-header">
             <h1 style="margin: 0; font-family: 'Playfair Display', serif; color: #3d0c0c;">{{ $katalog->nama_katalog }}</h1>
             
-            {{-- Mengambil data sistem dinamis dari database untuk kebutuhan tombol Whatsapp --}}
+            {{-- Mengambil data sistem dinamis & merancang draf pesan teks WhatsApp otomatis --}}
             @php
                 $sistemDetail = \App\Models\PengaturanSistem::first();
                 
-                // Cari nomor HP aktif dari DB, jika kosong gunakan default nomor sanggar lama
+                // Ambil nomor WhatsApp dari DB
                 if ($sistemDetail && $sistemDetail->link_wa) {
                     $whatsappNumber = preg_replace('/[^0-9]/', '', $sistemDetail->link_wa);
                 } else {
                     $whatsappNumber = '6282232505355';
                 }
+
+                // Ambil URL halaman katalog saat ini secara dinamis
+                $urlKatalog = request()->url();
+
+                // Menyusun template teks draf pesan (Menggunakan \n untuk baris baru)
+                $pesanTeks = "Halo Admin Jiwa Etnik Blambangan,\n\n"
+                           . "Saya ingin menanyakan tentang penyewaan *" . $katalog->nama_katalog . "*\n"
+                           . "• Jumlah sebanyak: \n"
+                           . "• Untuk tanggal pemakaian: \n\n"
+                           . "Berikut adalah link produk katalog yang saya maksud:\n"
+                           . $urlKatalog;
+
+                // Enkripsi teks agar aman dibaca oleh browser sebagai query string URL
+                $urlPesanEnkripsi = urlencode($pesanTeks);
             @endphp
 
-            <a href="https://wa.me/{{ $whatsappNumber }}" target="_blank" class="sewa-btn">Sewa Via Whatsapp</a>
+            {{-- Link WhatsApp dengan Parameter Teks Otomatis --}}
+            <a href="https://wa.me/{{ $whatsappNumber }}?text={{ $urlPesanEnkripsi }}" target="_blank" class="sewa-btn">
+                <i class="fab fa-whatsapp"></i> Sewa Via Whatsapp
+            </a>
         </div>
         
-        {{-- MODIFIKASI: Merender seluruh isi galeri dari folder storage ke dalam container slideshow utama --}}
+        {{-- Container slideshow foto utama katalog --}}
         <div class="katalog-main-slideshow slideshow-container-main">
             @if($katalog->galeri && $katalog->galeri->isNotEmpty())
                 @foreach($katalog->galeri as $index => $foto)
@@ -179,7 +198,7 @@
             <a href="{{ route('umum.katalog-detail', $lain->id) }}" style="text-decoration: none; color: inherit;">
                 <div class="lain-card">
                     
-                    {{-- MODIFIKASI: Slideshow mini untuk item rekomendasi bawah --}}
+                    {{-- Slideshow mini untuk item rekomendasi bawah --}}
                     <div class="lain-card-slideshow slideshow-container-mini">
                         @if($lain->galeri && $lain->galeri->isNotEmpty())
                             @foreach($lain->galeri as $index => $fotoLain)

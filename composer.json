@@ -7,6 +7,7 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "ezyang/htmlpurifier": "^4.19",
         "intervention/image": "^3.11",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1"
@@ -26,7 +27,11 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        }
+        },
+         "files": [
+        "app/Helpers/SanitizeHelper.php",
+        "app/Helpers/UploadHelper.php"
+    ]
     },
     "autoload-dev": {
         "psr-4": {
@@ -85,4 +90,5 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true
+
 }

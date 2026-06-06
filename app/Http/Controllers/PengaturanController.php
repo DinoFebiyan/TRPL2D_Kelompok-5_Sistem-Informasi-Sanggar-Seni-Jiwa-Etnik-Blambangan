@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
+use App\Helpers\SanitizeHelper;
+use App\Helpers\UploadHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -42,6 +44,11 @@ class PengaturanController extends Controller
             'no_handphone' => 'nullable|string|max:20',
         ]);
 
+        if ($request->hasFile('foto_profil')) {
+        if (!UploadHelper::isImageMimeValid($request->file('foto_profil'))) {
+        return back()->withErrors(['foto_profil' => 'File bukan gambar yang valid.']);
+    }
+}
         // Mengambil input teks utama
         $data = $request->only(['name', 'email', 'no_handphone']);
         
