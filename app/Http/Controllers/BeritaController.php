@@ -7,9 +7,60 @@ use App\Models\Berita;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class BeritaController extends Controller
 {
+    // Fungsi untuk menyimpan gambar dengan watermark
+    private function simpanDenganWatermark($file)
+    {
+        $manager = new ImageManager(new Driver());
+
+        $filename =
+            time() . '_' .
+            uniqid() . '.' .
+            $file->getClientOriginalExtension();
+
+        // Simpan file asli
+        $file->storeAs(
+            'berita/asli',
+            $filename,
+            'public'
+        );
+
+        // Baca gambar asli
+        $image = $manager->read(
+            $file->getRealPath()
+        );
+
+        // Baca watermark
+        $watermark = $manager->read(
+            public_path('img/watermark/logo-jeb.png')
+        );
+
+        // Resize watermark
+        $watermark->scale(
+            width: 300
+        );
+
+        // Tempel watermark di tengah
+        $image->place(
+            $watermark,
+            'center'
+        );
+
+        // Simpan hasil watermark
+        $image->save(
+            storage_path(
+                'app/public/berita/watermark/' .
+                $filename
+            )
+        );
+
+        return 'berita/watermark/' . $filename;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -86,14 +137,14 @@ class BeritaController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                $path = $file->store('berita', 'public');
+                $path = $this->simpanDenganWatermark($file);
 
                 Galeri::create([
                     'sumber_id' => $berita->id,
                     'path' => $path,
                     'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
                     'kategori' => 'berita',
-                    'is_watermark' => false,
+                    'is_watermark' => true,
                 ]);
             }
         }
@@ -174,14 +225,14 @@ class BeritaController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                $path = $file->store('berita', 'public');
+                $path = $this->simpanDenganWatermark($file);
 
                 Galeri::create([
                     'sumber_id' => $berita->id,
                     'path' => $path,
                     'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
                     'kategori' => 'berita',
-                    'is_watermark' => false,
+                    'is_watermark' => true,
                 ]);
             }
         }
@@ -213,7 +264,7 @@ class BeritaController extends Controller
             'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
-        $path = $request->file('file')->store('berita-konten', 'public');
+        $path = $this->simpanDenganWatermark($request->file('file'));
 
         return response()->json([
             'location' => Storage::disk('public')->url($path),
