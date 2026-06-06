@@ -14,6 +14,7 @@ use App\Http\Controllers\DashboardSuperadminController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\UmumController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\OtpController;
 
 // =========================================================================
 // 1. HALAMAN UTAMA & PUBLIK (Folder: views/umum)
@@ -44,10 +45,39 @@ Route::get('/dashboard', function () {
     return abort(403, 'Akses peran tidak sah.');
 })->middleware(['auth'])->name('dashboard');
 
-//hfhf
-Route::get('/auth/verifikasi_otp', function () {
-    return view('auth.verifikasi_otp');
-})->name('verifikasi.otp');
+// =========================================================================
+// LUPA PASSWORD VIA OTP
+// =========================================================================
+
+Route::middleware('guest')->group(function () {
+    // Step 1 – Tampilkan form email lupa password
+    Route::get('/auth/forgot-password', [OtpController::class, 'showForgotForm'])
+         ->name('otp.forgot.form');
+
+    // Step 2 – Proses kirim OTP ke email
+    Route::post('/auth/forgot-password', [OtpController::class, 'sendOtp'])
+         ->name('otp.send');
+
+    // Step 3 – Tampilkan form verifikasi OTP
+    Route::get('/auth/verifikasi-otp', [OtpController::class, 'showVerifyForm'])
+         ->name('otp.verify.form');
+
+    // Step 4 – Proses verifikasi kode OTP
+    Route::post('/auth/verifikasi-otp', [OtpController::class, 'verifyOtp'])
+         ->name('otp.verify');
+
+    // Step 5 – Tampilkan form reset password baru
+    Route::get('/auth/reset-password', [OtpController::class, 'showResetForm'])
+         ->name('otp.reset.form');
+
+    // Step 6 – Simpan password baru
+    Route::post('/auth/reset-password', [OtpController::class, 'resetPassword'])
+         ->name('otp.reset');
+
+    // Bonus – Kirim ulang OTP
+    Route::post('/auth/resend-otp', [OtpController::class, 'resendOtp'])
+         ->name('otp.resend');
+});
 
 
 // =========================================================================
