@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Katalog;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
+use App\Helpers\SanitizeHelper;
+use App\Helpers\UploadHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -79,6 +81,16 @@ class KatalogController extends Controller
             'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096', 
         ]);
 
+        $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+        }
+    }
+}
+
         // 2. Simpan informasi teks produk utama ke database
         $katalog = Katalog::create([
             'nama_katalog' => $request->nama_katalog,
@@ -152,6 +164,15 @@ class KatalogController extends Controller
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
+            $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+
+            if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+        }
+    }
+}
         // 1. Perbarui teks data utama katalog
         $katalog->update([
             'nama_katalog' => $request->nama_katalog,

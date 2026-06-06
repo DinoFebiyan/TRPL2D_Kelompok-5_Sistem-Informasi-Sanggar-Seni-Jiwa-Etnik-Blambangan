@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Event;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
+use App\Helpers\SanitizeHelper;
+use App\Helpers\UploadHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -77,6 +79,16 @@ class EventController extends Controller
             'foto'       => 'nullable|array', 
             'foto.*'     => 'image|mimes:jpeg,png,jpg|max:4096', 
         ]);
+
+        $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+
+        if ($request->hasFile('foto')) {
+        foreach ($request->file('foto') as $file) {
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+        }
+    }
+}
 
         $event = Event::create([
             'nama'      => $request->nama,
@@ -157,6 +169,16 @@ class EventController extends Controller
             'hapus_foto'   => 'nullable|array', 
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
+
+        $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+
+        if ($request->hasFile('foto')) {
+        foreach ($request->file('foto') as $file) {
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+        }
+    }
+}
 
         $event->update([
             'nama'      => $request->nama,
