@@ -15,8 +15,8 @@
         .btn-batal { background: white; color: #FF4D4D; border: 1px solid #FF4D4D; }
         .btn-simpan { background: white; color: #007BFF; border: 1px solid #007BFF; }
         .form-body { padding: 2.5rem; font-family: 'Poppins', sans-serif; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { font-weight: 500; color: #8A4B4B; display: block; margin-bottom: 8px; font-size: 1.05rem; }
+        .form-group { margin-bottom: 2rem; background: #fff; padding: 20px; border-radius: 12px; border: 1px solid #dbdbdb; }
+        .form-group label { font-weight: 600; color: #5B1A1A; display: block; margin-bottom: 10px; font-size: 1rem; }
         .form-group input, .form-group textarea { width: 100%; padding: 12px 20px; border: 1px solid #A87C7C; border-radius: 30px; font-family: 'Poppins', sans-serif; font-size: 0.9rem; background: #fff; box-sizing: border-box; outline: none; }
         .form-group textarea { border-radius: 15px; resize: vertical; }
         .custom-file-wrapper { display: flex; border: 1px solid #A87C7C; border-radius: 30px; overflow: hidden; background: #fff; align-items: center; }
@@ -27,7 +27,8 @@
         .btn-hapus-foto-lama:hover { background: #dc2626; transform: scale(1.1); }
         
         /* Preview item khusus upload tunggal */
-        .single-preview-box { width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px dashed #A87C7C; margin-top: 12px; display: none; }
+        .single-preview-box { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px dashed #A87C7C; margin-top: 12px; display: none; }
+        .current-photo-box { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 2px solid #5B1A1A; margin-bottom: 10px; }
     </style>
 @endsection
 
@@ -55,7 +56,6 @@
         <div class="form-body">
             <form id="formEditProfil" action="{{ route('superadmin.update-profil') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                @csrf
                 @method('PUT')
 
                 @if($errors->any())
@@ -70,58 +70,76 @@
                 @endif
 
                 {{-- ==================== SEKSI HEADER (MULTI-FOTO SLIDESHOW) ==================== --}}
-                @if($profil->headers && $profil->headers->isNotEmpty())
                 <div class="form-group">
                     <label>Gambar Header Utama Saat Ini (Klik tombol merah untuk menghapus)</label>
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
-                        @foreach($profil->headers as $foto)
-                            <div id="foto-lama-box-{{ $foto->id }}" style="position: relative; display: inline-block;">
-                                <img src="{{ asset('storage/' . $foto->path) }}" style="width: 150px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #c0c0c0;">
-                                <button type="button" class="btn-hapus-foto-lama" onclick="tandaiHapusHeader({{ $foto->id }})" title="Hapus header ini">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        @endforeach
-                    </div>
-                </div>
-                @endif
+                    @if($profil->headers && $profil->headers->isNotEmpty())
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 15px;">
+                            @foreach($profil->headers as $foto)
+                                <div id="foto-lama-box-{{ $foto->id }}" style="position: relative; display: inline-block;">
+                                    <img src="{{ asset('storage/' . $foto->path) }}" style="width: 150px; height: 90px; object-fit: cover; border-radius: 8px; border: 1px solid #c0c0c0;">
+                                    <button type="button" class="btn-hapus-foto-lama" onclick="tandaiHapusHeader({{ $foto->id }})" title="Hapus header ini">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    @else
+                        <p style="font-size: 0.85rem; color: #888; font-style: italic;">Belum ada foto header yang tersimpan.</p>
+                    @endif
 
-                {{-- Input tracker penampung id header terhapus --}}
-                <div id="wadahInputHapusHeader"></div>
-
-                <div class="form-group">
-                    <label>Unggah Gambar Header Slideshow Baru (Bisa pilih lebih dari satu)</label>
+                    <label style="margin-top: 15px;">Unggah Gambar Header Slideshow Baru (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper">
                         <label for="header_files" class="btn-pilih-file">Pilih File</label>
                         <span class="file-name-display" id="headerNameDisplay">Kosongkan jika tidak ingin menambah foto header...</span>
                         <input type="file" id="header_files" name="header_files[]" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="updateHeaderPreview(this)" multiple>
                     </div>
-                    <div class="form-helper">Format: JPG, PNG. Gambar akan disimpan dalam folder 'header'. Maks 2MB per file.</div>
+                    <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
                     <div id="headerPreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
                 </div>
 
+                {{-- Input tracker penampung id header terhapus --}}
+                <div id="wadahInputHapusHeader"></div>
+
                 {{-- ==================== SEKSI LOGO SANGGAR (SINGLE FOTO) ==================== --}}
                 <div class="form-group">
-                    <label>Ubah Logo Sanggar</label>
+                    <label>Logo Sanggar Saat Ini</label>
+                    @if($profil && $profil->logo && $profil->logo->path)
+                        <div>
+                            <img src="{{ asset('storage/' . $profil->logo->path) }}" class="current-photo-box" alt="Logo Aktif">
+                        </div>
+                    @else
+                        <p style="font-size: 0.85rem; color: #888; font-style: italic; margin-bottom: 10px;">Belum ada logo yang diunggah.</p>
+                    @endif
+
+                    <label style="margin-top: 10px;">Ubah Logo Sanggar</label>
                     <div class="custom-file-wrapper">
                         <label for="logo" class="btn-pilih-file">Pilih Logo</label>
-                        <span class="file-name-display" id="logoNameDisplay">Pilih jika ingin mengganti logo...</span>
+                        <span class="file-name-display" id="logoNameDisplay">Kosongkan jika tidak ingin mengganti logo...</span>
                         <input type="file" id="logo" name="logo" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="previewSingleFile(this, 'logoPreview', 'logoNameDisplay')">
                     </div>
                     <div class="form-helper">Format: JPG, PNG. Maks 4MB.</div>
-                    <img id="logoPreview" class="single-preview-box" alt="Pratinjau Logo">
+                    <img id="logoPreview" class="single-preview-box" alt="Pratinjau Logo Baru">
                 </div>
 
                 {{-- ==================== SEKSI FOTO PEMBINA (SINGLE FOTO) ==================== --}}
                 <div class="form-group">
-                    <label>Ubah Foto Pembina</label>
+                    <label>Foto Pembina Saat Ini</label>
+                    @if($profil && $profil->fotoPembina && $profil->fotoPembina->path)
+                        <div>
+                            <img src="{{ asset('storage/' . $profil->fotoPembina->path) }}" class="current-photo-box" alt="Foto Pembina Aktif">
+                        </div>
+                    @else
+                        <p style="font-size: 0.85rem; color: #888; font-style: italic; margin-bottom: 10px;">Belum ada foto pembina yang diunggah.</p>
+                    @endif
+
+                    <label style="margin-top: 10px;">Ubah Foto Pembina</label>
                     <div class="custom-file-wrapper">
                         <label for="foto_pembina" class="btn-pilih-file">Pilih Foto</label>
-                        <span class="file-name-display" id="pembinaNameDisplay">Pilih jika ingin mengganti foto pembina...</span>
+                        <span class="file-name-display" id="pembinaNameDisplay">Kosongkan jika tidak ingin mengganti foto pembina...</span>
                         <input type="file" id="foto_pembina" name="foto_pembina" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="previewSingleFile(this, 'pembinaPreview', 'pembinaNameDisplay')">
                     </div>
                     <div class="form-helper">Format: JPG, PNG. Maks 4MB.</div>
-                    <img id="pembinaPreview" class="single-preview-box" alt="Pratinjau Pembina">
+                    <img id="pembinaPreview" class="single-preview-box" alt="Pratinjau Pembina Baru">
                 </div>
 
                 {{-- ==================== KONTEN TEKS PROFIL SANGGAR ==================== --}}
@@ -210,7 +228,7 @@
             }
         }
 
-        // Fitur Baru: Live preview fungsional untuk Single File Upload (Logo & Pembina)
+        // Live preview fungsional untuk Single File Upload (Logo & Pembina)
         function previewSingleFile(input, previewImageId, displayNameId) {
             const previewImage = document.getElementById(previewImageId);
             const nameDisplay = document.getElementById(displayNameId);
@@ -221,22 +239,21 @@
 
                 reader.onload = function(e) {
                     previewImage.src = e.target.result;
-                    previewImage.style.display = 'block'; // Memunculkan element gambar preview
+                    previewImage.style.display = 'block';
                 }
 
                 reader.readAsDataURL(file);
-                nameDisplay.textContent = file.name; // Mengubah label display menjadi nama file asli
+                nameDisplay.textContent = file.name;
                 nameDisplay.style.color = "#333";
             } else {
                 previewImage.src = '';
                 previewImage.style.display = 'none';
-                nameDisplay.textContent = "Pilih file kembali...";
+                nameDisplay.textContent = "Kosongkan jika tidak ingin mengganti...";
                 nameDisplay.style.color = "#b0b0b0";
             }
         }
     </script>
 @endsection
-
 
 @if ($errors->any())
 <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
@@ -260,6 +277,5 @@
 </script>
 @endif
 
-{{-- Popup Batal & Simpan --}}
 @include('popup.batal')
 @include('popup.simpan')

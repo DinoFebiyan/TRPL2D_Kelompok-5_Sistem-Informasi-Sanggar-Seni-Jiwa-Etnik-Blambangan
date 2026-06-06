@@ -870,8 +870,8 @@
     </div>
     <div class="profile-grid">
       <div class="profile-text">
-        <h3>{{ $profil->tagline ?? 'Melestarikan Budaya Banyuwangi' }}</h3>
-        <p>{!! nl2br(e($profil->deskripsi ?? 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional yang berdedikasi untuk melestarikan kekayaan budaya Banyuwangi.')) !!}</p>
+        <h3>Jiwa Etnik Blambangan</h3>
+        <p>{{ $profil->deskripsi ?? 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional yang berdedikasi untuk melestarikan kekayaan budaya Banyuwangi.'}}</p>
         <p>{{ $profil->sejarah ?? 'Kami membina generasi muda untuk mencintai dan menguasai seni tari tradisional, mulai dari tari Gandrung, hingga tari kreasi baru berbasis budaya lokal Blambangan.' }}</p>
       </div>
       <div class="profile-card">
@@ -932,13 +932,24 @@
       <a href="{{ route('umum.katalog-detail', $item->id) }}" class="katalog-link-card">
           <div class="katalog-card">
             <div class="katalog-img">
-              @if($item->galeri && $item->galeri->isNotEmpty())
-                <img src="{{ asset('storage/' . $item->galeri->first()->path) }}" alt="{{ $item->nama_tari }}">
-              @elseif($item->galeri && !($item->galeri instanceof \Illuminate\Support\Collection) && isset($item->galeri->path))
-                <img src="{{ asset('storage/' . $item->galeri->path) }}" alt="{{ $item->nama_tari }}">
+              @php
+                // Ambil path gambar secara aman, baik relasinya tunggal maupun kumpulan data (Collection)
+                $gambarPath = null;
+                if ($item->galeri) {
+                    if ($item->galeri instanceof \Illuminate\Support\Collection || $item->galeri instanceof \Illuminate\Database\Eloquent\Collection) {
+                        $gambarPath = $item->galeri->first()?->path;
+                    } else {
+                        $gambarPath = $item->galeri->path;
+                    }
+                }
+              @endphp
+
+              @if($gambarPath)
+                <img src="{{ asset('storage/' . $gambarPath) }}" alt="{{ $item->nama_tari }}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.backgroundColor='#ffffff';">
               @else
-                <img src="{{ asset('img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}">
+                <img src="{{ asset('img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.backgroundColor='#ffffff';">
               @endif
+              
               <span class="badge">{{ $item->kategori }}</span>
             </div>
             <div class="katalog-info">
@@ -967,7 +978,7 @@
     <div class="center-action">
       <a href="{{ route('umum.katalog') }}" class="btn-dark-red-pill">Lihat semua katalog</a>
     </div>
-  </section>
+  </section>  
 
   {{-- ══ BERITA SECTION ══ --}}
   <section id="berita">
@@ -1041,28 +1052,30 @@
   </section>
 
   {{-- ══ GALERI MOSAIK SECTION ══ --}}
-  <section id="galeri">
-    <div class="section-header">
-      <span class="badge-pill" style="background:transparent; border:1px solid var(--maroon-dark); color:var(--maroon-dark);">DOKUMENTASI</span>
-      <h2 class="section-title white">Galeri Sanggar</h2>
-      <p class="section-subtitle white" style="color: var(--text-gray) !important;">Momen indah perjalanan seni dan budaya Jiwa Etnik Blambangan</p>
-    </div>
-    <div class="galeri-mosaik">
-      @forelse($galeri as $item)
-        <a href="{{ route('umum.galeri-detail', $item->id) }}" class="g-box" style="background-image: url('{{ asset('storage/' . $item->path) }}'); background-size: cover; background-position: center; display: block;"></a>
-      @empty
-        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/berita/berita_4.jpeg') }}'); background-size: cover; background-position: center;"></div>
-        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/berita/berita_5.jpeg') }}'); background-size: cover; background-position: center;"></div>
-        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/katalog/katalog_4.jpeg') }}'); background-size: cover; background-position: center;"></div>
-        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/katalog/katalog_5.jpeg') }}'); background-size: cover; background-position: center;"></div>
-        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/katalog/katalog_6.jpeg') }}'); background-size: cover; background-position: center;"></div>
-        <div class="g-box" style="background-image: url('{{ asset('img/images-landing-page/katalog/katalog_7.jpeg') }}'); background-size: cover; background-position: center;"></div>
-      @endforelse
-    </div>
-    <div class="center-action">
-      <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat selengkapnya</a>
-    </div>
-  </section>
+<section id="galeri">
+  <div class="section-header">
+    <span class="badge-pill" style="background:transparent; border:1px solid var(--maroon-dark); color:var(--maroon-dark);">DOKUMENTASI</span>
+    <h2 class="section-title white">Galeri Sanggar</h2>
+    <p class="section-subtitle white" style="color: var(--text-gray) !important;">Momen indah perjalanan seni dan budaya Jiwa Etnik Blambangan</p>
+  </div>
+  <div class="galeri-mosaik">
+    {{-- Langsung loop dari variabel $galeri asli --}}
+    @forelse($galeri as $item)
+      <a href="{{ route('umum.galeri-detail', $item->id) }}" class="g-box" style="background-image: url('{{ asset('storage/' . $item->path) }}'); background-size: cover; background-position: center; display: block;"></a>
+    @empty
+      {{-- Fallback jika database benar-benar kosong --}}
+      <div class="g-box"></div>
+      <div class="g-box"></div>
+      <div class="g-box"></div>
+      <div class="g-box"></div>
+      <div class="g-box"></div>
+      <div class="g-box"></div>
+    @endforelse
+  </div>
+  <div class="center-action">
+    <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat selengkapnya</a>
+  </div>
+</section>
 
   {{-- ══ KALENDER EVENT SECTION ══ --}}
   <section id="kalender">
