@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Galeri;
 use Illuminate\Http\Request;
+use App\Helpers\UploadHelper;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use App\Models\LogAktivitas;
@@ -69,6 +70,10 @@ class AdminController extends Controller
             'status' => 'required|in:aktif,nonaktif',
         ]);
 
+        if ($request->hasFile('foto') && !UploadHelper::isImageMimeValid($request->file('foto'))) {
+         return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
+}
+
         $user = User::create([
             'name'         => $request->name,
             'email'        => $request->email,
@@ -123,6 +128,10 @@ class AdminController extends Controller
             'password' => 'nullable|min:8|confirmed',
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
         ]);
+
+        if ($request->hasFile('foto') && !UploadHelper::isImageMimeValid($request->file('foto'))) {
+        return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
+}
 
         $data = $request->only(['name', 'email', 'no_handphone', 'status']);
         

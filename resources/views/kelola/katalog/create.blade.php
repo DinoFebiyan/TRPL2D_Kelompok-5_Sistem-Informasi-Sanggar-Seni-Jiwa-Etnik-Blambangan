@@ -213,7 +213,7 @@
                 {{-- Nama Katalog --}}
                 <div class="form-group">
                     <label>Nama Katalog (Tari)</label>
-                    <input type="text" name="nama_tari" value="{{ old('nama_tari') }}" placeholder="Masukkan nama tari/kostum..." required>
+                    <input type="text" name="nama_katalog" value="{{ old('nama_katalog') }}" placeholder="Masukkan nama tari/kostum..." required>
                 </div>
     
                 {{-- Kategori Dropdown --}}

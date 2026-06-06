@@ -5,12 +5,65 @@ namespace App\Http\Controllers;
 use App\Models\Katalog;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
+use App\Helpers\SanitizeHelper;
+use App\Helpers\UploadHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\ImageManager;
+use Intervention\Image\Drivers\Gd\Driver;
 
 class KatalogController extends Controller
 {
+
+    private function simpanDenganWatermark($file)
+    {
+        $manager = new ImageManager(
+            new Driver()
+        );
+
+        $filename =
+            time() . '_' .
+            uniqid() . '.' .
+            $file->getClientOriginalExtension();
+
+        // Simpan asli
+        $file->storeAs(
+            'katalog/asli',
+            $filename,
+            'public'
+        );
+
+        $image = $manager->read(
+            $file->getRealPath()
+        );
+
+        $watermark = $manager->read(
+            public_path(
+                'img/watermark/logo-jeb.png'
+            )
+        );
+
+        // Lebih besar untuk katalog
+        $watermark->scale(
+            width: 500
+        );
+
+        $image->place(
+            $watermark,
+            'center'
+        );
+
+        $image->save(
+            storage_path(
+                'app/public/katalog/watermark/' .
+                $filename
+            )
+        );
+
+        return 'katalog/watermark/' . $filename;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -26,11 +79,11 @@ class KatalogController extends Controller
 
         // 3. Tambahkan Logika Global Search (Mencari di Nama, Kategori, Deskripsi, dan Stok)
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama_katalog', 'like', '%' . $search . '%')
-                  ->orWhere('kategori', 'like', '%' . $search . '%')
-                  ->orWhere('deskripsi', 'like', '%' . $search . '%')
-                  ->orWhere('stok', 'like', '%' . $search . '%');
+                    ->orWhere('kategori', 'like', '%' . $search . '%')
+                    ->orWhere('deskripsi', 'like', '%' . $search . '%')
+                    ->orWhere('stok', 'like', '%' . $search . '%');
             });
         }
 
@@ -71,36 +124,46 @@ class KatalogController extends Controller
         // 1. VALIDASI MULTI-UPLOAD: Memvalidasi 'foto' sebagai tumpukan array berkas
         $request->validate([
             'nama_katalog' => 'required|string|max:255',
-            'kategori'  => 'required|string',
-            'stok'      => 'required|integer|min:0',
+            'kategori' => 'required|string',
+            'stok' => 'required|integer|min:0',
             'deskripsi' => 'required|string',
-            'status'    => 'required|in:tersedia,tidak tersedia',
-            'foto'      => 'required|array', 
-            'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096', 
+            'status' => 'required|in:tersedia,tidak tersedia',
+            'foto' => 'required|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
+
+        $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+        }
+    }
+}
 
         // 2. Simpan informasi teks produk utama ke database
         $katalog = Katalog::create([
             'nama_katalog' => $request->nama_katalog,
-            'kategori'     => $request->kategori,
-            'stok'         => $request->stok,
-            'deskripsi'    => $request->deskripsi,
-            'status'       => $request->status,
-            'user_id'      => Auth::id(),
+            'kategori' => $request->kategori,
+            'stok' => $request->stok,
+            'deskripsi' => $request->deskripsi,
+            'status' => $request->status,
+            'user_id' => Auth::id(),
         ]);
 
         // 3. LOGIKA MULTI-UPLOAD: Menyimpan tumpukan foto fisik produk ke dalam folder storage
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                
+
                 // File biner asli disimpan ke: public/storage/katalog/
-                $path = $file->store('katalog', 'public');
-                
+                $path = $this->simpanDenganWatermark($file);
+
                 Galeri::create([
-                    'sumber_id'    => $katalog->id,
-                    'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
-                    'kategori'     => 'katalog',
+                    'sumber_id' => $katalog->id,
+                    'path' => $path,
+                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori' => 'katalog',
                     'is_watermark' => false,
                 ]);
             }
@@ -108,9 +171,9 @@ class KatalogController extends Controller
 
         // 4. Catat riwayat penambahan barang ke Log Aktivitas
         LogAktivitas::create([
-            'user_id'   => Auth::id(),
+            'user_id' => Auth::id(),
             'aktivitas' => 'Menambahkan katalog produk baru: ' . $request->nama_katalog,
-            'waktu'     => now(),
+            'waktu' => now(),
         ]);
 
         return redirect()->route('superadmin.kelola-katalog')->with('success', 'Katalog berhasil ditambahkan dengan multi-foto.');
@@ -142,31 +205,40 @@ class KatalogController extends Controller
 
         $request->validate([
             'nama_katalog' => 'required|string|max:255',
-            'kategori'     => 'required|string',
-            'stok'         => 'required|integer|min:0',
-            'deskripsi'    => 'required|string',
-            'status'       => 'required|in:tersedia,tidak tersedia',
-            'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
-            'hapus_foto'   => 'nullable|array', 
+            'kategori' => 'required|string',
+            'stok' => 'required|integer|min:0',
+            'deskripsi' => 'required|string',
+            'status' => 'required|in:tersedia,tidak tersedia',
+            'foto' => 'nullable|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
+            $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+
+            if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+        }
+    }
+}
         // 1. Perbarui teks data utama katalog
         $katalog->update([
             'nama_katalog' => $request->nama_katalog,
-            'kategori'     => $request->kategori,
-            'stok'         => $request->stok,
-            'deskripsi'    => $request->deskripsi,
-            'status'       => $request->status,
+            'kategori' => $request->kategori,
+            'stok' => $request->stok,
+            'deskripsi' => $request->deskripsi,
+            'status' => $request->status,
         ]);
 
         // 2. LOGIKA SELEKTIF HAPUS FOTO: Memproses pembuangan gambar lama yang ditandai pengguna
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $katalog->id)
-                                  ->where('kategori', 'katalog')
-                                  ->find($fotoId);
+                    ->where('kategori', 'katalog')
+                    ->find($fotoId);
 
                 if ($fotoLama) {
                     // Singkirkan berkas dari folder public/storage/katalog/
@@ -181,13 +253,13 @@ class KatalogController extends Controller
         // 3. Tambahkan beberapa foto produk baru jika ada berkas yang masuk
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                $path = $file->store('katalog', 'public');
-                
+                $path = $this->simpanDenganWatermark($file);
+
                 Galeri::create([
-                    'sumber_id'    => $katalog->id,
-                    'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
-                    'kategori'     => 'katalog',
+                    'sumber_id' => $katalog->id,
+                    'path' => $path,
+                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori' => 'katalog',
                     'is_watermark' => false,
                 ]);
             }
@@ -195,9 +267,9 @@ class KatalogController extends Controller
 
         // 4. Catat riwayat perubahan ke tabel Log Audit Trail
         LogAktivitas::create([
-            'user_id'   => Auth::id(),
+            'user_id' => Auth::id(),
             'aktivitas' => 'Memperbarui data katalog produk: ' . $katalog->nama_katalog,
-            'waktu'     => now(),
+            'waktu' => now(),
         ]);
 
         return redirect()->route('superadmin.kelola-katalog')->with('success', 'Katalog berhasil diperbarui.');
@@ -224,9 +296,9 @@ class KatalogController extends Controller
 
         // 3. Rekam jejak penghapusan barang ke Log Aktivitas
         LogAktivitas::create([
-            'user_id'   => Auth::id(),
+            'user_id' => Auth::id(),
             'aktivitas' => 'Menghapus data katalog: ' . $namaKatalog,
-            'waktu'     => now(),
+            'waktu' => now(),
         ]);
 
         return redirect()->route('superadmin.kelola-katalog')->with('success', 'Katalog beserta seluruh gambarnya berhasil dihapus.');
