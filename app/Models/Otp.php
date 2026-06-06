@@ -8,9 +8,9 @@ class Otp extends Model
 {
     protected $table = 'otp';
 
-    protected $fillable = ['user_id', 'otp_code', 'expires_at', 'status'];
+    // Sesuaikan dengan migration: field-nya 'kode' bukan 'otp_code'
+    protected $fillable = ['user_id', 'kode', 'expires_at'];
 
-    // Security: Memudahkan pengecekan apakah OTP sudah kadaluarsa (expired)
     protected $casts = [
         'expires_at' => 'datetime',
     ];
@@ -20,3 +20,4 @@ class Otp extends Model
         return $this->belongsTo(User::class);
     }
 }
+

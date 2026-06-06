@@ -37,7 +37,17 @@ class DatabaseSeeder extends Seeder
             'status' => 'aktif',
         ]);
 
-        // 3. Buat data Galeri awal untuk Struktur Ikatan Profil Sanggar (sumber_id diisi 0 dulu)
+        // 3. Buat user uji coba OTP (Poliwangi)
+        User::factory()->create([
+            'name'         => 'Poliwangi Admin',
+            'email'        => 'pblpoliwangi2026@gmail.com',
+            'password'     => Hash::make('kelompok5'),
+            'peran'        => 'superadmin',
+            'no_handphone' => '081234567890',
+            'status'       => 'aktif',
+        ]);
+
+        // 4. Buat data Galeri awal untuk Struktur Ikatan Profil Sanggar (sumber_id diisi 0 dulu)
         $galeri1 = Galeri::create([
             'sumber_id' => 0,
             'path' => 'img/images-landing-page/galeri/logo-jeb.jpg',
@@ -54,7 +64,7 @@ class DatabaseSeeder extends Seeder
             'is_watermark' => false,
         ]);
 
-        // 4. Buat data Profil Sanggar
+        // 5. Buat data Profil Sanggar
         $profil = ProfilSanggar::create([
             'deskripsi' => 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional di Banyuwangi.',
             'visi' => 'Menjadi sanggar seni yang unggul, berkarakter, dan memiliki keunikan tersendiri.',
@@ -70,7 +80,7 @@ class DatabaseSeeder extends Seeder
         $galeri2->update(['sumber_id' => $profil->id]);
 
 
-        // 5. Buat Personel (Pengurus & Pelatih)
+        // 6. Buat Personel (Pengurus & Pelatih)
         $pengurus = Personel::create([
             'nama' => 'Rizky Pratama',
             'jabatan' => 'Ketua Sanggar',
@@ -108,7 +118,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        // 6. SEEDER KATALOG: Sinkronisasi Multi-Foto (sumber_id)
+        // 7. SEEDER KATALOG: Sinkronisasi Multi-Foto (sumber_id)
         for ($i = 1; $i <= 10; $i++) {
             $katalog = Katalog::create([
                 'nama_katalog' => 'Kostum Tari ' . $i,
@@ -129,7 +139,7 @@ class DatabaseSeeder extends Seeder
         }
 
 
-        // 7. SEEDER BERITA: Sesuai opsi Enum/Check Constraint di DB (Ganti 'Kegiatan' menjadi 'Event')
+        // 8. SEEDER BERITA: Sesuai opsi Enum/Check Constraint di DB (Ganti 'Kegiatan' menjadi 'Event')
         for ($i = 1; $i <= 10; $i++) {
             $berita = Berita::create([
                 'judul'        => 'Update Berita Seni #' . $i,
@@ -149,7 +159,7 @@ class DatabaseSeeder extends Seeder
         }
 
 
-        // 8. SEEDER EVENT: Sesuai struktur data model Event
+        // 9. SEEDER EVENT: Sesuai struktur data model Event
         for ($i = 1; $i <= 10; $i++) {
             $event = Event::create([
                 'nama' => 'Pentas Seni #' . $i,
