@@ -335,6 +335,9 @@
     {{-- Popup Logout --}}
     @include('popup.logout')
 
+    {{-- Popup Batal Form (untuk halaman tambah/edit) --}}
+    @include('popup.batal')
+
     <script>
         // Sambungkan fungsi lama ke popup baru
         function openLogoutModal() { showPopupLogout(); }
@@ -362,6 +365,7 @@
         });
     </script>
 
+    <script src="{{ asset('js/back-button-handler.js') }}"></script>
     @stack('scripts')
 </body>
 </html>

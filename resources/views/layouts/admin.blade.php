@@ -504,6 +504,9 @@
     <!-- Modal Logout -->
     @include('popup.logout')
 
+    {{-- Popup Batal Form (untuk halaman tambah/edit) --}}
+    @include('popup.batal')
+
     <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
         @csrf
     </form>
@@ -549,6 +552,7 @@
             // popup.logout sudah handle klik overlay sendiri
         }
     </script>
+    <script src="{{ asset('js/back-button-handler.js') }}"></script>
     @stack('scripts')
 </body>
 </html>
