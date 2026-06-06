@@ -51,7 +51,7 @@
         </div>
 
         <div class="form-body">
-            <form id="formEditPelatih" action="{{ route('superadmin.update-pelatih', $pelatih->id) }}" method="POST" enctype="multipart/form-data">
+            <form id="formEditPelatih" action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.update-pelatih', $pelatih->id) : route('admin.update-pelatih', $pelatih->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 

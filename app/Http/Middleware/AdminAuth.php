@@ -15,7 +15,9 @@ class AdminAuth
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || auth()->user()->peran !== 'admin') {
+        $user = auth()->user();
+
+        if (!$user || $user->peran !== 'admin') {
             return response()->view('error.akses', ['peran' => 'Admin'], 403);
         }
 

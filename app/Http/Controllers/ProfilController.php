@@ -243,7 +243,7 @@ class ProfilController extends Controller
     }
 
     /**
-     * Store a newly created pengurus in storage.
+     * Store a newly created pengurus in storage (Mendukung Multi-Foto).
      */
     public function storePengurus(Request $request)
     {
@@ -309,7 +309,7 @@ class ProfilController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified resource in storage (Mendukung Sinkronisasi Multi-Foto).
      */
     public function updatePengurus(Request $request, string $id)
     {
@@ -335,6 +335,7 @@ class ProfilController extends Controller
             'status'       => $request->status,
         ]);
 
+        // Hapus foto lama jika ditandai oleh admin
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pengurus->id)
@@ -350,6 +351,7 @@ class ProfilController extends Controller
             }
         }
 
+        // Upload foto tambahan baru jika ada
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
@@ -384,40 +386,7 @@ class ProfilController extends Controller
     }
 
     /**
-     * TAMBAHAN BARU: Menghapus data Pengurus beserta relasi file fotonya
-     */
-    public function hapusPengurus(string $id)
-    {
-        $pengurus = Personel::where('peran', 'pengurus')->findOrFail($id);
-
-        // Ambil dan hapus semua file foto fisik di folder storage
-        $fotoPersonel = Galeri::where('sumber_id', $pengurus->id)->where('kategori', 'profil')->get();
-        foreach ($fotoPersonel as $foto) {
-            if (Storage::disk('public')->exists($foto->path)) {
-                Storage::disk('public')->delete($foto->path);
-            }
-            $foto->delete();
-        }
-
-        $namaPengurus = $pengurus->nama;
-        $pengurus->delete();
-
-        if (class_exists('App\Models\LogAktivitas')) {
-            \App\Models\LogAktivitas::create([
-                'user_id'   => auth()->id(),
-                'aktivitas' => 'Menghapus data pengurus: ' . $namaPengurus,
-                'waktu'     => now(),
-            ]);
-        }
-
-        $role = auth()->user()->peran;
-        $route = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
-
-        return redirect()->route($route)->with('success', 'Data pengurus dan file foto terkait berhasil dihapus.');
-    }
-
-    /**
-     * Store a newly created pelatih in storage.
+     * Store a newly created pelatih in storage (Mendukung Multi-Foto).
      */
     public function storePelatih(Request $request)
     {
@@ -471,7 +440,7 @@ class ProfilController extends Controller
     public function editPelatih(string $id)
     {
         $pelatih = Personel::with('galeri')->findOrFail($id);
-        return view('kelola.profil.edit-pelatih', compact('pelatih'));
+        return view('kelola.profil.edit_pelatih', compact('pelatih'));
     }
 
     /**
@@ -501,6 +470,7 @@ class ProfilController extends Controller
             'status'       => $request->status,
         ]);
 
+        // Hapus foto lama yang ditandai
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pelatih->id)
@@ -516,6 +486,7 @@ class ProfilController extends Controller
             }
         }
 
+        // Tambah foto baru jika diunggah
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
@@ -542,35 +513,56 @@ class ProfilController extends Controller
     }
 
     /**
-     * TAMBAHAN BARU: Menghapus data Pelatih beserta relasi file fotonya
+     * Delete pengurus.
      */
-    public function hapusPelatih(string $id)
+    public function hapusPengurus(string $id)
     {
-        $pelatih = Personel::where('peran', 'pelatih')->findOrFail($id);
+        $pengurus = Personel::findOrFail($id);
 
-        // Ambil dan hapus semua file foto fisik di folder storage
-        $fotoPersonel = Galeri::where('sumber_id', $pelatih->id)->where('kategori', 'profil')->get();
-        foreach ($fotoPersonel as $foto) {
+        foreach ($pengurus->galeri as $foto) {
             if (Storage::disk('public')->exists($foto->path)) {
                 Storage::disk('public')->delete($foto->path);
             }
             $foto->delete();
         }
 
-        $namaPelatih = $pelatih->nama;
-        $pelatih->delete();
-
-        if (class_exists('App\Models\LogAktivitas')) {
-            \App\Models\LogAktivitas::create([
-                'user_id'   => auth()->id(),
-                'aktivitas' => 'Menghapus data pelatih: ' . $namaPelatih,
-                'waktu'     => now(),
-            ]);
-        }
+        $pengurus->delete();
 
         $role = auth()->user()->peran;
-        $route = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
 
-        return redirect()->route($route)->with('success', 'Data pelatih dan file foto terkait berhasil dihapus.');
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pengurus berhasil dihapus.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data pengurus berhasil dihapus.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    /**
+     * Delete pelatih.
+     */
+    public function hapusPelatih(string $id)
+    {
+        $pelatih = Personel::findOrFail($id);
+
+        foreach ($pelatih->galeri as $foto) {
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
+            }
+            $foto->delete();
+        }
+
+        $pelatih->delete();
+
+        $role = auth()->user()->peran;
+
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pelatih berhasil dihapus.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data pelatih berhasil dihapus.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 }

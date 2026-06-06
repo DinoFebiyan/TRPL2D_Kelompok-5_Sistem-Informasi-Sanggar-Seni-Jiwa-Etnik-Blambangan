@@ -58,6 +58,18 @@ class AuthenticatedSessionController extends Controller
         // Ambil data user yang login
         $user = Auth::user();
 
+        if ($user->status !== 'aktif') {
+
+            Auth::logout();
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => 'Akun Anda telah dinonaktifkan. Hubungi Super Admin.'
+            ]);
+        }
+
         // SINKRONISASI COATING ROLE (Menggunakan route() murni untuk mematikan intended bypass)
         if ($user->peran === 'superadmin') {
             return redirect()->route('superadmin.dashboard');

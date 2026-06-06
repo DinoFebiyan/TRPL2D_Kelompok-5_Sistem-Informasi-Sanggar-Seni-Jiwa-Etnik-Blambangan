@@ -21,7 +21,7 @@
     }
 
     .news-wrapper {
-        width: 100%;
+        width: 100%
         max-width: 100%;
         box-sizing: border-box;
         overflow-x: hidden;
@@ -467,7 +467,7 @@
                 <h2>{{ $tidakDitayangkan ?? 0 }}</h2>
             </div>
         </div>
-        <a href="{{ route('superadmin.tambah-berita') }}" class="adm-btn-tambah">
+        <a href="{{ route('admin.tambah-berita') }}" class="adm-btn-tambah">
             <div class="news-icon-box adm-icon-dark-red">
                 <i class="fas fa-plus"></i>
             </div>
@@ -476,7 +476,7 @@
     </div>
 
     {{-- INTEGRATED FORM ACTION GET --}}
-    <form action="{{ route('superadmin.kelola-berita') }}" method="GET" id="formFilterNews">
+    <form action="{{ route('admin.kelola-berita') }}" method="GET" id="formFilterNews">
         <div class="news-search-row">
             <div class="news-search-box">
                 <input type="text" name="search" id="searchBerita" placeholder="Cari judul atau penulis..." value="{{ request('search') }}">
