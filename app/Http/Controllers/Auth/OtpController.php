@@ -199,3 +199,4 @@ class OtpController extends Controller
         return back()->with('success', 'Kode OTP baru telah dikirim ke email Anda.');
     }
 }
+
