@@ -35,7 +35,6 @@ phpunit.xml
 # Docker files (not needed in image context)
 docker-compose*.yml
 Dockerfile*
-docker/
 
 # OS
 .DS_Store
