@@ -112,14 +112,14 @@ class ProfilController extends Controller
                     }
                     $galeriLogoLama->update([
                         'path' => $pathLogo,
-                        'nama_file' => $fileLogo->getClientOriginalName()
+                        'nama_file' => basename($pathLogo) // REMEDIASI
                     ]);
                 }
             } else {
                 $galeriLogoBaru = Galeri::create([
                     'sumber_id'    => $profil->id,
                     'path'         => $pathLogo,
-                    'nama_file'    => $fileLogo->getClientOriginalName(),
+                    'nama_file'    => basename($pathLogo), // REMEDIASI
                     'kategori'     => 'logo',
                     'is_watermark' => false,
                 ]);
@@ -139,14 +139,14 @@ class ProfilController extends Controller
                     }
                     $galeriPembinaLama->update([
                         'path' => $pathPembina,
-                        'nama_file' => $filePembina->getClientOriginalName()
+                        'nama_file' => basename($pathPembina) // REMEDIASI
                     ]);
                 }
             } else {
                 $galeriPembinaBaru = Galeri::create([
                     'sumber_id'    => $profil->id,
                     'path'         => $pathPembina,
-                    'nama_file'    => $filePembina->getClientOriginalName(),
+                    'nama_file'    => basename($pathPembina), // REMEDIASI
                     'kategori'     => 'pembina',
                     'is_watermark' => false,
                 ]);
@@ -161,7 +161,7 @@ class ProfilController extends Controller
                 Galeri::create([
                     'sumber_id'    => $profil->id,
                     'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file'    => basename($path), // REMEDIASI
                     'kategori'     => 'header',
                     'is_watermark' => false,
                 ]);
@@ -235,7 +235,7 @@ class ProfilController extends Controller
                 Galeri::create([
                     'sumber_id'    => $personel->id,
                     'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file'    => basename($path), // REMEDIASI
                     'kategori'     => 'profil',
                     'is_watermark' => false,
                 ]);
@@ -320,7 +320,7 @@ class ProfilController extends Controller
                 Galeri::create([
                     'sumber_id'    => $pengurus->id,
                     'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file'    => basename($path), // REMEDIASI
                     'kategori'     => 'profil',
                     'is_watermark' => false,
                 ]);
@@ -410,7 +410,7 @@ class ProfilController extends Controller
                 Galeri::create([
                     'sumber_id'    => $personel->id,
                     'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file'    => basename($path), // REMEDIASI
                     'kategori'     => 'profil',
                     'is_watermark' => false,
                 ]);
@@ -487,7 +487,7 @@ class ProfilController extends Controller
                 Galeri::create([
                     'sumber_id'    => $pelatih->id,
                     'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file'    => basename($path), // REMEDIASI
                     'kategori'     => 'profil',
                     'is_watermark' => false,
                 ]);
