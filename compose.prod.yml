@@ -1,0 +1,141 @@
+# =============================================================
+#  docker-compose.prod.yml — PRODUCTION
+#
+#  Features:
+#    - Built image (vendor + assets baked in)
+#    - Queue worker as separate container
+#    - MySQL NOT exposed externally
+#    - APP_DEBUG=false (errors never shown to users)
+#    - OPcache fully enabled in php-prod.ini
+#    - Strict resource limits
+#
+#  Requires: .env.production file in project root
+#
+#  Usage:
+#    docker compose -f docker-compose.prod.yml up -d --build
+#    docker compose -f docker-compose.prod.yml logs -f app
+#    docker compose -f docker-compose.prod.yml exec app php artisan migrate
+#    docker compose -f docker-compose.prod.yml down
+#
+#  IMPORTANT: Before first run:
+#    1. Create .env.production (copy .env.example, fill all values)
+#    2. Set APP_DEBUG=false
+#    3. Set a strong DB_PASSWORD
+#    4. Set proper MAIL_* SMTP credentials
+# =============================================================
+
+name: jeb-production
+
+services:
+
+  # ──────────────────────────────────────────────────
+  # PHP-FPM Application Server (Production)
+  # ──────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    image: jeb-app:production
+    container_name: jeb_app
+    restart: always
+    env_file: .env.production
+    environment:
+      CONTAINER_ROLE: app
+    volumes:
+      - jeb_storage:/var/www/html/storage/app
+    networks:
+      - jeb
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+  # ──────────────────────────────────────────────────
+  # Nginx Web Server
+  # ──────────────────────────────────────────────────
+  webserver:
+    image: nginx:1.27-alpine
+    container_name: jeb_webserver
+    restart: always
+    ports:
+      - "80:80"
+      # Uncomment when SSL is configured (with Certbot/Traefik):
+      # - "443:443"
+    volumes:
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - jeb_storage:/var/www/html/storage/app
+      # Uncomment for Let's Encrypt SSL:
+      # - ./docker/certbot/conf:/etc/letsencrypt:ro
+      # - ./docker/certbot/www:/var/www/certbot:ro
+    networks:
+      - jeb
+    depends_on:
+      - app
+    deploy:
+      resources:
+        limits:
+          memory: 128M
+
+  # ──────────────────────────────────────────────────
+  # Queue Worker
+  # ──────────────────────────────────────────────────
+  queue:
+    image: jeb-app:production
+    container_name: jeb_queue
+    restart: always
+    env_file: .env.production
+    environment:
+      CONTAINER_ROLE: queue
+    command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=60", "--sleep=3", "--max-time=3600"]
+    volumes:
+      - jeb_storage:/var/www/html/storage/app
+    networks:
+      - jeb
+    depends_on:
+      - app
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  # ──────────────────────────────────────────────────
+  # MySQL 8.0 Database (internal only)
+  # ──────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: jeb_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
+      MYSQL_DATABASE: "${DB_DATABASE}"
+    volumes:
+      - jeb_db:/var/lib/mysql
+    networks:
+      - jeb
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+
+# ──────────────────────────────────────────────────
+# Networks & Volumes
+# ──────────────────────────────────────────────────
+networks:
+  jeb:
+    driver: bridge
+
+volumes:
+  jeb_db:
+    driver: local
+  jeb_storage:
+    driver: local
