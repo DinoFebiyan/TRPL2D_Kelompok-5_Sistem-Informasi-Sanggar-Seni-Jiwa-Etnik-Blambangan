@@ -100,6 +100,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
       MYSQL_DATABASE: "${DB_DATABASE}"
+      MYSQL_USER: "${DB_USERNAME}"
+      MYSQL_PASSWORD: "${DB_PASSWORD}"
       TZ: Asia/Jakarta
     volumes:
       - /var/lib/docker-volumes/sistem_informasi_Jiwa_Etnik_Blambangan/mysql_staging:/var/lib/mysql
