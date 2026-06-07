@@ -28,6 +28,7 @@ services:
     environment:
       CONTAINER_ROLE: app
       TZ: Asia/Jakarta
+      DB_HOST: db
     expose:
       - "9000"
     volumes:
@@ -75,6 +76,7 @@ services:
     environment:
       CONTAINER_ROLE: queue
       TZ: Asia/Jakarta
+      DB_HOST: db
     command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=60", "--sleep=3"]
     volumes:
       - /var/lib/docker-volumes/sistem_informasi_Jiwa_Etnik_Blambangan/storage_staging:/var/www/html/storage/app
