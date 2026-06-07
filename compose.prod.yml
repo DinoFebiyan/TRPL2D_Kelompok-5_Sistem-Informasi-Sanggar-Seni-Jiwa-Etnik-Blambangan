@@ -42,6 +42,7 @@ services:
     env_file: .env.production
     environment:
       CONTAINER_ROLE: app
+      DB_HOST: db
     volumes:
       - jeb_storage:/var/www/html/storage/app
     networks:
@@ -49,6 +50,12 @@ services:
     depends_on:
       db:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "nc", "-z", "127.0.0.1", "9000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 120s
     deploy:
       resources:
         limits:
@@ -74,7 +81,8 @@ services:
     networks:
       - jeb
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -90,13 +98,15 @@ services:
     env_file: .env.production
     environment:
       CONTAINER_ROLE: queue
+      DB_HOST: db
     command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=60", "--sleep=3", "--max-time=3600"]
     volumes:
       - jeb_storage:/var/www/html/storage/app
     networks:
       - jeb
     depends_on:
-      - app
+      app:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -122,8 +132,8 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${DB_PASSWORD}"]
       interval: 10s
       timeout: 5s
-      retries: 10
-      start_period: 30s
+      retries: 15
+      start_period: 120s
     deploy:
       resources:
         limits:

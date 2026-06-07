@@ -67,6 +67,8 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "${DB_PASSWORD:-secret}"
       MYSQL_DATABASE: "${DB_DATABASE:-jeb_db}"
+      MYSQL_USER: "${DB_USERNAME:-jeb_user}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-secret}"
     ports:
       # Exposed for DB client access from host (e.g., TablePlus, DBeaver)
       - "${DB_EXTERNAL_PORT:-3307}:3306"
@@ -79,7 +81,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 30s
+      start_period: 60s
 
   # ──────────────────────────────────────────────────
   # Vite Dev Server (Hot Module Replacement)

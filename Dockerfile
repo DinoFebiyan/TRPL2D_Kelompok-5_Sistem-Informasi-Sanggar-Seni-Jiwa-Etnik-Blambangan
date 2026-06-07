@@ -32,6 +32,8 @@ RUN apk add --no-cache \
     libpng-dev \
     libwebp-dev \
     libzip-dev \
+    mysql-client \
+    netcat-openbsd \
     oniguruma-dev \
     unzip \
     zip
