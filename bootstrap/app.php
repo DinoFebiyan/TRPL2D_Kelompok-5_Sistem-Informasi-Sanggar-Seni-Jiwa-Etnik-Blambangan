@@ -15,6 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->trustProxies(at: '*');
+
         // Daftarkan alias middleware SuperAdminAuth
         $middleware->alias([
             'superadmin.auth' => SuperAdminAuth::class,
