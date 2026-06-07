@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\Otp;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
-use Carbon\Carbon;
 
 class OtpController extends Controller
 {
@@ -41,22 +41,22 @@ class OtpController extends Controller
 
         // Simpan ke database
         Otp::create([
-            'user_id'    => $user->id,
-            'kode'       => $kode,
+            'user_id' => $user->id,
+            'kode' => $kode,
             'expires_at' => Carbon::now()->addMinutes(10),
         ]);
 
         // Kirim email
         Mail::send('emails.otp', ['kode' => $kode, 'user' => $user], function ($message) use ($user) {
             $message->to($user->email)
-                    ->subject('Kode Verifikasi Reset Password – Sanggar Tari JEB');
+                ->subject('Kode Verifikasi Reset Password – Sanggar Tari JEB');
         });
 
         // Simpan email di session untuk digunakan di step berikutnya
         session(['otp_email' => $user->email]);
 
         return redirect()->route('otp.verify.form')
-                         ->with('success', 'Kode OTP telah dikirim ke email Anda.');
+            ->with('success', 'Kode OTP telah dikirim ke email Anda.');
     }
 
     // ─────────────────────────────────────────────
@@ -64,9 +64,9 @@ class OtpController extends Controller
     // ─────────────────────────────────────────────
     public function showVerifyForm()
     {
-        if (!session('otp_email')) {
+        if (! session('otp_email')) {
             return redirect()->route('otp.forgot.form')
-                             ->withErrors(['email' => 'Sesi tidak valid, silakan ulangi.']);
+                ->withErrors(['email' => 'Sesi tidak valid, silakan ulangi.']);
         }
 
         return view('auth.verifikasi_otp');
@@ -82,27 +82,28 @@ class OtpController extends Controller
         ]);
 
         $email = session('otp_email');
-        if (!$email) {
+        if (! $email) {
             return redirect()->route('otp.forgot.form')
-                             ->withErrors(['otp' => 'Sesi tidak valid, silakan ulangi.']);
+                ->withErrors(['otp' => 'Sesi tidak valid, silakan ulangi.']);
         }
 
         $user = User::where('email', $email)->first();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('otp.forgot.form')
-                             ->withErrors(['otp' => 'User tidak ditemukan.']);
+                ->withErrors(['otp' => 'User tidak ditemukan.']);
         }
 
         $otp = Otp::where('user_id', $user->id)
-                  ->where('kode', $request->otp)
-                  ->first();
+            ->where('kode', $request->otp)
+            ->first();
 
-        if (!$otp) {
+        if (! $otp) {
             return back()->withErrors(['otp' => 'Kode OTP tidak valid.']);
         }
 
         if (Carbon::now()->greaterThan($otp->expires_at)) {
             $otp->delete();
+
             return back()->withErrors(['otp' => 'Kode OTP sudah kadaluarsa. Silakan kirim ulang.']);
         }
 
@@ -118,9 +119,9 @@ class OtpController extends Controller
     // ─────────────────────────────────────────────
     public function showResetForm()
     {
-        if (!session('otp_email') || !session('otp_verified')) {
+        if (! session('otp_email') || ! session('otp_verified')) {
             return redirect()->route('otp.forgot.form')
-                             ->withErrors(['email' => 'Akses tidak sah. Silakan ulangi proses.']);
+                ->withErrors(['email' => 'Akses tidak sah. Silakan ulangi proses.']);
         }
 
         return view('auth.reset_password');
@@ -132,23 +133,23 @@ class OtpController extends Controller
     public function resetPassword(Request $request)
     {
         $request->validate([
-            'password'              => ['required', 'string', 'min:8', 'confirmed'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
             'password_confirmation' => ['required'],
         ], [
-            'password.min'        => 'Password minimal 8 karakter.',
-            'password.confirmed'  => 'Konfirmasi password tidak cocok.',
+            'password.min' => 'Password minimal 8 karakter.',
+            'password.confirmed' => 'Konfirmasi password tidak cocok.',
         ]);
 
         $email = session('otp_email');
-        if (!$email || !session('otp_verified')) {
+        if (! $email || ! session('otp_verified')) {
             return redirect()->route('otp.forgot.form')
-                             ->withErrors(['email' => 'Sesi tidak valid, silakan ulangi.']);
+                ->withErrors(['email' => 'Sesi tidak valid, silakan ulangi.']);
         }
 
         $user = User::where('email', $email)->first();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('otp.forgot.form')
-                             ->withErrors(['email' => 'User tidak ditemukan.']);
+                ->withErrors(['email' => 'User tidak ditemukan.']);
         }
 
         $user->update(['password' => Hash::make($request->password)]);
@@ -157,7 +158,7 @@ class OtpController extends Controller
         session()->forget(['otp_email', 'otp_verified']);
 
         return redirect()->route('login')
-                         ->with('status', 'Password berhasil diubah! Silakan login.');
+            ->with('status', 'Password berhasil diubah! Silakan login.');
     }
 
     // ─────────────────────────────────────────────
@@ -166,13 +167,13 @@ class OtpController extends Controller
     public function resendOtp()
     {
         $email = session('otp_email');
-        if (!$email) {
+        if (! $email) {
             return redirect()->route('otp.forgot.form')
-                             ->withErrors(['email' => 'Sesi tidak valid.']);
+                ->withErrors(['email' => 'Sesi tidak valid.']);
         }
 
         $user = User::where('email', $email)->first();
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('otp.forgot.form');
         }
 
@@ -186,17 +187,16 @@ class OtpController extends Controller
 
         $kode = str_pad(random_int(0, 999999), 6, '0', STR_PAD_LEFT);
         Otp::create([
-            'user_id'    => $user->id,
-            'kode'       => $kode,
+            'user_id' => $user->id,
+            'kode' => $kode,
             'expires_at' => Carbon::now()->addMinutes(10),
         ]);
 
         Mail::send('emails.otp', ['kode' => $kode, 'user' => $user], function ($message) use ($user) {
             $message->to($user->email)
-                    ->subject('Kode Verifikasi Reset Password – Sanggar Tari JEB');
+                ->subject('Kode Verifikasi Reset Password – Sanggar Tari JEB');
         });
 
         return back()->with('success', 'Kode OTP baru telah dikirim ke email Anda.');
     }
 }
-

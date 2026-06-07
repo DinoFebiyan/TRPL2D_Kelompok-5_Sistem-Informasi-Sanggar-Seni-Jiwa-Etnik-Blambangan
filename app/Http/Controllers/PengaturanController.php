@@ -2,11 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
+use App\Helpers\UploadHelper;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
-use App\Helpers\SanitizeHelper;
-use App\Helpers\UploadHelper;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -38,20 +37,20 @@ class PengaturanController extends Controller
 
         // Validasi input mengikuti struktur standar AdminController
         $request->validate([
-            'foto_profil'  => 'nullable|image|mimes:jpeg,png,jpg|max:4096', // Validasi foto baru
-            'name'         => 'required|string|max:255',
-            'email'        => 'required|email|unique:users,email,' . $user->id,
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg|max:4096', // Validasi foto baru
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'no_handphone' => 'nullable|string|max:20',
         ]);
 
         if ($request->hasFile('foto_profil')) {
-        if (!UploadHelper::isImageMimeValid($request->file('foto_profil'))) {
-        return back()->withErrors(['foto_profil' => 'File bukan gambar yang valid.']);
-    }
-}
+            if (! UploadHelper::isImageMimeValid($request->file('foto_profil'))) {
+                return back()->withErrors(['foto_profil' => 'File bukan gambar yang valid.']);
+            }
+        }
         // Mengambil input teks utama
         $data = $request->only(['name', 'email', 'no_handphone']);
-        
+
         // Update data utama user pada tabel users
         $user->update($data);
 
@@ -59,7 +58,7 @@ class PengaturanController extends Controller
         if ($request->hasFile('foto_profil')) {
             // Simpan file fisik foto baru ke disk public di dalam folder 'admin'
             $path = $request->file('foto_profil')->store('admin', 'public');
-            $namaFileBaru = uniqid() . '_' . $request->file('foto_profil')->getClientOriginalName();
+            $namaFileBaru = uniqid().'_'.$request->file('foto_profil')->getClientOriginalName();
 
             // Cek apakah user sudah memiliki relasi foto di tabel galeri
             if ($user->galeri) {
@@ -70,16 +69,16 @@ class PengaturanController extends Controller
 
                 // Perbarui record path data lama di database
                 $user->galeri->update([
-                    'path'      => $path,
+                    'path' => $path,
                     'nama_file' => $namaFileBaru,
                 ]);
             } else {
                 // Jika belum punya foto sama sekali, buat baris record baru di tabel galeri
                 Galeri::create([
-                    'sumber_id'    => $user->id,
-                    'path'         => $path,
-                    'nama_file'    => $namaFileBaru,
-                    'kategori'     => 'admin', // Dikunci sebagai admin sesuai sistem galeri Anda
+                    'sumber_id' => $user->id,
+                    'path' => $path,
+                    'nama_file' => $namaFileBaru,
+                    'kategori' => 'admin', // Dikunci sebagai admin sesuai sistem galeri Anda
                     'is_watermark' => false,
                 ]);
             }
@@ -87,9 +86,9 @@ class PengaturanController extends Controller
 
         // Mencatat log riwayat aktivitas sistem
         LogAktivitas::create([
-            'user_id'   => auth()->id(),
-            'aktivitas' => 'Memperbarui profil akun sendiri: ' . $user->name,
-            'waktu'     => now(),
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Memperbarui profil akun sendiri: '.$user->name,
+            'waktu' => now(),
         ]);
 
         return redirect()->route(auth()->user()->peran === 'superadmin' ? 'superadmin.pengaturan' : 'admin.pengaturan')->with('success', 'Profil berhasil diperbarui.');
@@ -101,29 +100,29 @@ class PengaturanController extends Controller
     public function updatePassword(Request $request)
     {
         $user = auth()->user();
-        
+
         $request->validate([
             'current_password' => [
                 'required',
                 function ($attribute, $value, $fail) use ($user) {
-                    if (!Hash::check($value, $user->password)) {
+                    if (! Hash::check($value, $user->password)) {
                         $fail('Password saat ini salah.');
                     }
-                }
+                },
             ],
             'password' => 'required|min:6|confirmed', // Minimal 6 karakter sesuai instruksi blade Anda
         ]);
 
         // Mengenkripsi password baru menggunakan Hash driver
         $user->update([
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
         ]);
 
         // Mencatat log riwayat aktivitas sistem
         LogAktivitas::create([
-            'user_id'   => auth()->id(),
-            'aktivitas' => 'Mengubah kata sandi akun sendiri: ' . $user->name,
-            'waktu'     => now(),
+            'user_id' => auth()->id(),
+            'aktivitas' => 'Mengubah kata sandi akun sendiri: '.$user->name,
+            'waktu' => now(),
         ]);
 
         return redirect()->route(auth()->user()->peran === 'superadmin' ? 'superadmin.pengaturan' : 'admin.pengaturan')->with('success', 'Password berhasil diubah.');
@@ -132,9 +131,13 @@ class PengaturanController extends Controller
     /**
      * Method kosong lainnya di bawah ini bawaan resource scaffolding
      */
-    public function create() { }
-    public function store(Request $request) { }
-    public function show(string $id) { }
-    public function edit(string $id) { }
-    public function destroy(string $id) { }
+    public function create() {}
+
+    public function store(Request $request) {}
+
+    public function show(string $id) {}
+
+    public function edit(string $id) {}
+
+    public function destroy(string $id) {}
 }

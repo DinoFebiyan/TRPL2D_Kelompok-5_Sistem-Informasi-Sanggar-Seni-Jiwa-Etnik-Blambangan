@@ -13,14 +13,14 @@ class Event extends Model
     // PERBAIKAN: Sesuaikan dengan nama kolom di migration Anda ('nama', bukan 'nama_event')
     // Serta hapus 'galeri_id' karena ID event dicatat di tabel galeri (sumber_id)
     protected $fillable = [
-        'nama', 
+        'nama',
         'deskripsi',
-        'tanggal', 
-        'jam', 
-        'lokasi', 
-        'kategori', 
-        'status', 
-        'user_id'
+        'tanggal',
+        'jam',
+        'lokasi',
+        'kategori',
+        'status',
+        'user_id',
     ];
 
     protected $casts = [

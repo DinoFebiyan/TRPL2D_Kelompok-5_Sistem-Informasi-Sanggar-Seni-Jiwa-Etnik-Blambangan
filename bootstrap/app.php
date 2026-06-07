@@ -1,8 +1,12 @@
 <?php
 
+use App\Http\Middleware\AdminAuth;
+use App\Http\Middleware\SuperAdminAuth;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -13,23 +17,24 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Daftarkan alias middleware SuperAdminAuth
         $middleware->alias([
-            'superadmin.auth' => \App\Http\Middleware\SuperAdminAuth::class,
-            'admin.auth'      => \App\Http\Middleware\AdminAuth::class,
+            'superadmin.auth' => SuperAdminAuth::class,
+            'admin.auth' => AdminAuth::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         // 404 → tampilkan popup halaman tidak ditemukan
-        $exceptions->render(function (\Symfony\Component\HttpKernel\Exception\NotFoundHttpException $e, $request) {
+        $exceptions->render(function (NotFoundHttpException $e, $request) {
             // Deteksi apakah request berasal dari area superadmin
             if ($request->is('superadmin/*') || $request->is('superadmin')) {
                 return response()->view('error.path', [], 404);
             }
+
             // Untuk semua halaman lain (termasuk umum)
             return response()->view('error.path', [], 404);
         });
 
         // 500 / ValidationException dari area superadmin → popup server error
-        $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {
+        $exceptions->render(function (ValidationException $e, $request) {
             if ($request->is('superadmin/*') || $request->is('superadmin')) {
                 // Kembalikan ke halaman sebelumnya dengan error validasi
                 // (popup server ditampilkan via session flash di blade)

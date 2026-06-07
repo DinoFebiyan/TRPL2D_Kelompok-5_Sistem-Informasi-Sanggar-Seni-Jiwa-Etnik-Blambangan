@@ -2,11 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\SanitizeHelper;
+use App\Helpers\UploadHelper;
 use App\Models\Event;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
-use App\Helpers\SanitizeHelper;
-use App\Helpers\UploadHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -22,24 +22,24 @@ class EventController extends Controller
         $statuses = $request->input('status', []); // Array status checkbox
 
         $query = Event::with(['user', 'galeri']);
-        
+
         // 1. Logika Global Search Multi Kolom
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', '%' . $search . '%')
-                  ->orWhere('lokasi', 'like', '%' . $search . '%')
-                  ->orWhere('kategori', 'like', '%' . $search . '%')
-                  ->orWhere('deskripsi', 'like', '%' . $search . '%');
+                $q->where('nama', 'like', '%'.$search.'%')
+                    ->orWhere('lokasi', 'like', '%'.$search.'%')
+                    ->orWhere('kategori', 'like', '%'.$search.'%')
+                    ->orWhere('deskripsi', 'like', '%'.$search.'%');
             });
         }
 
         // 2. Logika Multi-Filter Checkbox Status
-        if (!empty($statuses)) {
+        if (! empty($statuses)) {
             $query->whereIn('status', $statuses);
         }
-        
+
         $events = $query->latest()->paginate(10)->withQueryString();
-        
+
         // Menghitung data statistik real data tanpa filter
         $totalEvent = Event::count();
         $selesai = Event::where('status', 'selesai')->count();
@@ -70,55 +70,55 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama'       => 'required|string|max:255',
-            'tanggal'    => 'required|date',
-            'jam'        => 'required',
-            'lokasi'     => 'required|string',
-            'kategori'   => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
-            'status'     => 'required|in:selesai,belum selesai',
-            'foto'       => 'nullable|array', 
-            'foto.*'     => 'image|mimes:jpeg,png,jpg|max:4096', 
+            'nama' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'jam' => 'required',
+            'lokasi' => 'required|string',
+            'kategori' => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
+            'status' => 'required|in:selesai,belum selesai',
+            'foto' => 'nullable|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
 
         if ($request->hasFile('foto')) {
-        foreach ($request->file('foto') as $file) {
-        if (!UploadHelper::isImageMimeValid($file)) {
-            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+            foreach ($request->file('foto') as $file) {
+                if (! UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
+            }
         }
-    }
-}
 
         $event = Event::create([
-            'nama'      => $request->nama,
+            'nama' => $request->nama,
             'deskripsi' => $request->deskripsi ?? '-',
-            'tanggal'   => $request->tanggal,
-            'jam'       => $request->jam,
-            'lokasi'    => $request->lokasi,
-            'kategori'  => $request->kategori,
-            'status'    => $request->status,
-            'user_id'   => Auth::id(),
+            'tanggal' => $request->tanggal,
+            'jam' => $request->jam,
+            'lokasi' => $request->lokasi,
+            'kategori' => $request->kategori,
+            'status' => $request->status,
+            'user_id' => Auth::id(),
         ]);
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('event', 'public');
-                
+
                 Galeri::create([
-                    'sumber_id'    => $event->id, 
-                    'path'         => $path,       
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(), 
-                    'kategori'     => 'event',
+                    'sumber_id' => $event->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'event',
                     'is_watermark' => false,
                 ]);
             }
         }
 
         LogAktivitas::create([
-            'user_id'   => Auth::id(),
-            'aktivitas' => 'Menambahkan event baru: ' . $request->nama,
-            'waktu'     => now(),
+            'user_id' => Auth::id(),
+            'aktivitas' => 'Menambahkan event baru: '.$request->nama,
+            'waktu' => now(),
         ]);
 
         return redirect()->route('superadmin.kelola-event')->with('success', 'Event berhasil ditambahkan dengan multi-foto.');
@@ -147,6 +147,7 @@ class EventController extends Controller
     public function edit($id)
     {
         $event = Event::with('galeri')->findOrFail($id);
+
         return view('kelola.event.update', compact('event'));
     }
 
@@ -158,43 +159,43 @@ class EventController extends Controller
         $event = Event::findOrFail($id);
 
         $request->validate([
-            'nama'         => 'required|string|max:255',
-            'tanggal'      => 'required|date',
-            'jam'          => 'required',
-            'lokasi'       => 'required|string',
-            'kategori'     => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
-            'status'       => 'required|in:selesai,belum selesai',
-            'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
-            'hapus_foto'   => 'nullable|array', 
+            'nama' => 'required|string|max:255',
+            'tanggal' => 'required|date',
+            'jam' => 'required',
+            'lokasi' => 'required|string',
+            'kategori' => 'required|in:Latihan,Pertunjukan,Pelatihan,Lainnya',
+            'status' => 'required|in:selesai,belum selesai',
+            'foto' => 'nullable|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
         $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
 
         if ($request->hasFile('foto')) {
-        foreach ($request->file('foto') as $file) {
-        if (!UploadHelper::isImageMimeValid($file)) {
-            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+            foreach ($request->file('foto') as $file) {
+                if (! UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
+            }
         }
-    }
-}
 
         $event->update([
-            'nama'      => $request->nama,
+            'nama' => $request->nama,
             'deskripsi' => $request->deskripsi ?? $event->deskripsi,
-            'tanggal'   => $request->tanggal,
-            'jam'       => $request->jam,
-            'lokasi'    => $request->lokasi,
-            'kategori'  => $request->kategori,
-            'status'    => $request->status,
+            'tanggal' => $request->tanggal,
+            'jam' => $request->jam,
+            'lokasi' => $request->lokasi,
+            'kategori' => $request->kategori,
+            'status' => $request->status,
         ]);
 
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $event->id)
-                                  ->where('kategori', 'event')
-                                  ->find($fotoId);
+                    ->where('kategori', 'event')
+                    ->find($fotoId);
 
                 if ($fotoLama) {
                     if (Storage::disk('public')->exists($fotoLama->path)) {
@@ -208,21 +209,21 @@ class EventController extends Controller
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('event', 'public');
-                
+
                 Galeri::create([
-                    'sumber_id'    => $event->id,
-                    'path'         => $path,
-                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
-                    'kategori'     => 'event',
+                    'sumber_id' => $event->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'event',
                     'is_watermark' => false,
                 ]);
             }
         }
 
         LogAktivitas::create([
-            'user_id'   => Auth::id(),
-            'aktivitas' => 'Memperbarui data event: ' . $event->nama,
-            'waktu'     => now(),
+            'user_id' => Auth::id(),
+            'aktivitas' => 'Memperbarui data event: '.$event->nama,
+            'waktu' => now(),
         ]);
 
         $role = auth()->user()->peran;
@@ -254,9 +255,9 @@ class EventController extends Controller
         $event->delete();
 
         LogAktivitas::create([
-            'user_id'   => Auth::id(),
-            'aktivitas' => 'Menghapus event: ' . $namaEvent,
-            'waktu'     => now(),
+            'user_id' => Auth::id(),
+            'aktivitas' => 'Menghapus event: '.$namaEvent,
+            'waktu' => now(),
         ]);
 
         $role = auth()->user()->peran;

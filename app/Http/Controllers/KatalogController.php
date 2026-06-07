@@ -2,29 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Katalog;
-use App\Models\Galeri;
-use App\Models\LogAktivitas;
 use App\Helpers\SanitizeHelper;
 use App\Helpers\UploadHelper;
+use App\Models\Galeri;
+use App\Models\Katalog;
+use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class KatalogController extends Controller
 {
-
     private function simpanDenganWatermark($file)
     {
         $manager = new ImageManager(
-            new Driver()
+            new Driver
         );
 
         $filename =
-            time() . '_' .
-            uniqid() . '.' .
+            time().'_'.
+            uniqid().'.'.
             $file->getClientOriginalExtension();
 
         // Simpan asli
@@ -56,12 +55,12 @@ class KatalogController extends Controller
 
         $image->save(
             storage_path(
-                'app/public/katalog/watermark/' .
+                'app/public/katalog/watermark/'.
                 $filename
             )
         );
 
-        return 'katalog/watermark/' . $filename;
+        return 'katalog/watermark/'.$filename;
     }
 
     /**
@@ -78,22 +77,22 @@ class KatalogController extends Controller
         $query = Katalog::with(['galeri', 'user']);
 
         // 3. Tambahkan Logika Global Search (Mencari di Nama, Kategori, Deskripsi, dan Stok)
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('nama_katalog', 'like', '%' . $search . '%')
-                    ->orWhere('kategori', 'like', '%' . $search . '%')
-                    ->orWhere('deskripsi', 'like', '%' . $search . '%')
-                    ->orWhere('stok', 'like', '%' . $search . '%');
+                $q->where('nama_katalog', 'like', '%'.$search.'%')
+                    ->orWhere('kategori', 'like', '%'.$search.'%')
+                    ->orWhere('deskripsi', 'like', '%'.$search.'%')
+                    ->orWhere('stok', 'like', '%'.$search.'%');
             });
         }
 
         // 4. Tambahkan Multi-Filter Status (Checkbox)
-        if (!empty($statuses)) {
+        if (! empty($statuses)) {
             $query->whereIn('status', $statuses);
         }
 
         // 5. Tambahkan Multi-Filter Kategori (Checkbox)
-        if (!empty($categories)) {
+        if (! empty($categories)) {
             $query->whereIn('kategori', $categories);
         }
 
@@ -136,11 +135,11 @@ class KatalogController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-        if (!UploadHelper::isImageMimeValid($file)) {
-            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                if (! UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
+            }
         }
-    }
-}
 
         // 2. Simpan informasi teks produk utama ke database
         $katalog = Katalog::create([
@@ -162,7 +161,7 @@ class KatalogController extends Controller
                 Galeri::create([
                     'sumber_id' => $katalog->id,
                     'path' => $path,
-                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'katalog',
                     'is_watermark' => false,
                 ]);
@@ -172,7 +171,7 @@ class KatalogController extends Controller
         // 4. Catat riwayat penambahan barang ke Log Aktivitas
         LogAktivitas::create([
             'user_id' => Auth::id(),
-            'aktivitas' => 'Menambahkan katalog produk baru: ' . $request->nama_katalog,
+            'aktivitas' => 'Menambahkan katalog produk baru: '.$request->nama_katalog,
             'waktu' => now(),
         ]);
 
@@ -193,6 +192,7 @@ class KatalogController extends Controller
     public function edit($id)
     {
         $katalog = Katalog::with('galeri')->findOrFail($id);
+
         return view('kelola.katalog.update', compact('katalog'));
     }
 
@@ -215,15 +215,15 @@ class KatalogController extends Controller
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
-            $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+        $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
 
-            if ($request->hasFile('foto')) {
+        if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-        if (!UploadHelper::isImageMimeValid($file)) {
-            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                if (! UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
+            }
         }
-    }
-}
         // 1. Perbarui teks data utama katalog
         $katalog->update([
             'nama_katalog' => $request->nama_katalog,
@@ -258,7 +258,7 @@ class KatalogController extends Controller
                 Galeri::create([
                     'sumber_id' => $katalog->id,
                     'path' => $path,
-                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'katalog',
                     'is_watermark' => false,
                 ]);
@@ -268,7 +268,7 @@ class KatalogController extends Controller
         // 4. Catat riwayat perubahan ke tabel Log Audit Trail
         LogAktivitas::create([
             'user_id' => Auth::id(),
-            'aktivitas' => 'Memperbarui data katalog produk: ' . $katalog->nama_katalog,
+            'aktivitas' => 'Memperbarui data katalog produk: '.$katalog->nama_katalog,
             'waktu' => now(),
         ]);
 
@@ -297,7 +297,7 @@ class KatalogController extends Controller
         // 3. Rekam jejak penghapusan barang ke Log Aktivitas
         LogAktivitas::create([
             'user_id' => Auth::id(),
-            'aktivitas' => 'Menghapus data katalog: ' . $namaKatalog,
+            'aktivitas' => 'Menghapus data katalog: '.$namaKatalog,
             'waktu' => now(),
         ]);
 
