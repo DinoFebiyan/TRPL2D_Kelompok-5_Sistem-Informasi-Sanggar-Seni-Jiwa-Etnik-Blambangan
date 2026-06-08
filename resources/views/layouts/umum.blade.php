@@ -11,7 +11,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-    /* ========== GLOBAL RESET & VARIABLES ========== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
         --maroon-dark: #4a0c0c;
@@ -187,7 +186,7 @@
         color: rgba(255,255,255,0.5);
     }
 
-    /* ========== RESPONSIF ========== */
+    /* ========== RESPONSIF DASAR ========== */
     @media (max-width: 900px) {
         .footer-grid {
             grid-template-columns: 1fr;
@@ -227,6 +226,247 @@
         footer {
             padding: 2rem 5% 1.5rem;
         }
+    }
+
+    
+    @media (max-width: 768px) {
+        /* Container global */
+        .container,
+        .detail-container,
+        .katalog-wrapper,
+        .galeri-wrapper,
+        .berita-wrapper,
+        .event-wrapper {
+            width: 95% !important;
+            padding: 0 12px !important;
+        }
+
+        /* Hero banner */
+        .berita-banner-container {
+            height: 280px !important;
+        }
+        .hero-title {
+            font-size: 2rem !important;
+        }
+        .hero-subtitle-top {
+            font-size: 0.75rem !important;
+        }
+
+        /* Judul section */
+        .section-title,
+        .title-maroon,
+        .section-title-center {
+            font-size: 1.5rem !important;
+        }
+
+        /* Grid Katalog (beranda & halaman katalog) */
+        .katalog-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+        }
+
+        /* Grid Berita (beranda & halaman berita) */
+        .berita-grid {
+            grid-template-columns: 1fr !important;
+            gap: 20px !important;
+        }
+        .berita-main {
+            min-height: auto !important;
+            padding: 1.5rem !important;
+        }
+        .berita-main h3 {
+            font-size: 1.3rem !important;
+        }
+
+        /* Galeri mosaik (beranda) */
+        .galeri-mosaik {
+            grid-template-columns: repeat(2, 1fr) !important;
+            grid-auto-rows: 160px !important;
+        }
+
+        /* Grid Pengurus & Pelatih (halaman profil) */
+        .cards-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 15px !important;
+        }
+        .avatar-wrapper {
+            height: 160px !important;
+        }
+
+        /* Layout event split (halaman event) */
+        .event-split-layout {
+            grid-template-columns: 1fr !important;
+            gap: 30px !important;
+        }
+
+        /* Search & filter bar */
+        .search-filter-wrapper {
+            flex-direction: column !important;
+            gap: 12px !important;
+        }
+        .btn-trigger-filter {
+            width: 100% !important;
+            justify-content: center !important;
+        }
+        .search-box-container input {
+            font-size: 0.9rem !important;
+        }
+
+        /* Pagination */
+        .news-pagination {
+            flex-direction: column !important;
+            gap: 15px !important;
+            align-items: center !important;
+        }
+
+        /* Tombol aksi */
+        .btn-dark-pill,
+        .btn-gray-pill,
+        .btn-dark-red-pill,
+        .btn-red-pill {
+            padding: 0.6rem 1.2rem !important;
+            font-size: 0.85rem !important;
+        }
+
+        /* Halaman Profil Sanggar */
+        .deskripsi-grid,
+        .sambutan-row,
+        .sejarah-row {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+        }
+        .sejarah-logo {
+            width: 120px !important;
+            height: 120px !important;
+            margin: 0 auto !important;
+        }
+        .pembina-image {
+            height: 240px !important;
+        }
+        .vm-card {
+            padding: 1rem !important;
+        }
+
+        /* Halaman Detail Event */
+        .event-image-wrapper {
+            height: 280px !important;
+        }
+        .event-info-body {
+            padding: 20px !important;
+        }
+        .event-title {
+            font-size: 1.8rem !important;
+        }
+        .event-header-row {
+            flex-direction: column !important;
+            gap: 15px !important;
+        }
+        .event-time-place {
+            text-align: left !important;
+        }
+        .lain-slideshow-box {
+            width: 100% !important;
+            height: 180px !important;
+        }
+        .event-lain-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Halaman Detail Berita */
+        .news-detail-hero {
+            height: 300px !important;
+        }
+        .news-detail-hero h1 {
+            font-size: 1.8rem !important;
+        }
+        .article-container {
+            padding: 2rem 16px !important;
+        }
+        .berita-lain-grid {
+            grid-template-columns: 1fr !important;
+        }
+
+        /* Halaman Detail Galeri */
+        .hero-image-box {
+            height: 350px !important;
+        }
+        .info-header-row {
+            flex-direction: column !important;
+            gap: 15px !important;
+        }
+        .info-meta-right {
+            text-align: left !important;
+        }
+        .other-gallery-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+        }
+
+        /* Halaman Detail Katalog */
+        .katalog-main-slideshow {
+            height: 280px !important;
+        }
+        .detail-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 15px !important;
+        }
+
+        /* Visi & Misi (card) */
+        .visi-card,
+        .misi-card {
+            padding: 20px !important;
+            margin: 0 0 20px 0 !important;
+        }
+        .visi-card h3,
+        .misi-card h3 {
+            font-size: 1.3rem !important;
+        }
+
+        /* Slideshow gambar (agar tidak overflow) */
+        .slideshow-container,
+        .lain-card-slideshow,
+        .news-foto-wrapper,
+        .event-slideshow-box {
+            height: auto !important;
+            aspect-ratio: 4 / 3 !important;
+        }
+    }
+
+    /* Untuk layar sangat kecil (<=480px) */
+    @media (max-width: 480px) {
+        .galeri-mosaik {
+            grid-template-columns: 1fr !important;
+            grid-auto-rows: 200px !important;
+        }
+        .cards-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .other-gallery-grid {
+            grid-template-columns: 1fr !important;
+        }
+        .hero-title {
+            font-size: 1.8rem !important;
+        }
+        .berita-banner-content h1 {
+            font-size: 2rem !important;
+        }
+        .event-title {
+            font-size: 1.5rem !important;
+        }
+        .section-title {
+            font-size: 1.3rem !important;
+        }
+        .badge-theme,
+        .badge-pill {
+            font-size: 0.7rem !important;
+            padding: 4px 12px !important;
+        }
+    }
+
+    /* Agar tabel (jika ada) bisa di-scroll horizontal */
+    .table-responsive-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
     }
 </style>
 
