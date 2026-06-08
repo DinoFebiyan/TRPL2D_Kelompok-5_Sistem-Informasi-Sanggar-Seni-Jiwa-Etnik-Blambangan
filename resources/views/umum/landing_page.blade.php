@@ -5,7 +5,6 @@
 @push('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* ══ RESET & GLOBAL VARIABLES fallback ══ */
     :root {
       --maroon-dark: #6b1414;
       --maroon-light: #a71818;
@@ -822,22 +821,136 @@
         transform: translateY(-5px);
     }
 
-    /* RESPONSIVE DESIGN */
-    @media (max-width: 1024px) { .cards-grid { grid-template-columns: repeat(3, 1fr); } }
+    
     @media (max-width: 992px) {
-        .hero-grid, .profile-grid, .berita-grid, .kalender-grid, .cta-container { grid-template-columns: 1fr; }
-        .katalog-grid { grid-template-columns: 1fr 1fr; }
-        .hero-logo-wrap, .cta-action { justify-content: center; text-align: center; margin-top: 2rem; }
-        .galeri-mosaik { grid-template-columns: 1fr 1fr; }
-        .cal-widget { max-width: 400px; margin: 0 auto; }
+        .hero-grid, .profile-grid, .berita-grid, .kalender-grid, .cta-container {
+            grid-template-columns: 1fr;
+        }
+        .katalog-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .hero-logo-wrap, .cta-action {
+            justify-content: center;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .galeri-mosaik {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        .cal-widget {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        .cards-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
     }
+
     @media (max-width: 768px) {
-        .cards-grid { grid-template-columns: repeat(2, 1fr); }
-        .profile-grid { gap: 2rem; }
+        section {
+            padding: 3rem 5%;
+        }
+        .hero-text h1 {
+            font-size: 2.2rem;
+        }
+        .hero-text h1 .script {
+            font-size: 3rem;
+        }
+        .hero-text p {
+            font-size: 0.85rem;
+        }
+        .btn-gray-pill, .btn-dark-pill, .btn-dark-red-pill {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.85rem;
+        }
+        .section-title {
+            font-size: 1.8rem;
+        }
+        .katalog-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        .berita-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+        .berita-main {
+            padding: 1.5rem;
+            min-height: auto;
+        }
+        .berita-main h3 {
+            font-size: 1.3rem;
+        }
+        .galeri-mosaik {
+            grid-template-columns: repeat(2, 1fr);
+            grid-auto-rows: 180px;
+        }
+        .cards-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        .kalender-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+        .event-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        #kalender .event-date {
+            align-self: center;
+        }
+        .cta-content h2 {
+            font-size: 2rem;
+        }
+        .btn-daftar-cta {
+            padding: 0.8rem 2rem;
+            font-size: 0.9rem;
+        }
+        .profile-grid {
+            gap: 2rem;
+        }
+        .profile-card-img {
+            width: 120px;
+            height: 120px;
+            top: -60px;
+        }
+        .profile-card h4 {
+            margin-top: 3rem;
+        }
     }
-    @media (max-width: 600px) {
-        .katalog-grid, .galeri-mosaik { grid-template-columns: 1fr; }
-        .cta-content h2 { font-size: 2rem; }
+
+    @media (max-width: 480px) {
+        .hero-text h1 {
+            font-size: 1.8rem;
+        }
+        .hero-text h1 .script {
+            font-size: 2.5rem;
+        }
+        .logo-img-hero {
+            width: 200px;
+            height: 200px;
+        }
+        .section-title {
+            font-size: 1.5rem;
+        }
+        .galeri-mosaik {
+            grid-template-columns: 1fr;
+            grid-auto-rows: 200px;
+        }
+        .cards-grid {
+            grid-template-columns: 1fr;
+        }
+        .badge-pill, .badge-yellow, .cta-badge {
+            font-size: 0.65rem;
+            padding: 0.2rem 0.8rem;
+        }
+        .visi-card, .misi-card {
+            padding: 20px !important;
+        }
+        .visi-card p, .misi-card div {
+            font-size: 0.85rem !important;
+        }
     }
   </style>
 @endpush
@@ -933,7 +1046,6 @@
           <div class="katalog-card">
             <div class="katalog-img">
               @php
-                // Ambil path gambar secara aman, baik relasinya tunggal maupun kumpulan data (Collection)
                 $gambarPath = null;
                 if ($item->galeri) {
                     if ($item->galeri instanceof \Illuminate\Support\Collection || $item->galeri instanceof \Illuminate\Database\Eloquent\Collection) {
@@ -1059,11 +1171,9 @@
     <p class="section-subtitle white" style="color: var(--text-gray) !important;">Momen indah perjalanan seni dan budaya Jiwa Etnik Blambangan</p>
   </div>
   <div class="galeri-mosaik">
-    {{-- Langsung loop dari variabel $galeri asli --}}
     @forelse($galeri as $item)
       <a href="{{ route('umum.galeri-detail', $item->id) }}" class="g-box" style="background-image: url('{{ asset('storage/' . $item->path) }}'); background-size: cover; background-position: center; display: block;"></a>
     @empty
-      {{-- Fallback jika database benar-benar kosong --}}
       <div class="g-box"></div>
       <div class="g-box"></div>
       <div class="g-box"></div>
@@ -1157,14 +1267,12 @@
             </p>
         </div>
 
-        {{-- Mengambil data sistem dinamis dari database untuk kebutuhan pendaftaran --}}
         @php
             $sistemCta = \App\Models\PengaturanSistem::first();
             
             if ($sistemCta && $sistemCta->link_wa) {
                 $nomorPendaftaran = preg_replace('/[^0-9]/', '', $sistemCta->link_wa);
             } else {
-                // Cadangan jika nomor di database belum diisi
                 $nomorPendaftaran = '6282232505355';
             }
         @endphp
