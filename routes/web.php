@@ -1,6 +1,6 @@
 <?php
 
-use App\http\Controllers\AdminController;
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\BeritaController;
 use App\Http\Controllers\DashboardAdminController;

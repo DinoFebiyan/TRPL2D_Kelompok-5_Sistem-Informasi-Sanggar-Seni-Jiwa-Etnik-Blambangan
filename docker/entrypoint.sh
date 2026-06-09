@@ -46,7 +46,8 @@ mkdir -p storage/app/public \
          storage/logs \
          bootstrap/cache
 
-chmod -R 775 storage bootstrap/cache 2>/dev/null || true
+chmod -R 777 storage bootstrap/cache 2>/dev/null || true
+chown -R www-data:www-data storage bootstrap/cache 2>/dev/null || true
 echo "  ✔ Storage directories verified."
 
 # ─────────────────────────────────────────────────────
@@ -72,18 +73,13 @@ echo "[2/5] Waiting for database (${_DB_HOST}:${_DB_PORT})..."
 MAX_TRIES=40
 TRIES=0
 
-until mysqladmin ping \
-    -h "${_DB_HOST}" \
-    -P "${_DB_PORT}" \
-    -u "${_DB_USER}" \
-    -p"${_DB_PASS}" \
-    --silent 2>/dev/null; do
+until nc -z -w 3 "${_DB_HOST}" "${_DB_PORT}"; do
     TRIES=$((TRIES + 1))
     if [ "$TRIES" -ge "$MAX_TRIES" ]; then
-        echo "  ✖ ERROR: Database not reachable after ${MAX_TRIES} attempts. Aborting."
+        echo "  ✖ ERROR: Database port not open after ${MAX_TRIES} attempts. Aborting."
         exit 1
     fi
-    echo "  Attempt ${TRIES}/${MAX_TRIES}: not ready yet — retrying in 3s..."
+    echo "  Attempt ${TRIES}/${MAX_TRIES}: port not open yet — retrying in 3s..."
     sleep 3
 done
 echo "  ✔ Database is ready!"
