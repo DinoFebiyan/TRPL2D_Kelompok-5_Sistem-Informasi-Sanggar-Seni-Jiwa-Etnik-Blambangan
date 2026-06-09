@@ -144,7 +144,7 @@ class AdminController extends Controller
 
         if ($request->hasFile('foto')) {
             $path = $request->file('foto')->store('admin', 'public');
-            $namaFileBaru = uniqid().'_'.$request->file('foto')->getClientOriginalName();
+            $namaFileBaru = basename($path); // REMEDIASI: Menggunakan nama acak yang aman dari path Laravel
 
             if ($admin->galeri) {
                 if (Storage::disk('public')->exists($admin->galeri->path)) {

@@ -287,7 +287,14 @@ class BeritaController extends Controller
             'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
-        $path = $this->simpanDenganWatermark($request->file('file'));
+        $file = $request->file('file');
+
+        // REMEDIASI: Menambahkan proteksi MIME riil tambahan sebelum memproses berkas TinyMCE
+        if (! UploadHelper::isImageMimeValid($file)) {
+            return response()->json(['error' => 'Berkas tidak valid.'], 400);
+        }
+
+        $path = $this->simpanDenganWatermark($file);
 
         return response()->json([
             'location' => Storage::disk('public')->url($path),

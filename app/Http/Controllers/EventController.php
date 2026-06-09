@@ -121,7 +121,6 @@ class EventController extends Controller
             'waktu' => now(),
         ]);
 
-        return redirect()->route('superadmin.kelola-event')->with('success', 'Event berhasil ditambahkan dengan multi-foto.');
         $role = auth()->user()->peran;
 
         if ($role === 'superadmin') {

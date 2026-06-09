@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Galeri;
+use App\Models\Galeri;
 use App\Models\LogAktivitas;
 use App\Models\PengaturanSistem;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class PengaturanSistemController extends Controller
@@ -64,6 +64,15 @@ class PengaturanSistemController extends Controller
                         Storage::disk('public')->delete($fotoLama->path);
                     }
                     $fotoLama->delete();
+                }
+            }
+        }
+
+        // REMEDIASI: Menambahkan proteksi validasi MIME riil pada file upload header yang sebelumnya terlewat
+        if ($request->hasFile('header_files')) {
+            foreach ($request->file('header_files') as $file) {
+                if (! UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['header_files' => 'Salah satu berkas slider header bukan gambar valid.']);
                 }
             }
         }
