@@ -70,9 +70,9 @@ class AdminController extends Controller
             'status' => 'required|in:aktif,nonaktif',
         ]);
 
-        if ($request->hasFile('foto') && ! UploadHelper::isImageMimeValid($request->file('foto'))) {
-            return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
-        }
+        if ($request->hasFile('foto') && !UploadHelper::isImageMimeValid($request->file('foto'))) {
+         return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
+}
 
         $user = User::create([
             'name' => $request->name,
@@ -87,10 +87,10 @@ class AdminController extends Controller
             $path = $request->file('foto')->store('admin', 'public');
 
             Galeri::create([
-                'sumber_id' => $user->id,
-                'path' => $path,
-                'nama_file' => uniqid().'_'.$request->file('foto')->getClientOriginalName(),
-                'kategori' => 'admin',
+                'sumber_id'    => $user->id,
+                'path'         => $path,
+                'nama_file'    => uniqid().'_'.$request->file('foto')->getClientOriginalName(),
+                'kategori'     => 'admin',
                 'is_watermark' => false,
             ]);
         }
@@ -130,9 +130,9 @@ class AdminController extends Controller
             'foto' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
-        if ($request->hasFile('foto') && ! UploadHelper::isImageMimeValid($request->file('foto'))) {
-            return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
-        }
+        if ($request->hasFile('foto') && !UploadHelper::isImageMimeValid($request->file('foto'))) {
+        return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
+}
 
         $data = $request->only(['name', 'email', 'no_handphone', 'status']);
 
@@ -144,7 +144,7 @@ class AdminController extends Controller
 
         if ($request->hasFile('foto')) {
             $path = $request->file('foto')->store('admin', 'public');
-            $namaFileBaru = uniqid().'_'.$request->file('foto')->getClientOriginalName();
+            $namaFileBaru = basename($path); // REMEDIASI: Menggunakan nama acak yang aman dari path Laravel
 
             if ($admin->galeri) {
                 if (Storage::disk('public')->exists($admin->galeri->path)) {

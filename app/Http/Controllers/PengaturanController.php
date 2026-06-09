@@ -44,10 +44,10 @@ class PengaturanController extends Controller
         ]);
 
         if ($request->hasFile('foto_profil')) {
-            if (! UploadHelper::isImageMimeValid($request->file('foto_profil'))) {
-                return back()->withErrors(['foto_profil' => 'File bukan gambar yang valid.']);
-            }
-        }
+        if (!UploadHelper::isImageMimeValid($request->file('foto_profil'))) {
+        return back()->withErrors(['foto_profil' => 'File bukan gambar yang valid.']);
+    }
+}
         // Mengambil input teks utama
         $data = $request->only(['name', 'email', 'no_handphone']);
 
@@ -58,7 +58,7 @@ class PengaturanController extends Controller
         if ($request->hasFile('foto_profil')) {
             // Simpan file fisik foto baru ke disk public di dalam folder 'admin'
             $path = $request->file('foto_profil')->store('admin', 'public');
-            $namaFileBaru = uniqid().'_'.$request->file('foto_profil')->getClientOriginalName();
+            $namaFileBaru = uniqid() . '_' . $request->file('foto_profil')->getClientOriginalName();
 
             // Cek apakah user sudah memiliki relasi foto di tabel galeri
             if ($user->galeri) {

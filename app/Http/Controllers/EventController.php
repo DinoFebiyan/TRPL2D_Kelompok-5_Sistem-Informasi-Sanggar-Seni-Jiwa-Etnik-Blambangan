@@ -83,12 +83,12 @@ class EventController extends Controller
         $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
 
         if ($request->hasFile('foto')) {
-            foreach ($request->file('foto') as $file) {
-                if (! UploadHelper::isImageMimeValid($file)) {
-                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
-                }
-            }
+        foreach ($request->file('foto') as $file) {
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
         }
+    }
+}
 
         $event = Event::create([
             'nama' => $request->nama,
@@ -106,10 +106,10 @@ class EventController extends Controller
                 $path = $file->store('event', 'public');
 
                 Galeri::create([
-                    'sumber_id' => $event->id,
-                    'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
-                    'kategori' => 'event',
+                    'sumber_id'    => $event->id, 
+                    'path'         => $path,       
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(), 
+                    'kategori'     => 'event',
                     'is_watermark' => false,
                 ]);
             }
@@ -121,7 +121,6 @@ class EventController extends Controller
             'waktu' => now(),
         ]);
 
-        return redirect()->route('superadmin.kelola-event')->with('success', 'Event berhasil ditambahkan dengan multi-foto.');
         $role = auth()->user()->peran;
 
         if ($role === 'superadmin') {
@@ -174,12 +173,12 @@ class EventController extends Controller
         $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
 
         if ($request->hasFile('foto')) {
-            foreach ($request->file('foto') as $file) {
-                if (! UploadHelper::isImageMimeValid($file)) {
-                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
-                }
-            }
+        foreach ($request->file('foto') as $file) {
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
         }
+    }
+}
 
         $event->update([
             'nama' => $request->nama,
@@ -211,10 +210,10 @@ class EventController extends Controller
                 $path = $file->store('event', 'public');
 
                 Galeri::create([
-                    'sumber_id' => $event->id,
-                    'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
-                    'kategori' => 'event',
+                    'sumber_id'    => $event->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'event',
                     'is_watermark' => false,
                 ]);
             }

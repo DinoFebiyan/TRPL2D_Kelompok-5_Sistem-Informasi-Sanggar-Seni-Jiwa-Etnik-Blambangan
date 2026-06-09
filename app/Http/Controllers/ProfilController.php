@@ -113,15 +113,15 @@ class ProfilController extends Controller
                     }
                     $galeriLogoLama->update([
                         'path' => $pathLogo,
-                        'nama_file' => $fileLogo->getClientOriginalName(),
+                        'nama_file' => $fileLogo->getClientOriginalName()
                     ]);
                 }
             } else {
                 $galeriLogoBaru = Galeri::create([
-                    'sumber_id' => $profil->id,
-                    'path' => $pathLogo,
-                    'nama_file' => $fileLogo->getClientOriginalName(),
-                    'kategori' => 'logo',
+                    'sumber_id'    => $profil->id,
+                    'path'         => $pathLogo,
+                    'nama_file'    => $fileLogo->getClientOriginalName(),
+                    'kategori'     => 'logo',
                     'is_watermark' => false,
                 ]);
                 $profil->logo_id = $galeriLogoBaru->id;
@@ -140,15 +140,15 @@ class ProfilController extends Controller
                     }
                     $galeriPembinaLama->update([
                         'path' => $pathPembina,
-                        'nama_file' => $filePembina->getClientOriginalName(),
+                        'nama_file' => $filePembina->getClientOriginalName()
                     ]);
                 }
             } else {
                 $galeriPembinaBaru = Galeri::create([
-                    'sumber_id' => $profil->id,
-                    'path' => $pathPembina,
-                    'nama_file' => $filePembina->getClientOriginalName(),
-                    'kategori' => 'pembina',
+                    'sumber_id'    => $profil->id,
+                    'path'         => $pathPembina,
+                    'nama_file'    => $filePembina->getClientOriginalName(),
+                    'kategori'     => 'pembina',
                     'is_watermark' => false,
                 ]);
                 $profil->foto_pembina_id = $galeriPembinaBaru->id;
@@ -160,10 +160,10 @@ class ProfilController extends Controller
             foreach ($request->file('header_files') as $file) {
                 $path = $file->store('header', 'public');
                 Galeri::create([
-                    'sumber_id' => $profil->id,
-                    'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
-                    'kategori' => 'header',
+                    'sumber_id'    => $profil->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'header',
                     'is_watermark' => false,
                 ]);
             }
@@ -235,10 +235,10 @@ class ProfilController extends Controller
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
                 Galeri::create([
-                    'sumber_id' => $personel->id,
-                    'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
-                    'kategori' => 'profil',
+                    'sumber_id'    => $personel->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
                     'is_watermark' => false,
                 ]);
             }
@@ -321,10 +321,10 @@ class ProfilController extends Controller
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
                 Galeri::create([
-                    'sumber_id' => $pengurus->id,
-                    'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
-                    'kategori' => 'profil',
+                    'sumber_id'    => $pengurus->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
                     'is_watermark' => false,
                 ]);
             }
@@ -411,10 +411,10 @@ class ProfilController extends Controller
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
                 Galeri::create([
-                    'sumber_id' => $personel->id,
-                    'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
-                    'kategori' => 'profil',
+                    'sumber_id'    => $personel->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
                     'is_watermark' => false,
                 ]);
             }
@@ -489,10 +489,10 @@ class ProfilController extends Controller
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
                 Galeri::create([
-                    'sumber_id' => $pelatih->id,
-                    'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
-                    'kategori' => 'profil',
+                    'sumber_id'    => $pelatih->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'profil',
                     'is_watermark' => false,
                 ]);
             }

@@ -32,8 +32,8 @@ class UmumController extends Controller
         // 4. Ambil data Galeri secara acak
         $kategoriPengecualian = ['pembina', 'admin', 'logo', 'header', 'profil'];
 
-        $galeri = Galeri::whereNotIn(\DB::raw('LOWER(kategori)'), $kategoriPengecualian)
-            ->where(function ($query) use ($kategoriPengecualian) {
+$galeri = \App\Models\Galeri::whereNotIn(\DB::raw('LOWER(kategori)'), $kategoriPengecualian)
+            ->where(function($query) use ($kategoriPengecualian) {
                 foreach ($kategoriPengecualian as $keyword) {
                     $query->where(\DB::raw('LOWER(path)'), 'not like', '%'.$keyword.'%');
                 }

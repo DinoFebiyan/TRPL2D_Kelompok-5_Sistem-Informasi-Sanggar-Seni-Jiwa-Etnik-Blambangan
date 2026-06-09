@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
 use App\Models\PengaturanSistem;
-use Illuminate\Http\Request;
+use App\Models\Galeri;
 use Illuminate\Support\Facades\Storage;
 
 class PengaturanSistemController extends Controller
@@ -68,15 +68,24 @@ class PengaturanSistemController extends Controller
             }
         }
 
+        // REMEDIASI: Menambahkan proteksi validasi MIME riil pada file upload header yang sebelumnya terlewat
+        if ($request->hasFile('header_files')) {
+            foreach ($request->file('header_files') as $file) {
+                if (!UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['header_files' => 'Salah satu berkas slider header bukan gambar valid.']);
+                }
+            }
+        }
+
         // Upload Header Baru
         if ($request->hasFile('header_files')) {
             foreach ($request->file('header_files') as $file) {
                 $path = $file->store('header', 'public');
                 Galeri::create([
-                    'sumber_id' => $sistem->id,
-                    'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
-                    'kategori' => 'header',
+                    'sumber_id'    => $sistem->id,
+                    'path'         => $path,
+                    'nama_file'    => uniqid() . '_' . $file->getClientOriginalName(),
+                    'kategori'     => 'header',
                     'is_watermark' => false,
                 ]);
             }

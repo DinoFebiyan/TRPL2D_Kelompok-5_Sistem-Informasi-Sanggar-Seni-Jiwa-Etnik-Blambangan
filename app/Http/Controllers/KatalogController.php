@@ -22,8 +22,8 @@ class KatalogController extends Controller
         );
 
         $filename =
-            time().'_'.
-            uniqid().'.'.
+            time() . '_' .
+            uniqid() . '.' .
             $file->getClientOriginalExtension();
 
         // Simpan asli
@@ -135,11 +135,11 @@ class KatalogController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                if (! UploadHelper::isImageMimeValid($file)) {
-                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
-                }
-            }
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
         }
+    }
+}
 
         // 2. Simpan informasi teks produk utama ke database
         $katalog = Katalog::create([
@@ -161,7 +161,7 @@ class KatalogController extends Controller
                 Galeri::create([
                     'sumber_id' => $katalog->id,
                     'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
                     'kategori' => 'katalog',
                     'is_watermark' => false,
                 ]);
@@ -219,11 +219,11 @@ class KatalogController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                if (! UploadHelper::isImageMimeValid($file)) {
-                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
-                }
-            }
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
         }
+    }
+}
         // 1. Perbarui teks data utama katalog
         $katalog->update([
             'nama_katalog' => $request->nama_katalog,
@@ -258,7 +258,7 @@ class KatalogController extends Controller
                 Galeri::create([
                     'sumber_id' => $katalog->id,
                     'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
                     'kategori' => 'katalog',
                     'is_watermark' => false,
                 ]);
