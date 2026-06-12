@@ -42,7 +42,7 @@ class DatabaseSeeder extends Seeder
         $superAdmin = User::create([
             'name' => 'Super Admin',
             'email' => 'superadmin@jeb.id',
-            'password' => Hash::make('12345678'),
+            'password' => Hash::make(env('DEFAULT_SUPERADMIN_PASSWORD', 'fallback123')),
             'peran' => 'superadmin',
             'no_handphone' => '081234567890',
             'status' => 'aktif',
@@ -52,7 +52,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::create([
             'name' => 'Admin JEB',
             'email' => 'admin@jeb.id',
-            'password' => Hash::make('12345678'),
+            'password' => Hash::make(env('DEFAULT_ADMIN_PASSWORD', 'fallback123')),
             'peran' => 'admin',
             'no_handphone' => '081298765432',
             'status' => 'aktif',
@@ -62,7 +62,7 @@ class DatabaseSeeder extends Seeder
         User::create([
             'name' => 'Poliwangi Admin',
             'email' => 'pblpoliwangi2026@gmail.com',
-            'password' => Hash::make('kelompok5'),
+            'password' => Hash::make(env('DEFAULT_OTP_PASSWORD', 'fallback123')),
             'peran' => 'superadmin',
             'no_handphone' => '081234567890',
             'status' => 'aktif',
