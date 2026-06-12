@@ -123,7 +123,10 @@ class KatalogController extends Controller
             'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
-        $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+       $request->merge([
+    'deskripsi' => SanitizeHelper::sanitize($request->deskripsi)
+]);
+
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
