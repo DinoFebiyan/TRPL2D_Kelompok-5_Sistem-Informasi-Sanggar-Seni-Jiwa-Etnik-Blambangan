@@ -16,37 +16,36 @@ class Galeri extends Model
         'kategori',
         'is_watermark',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
 
-    
     public function event(): BelongsTo
     {
         return $this->belongsTo(Event::class, 'sumber_id', 'id');
     }
 
-        public function berita(): BelongsTo
-        {
-            return $this->belongsTo(Berita::class, 'sumber_id', 'id');
-        }
+    public function berita(): BelongsTo
+    {
+        return $this->belongsTo(Berita::class, 'sumber_id', 'id');
+    }
 
-        public function katalog(): BelongsTo
-        {
-            return $this->belongsTo(Katalog::class, 'sumber_id', 'id');
-        }
+    public function katalog(): BelongsTo
+    {
+        return $this->belongsTo(Katalog::class, 'sumber_id', 'id');
+    }
 
-        public function admin(): BelongsTo
-        {
-            return $this->belongsTo(User::class, 'sumber_id', 'id');
-        }
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'sumber_id', 'id');
+    }
 
-        public function profilSanggar(): BelongsTo
-        {
-            return $this->belongsTo(ProfilSanggar::class, 'sumber_id', 'id');
-        }
+    public function profilSanggar(): BelongsTo
+    {
+        return $this->belongsTo(ProfilSanggar::class, 'sumber_id', 'id');
+    }
 
-        public function pengaturanSistem(): BelongsTo
-        {
-            return $this->belongsTo(PengaturanSistem::class, 'sumber_id', 'id');
-        }
-};
+    public function pengaturanSistem(): BelongsTo
+    {
+        return $this->belongsTo(PengaturanSistem::class, 'sumber_id', 'id');
+    }
+}

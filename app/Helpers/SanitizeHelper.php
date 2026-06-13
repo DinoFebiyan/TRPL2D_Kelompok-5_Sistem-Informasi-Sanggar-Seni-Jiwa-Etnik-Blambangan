@@ -27,12 +27,16 @@ class SanitizeHelper
 
             self::$purifier = new HTMLPurifier($config);
         }
+
         return self::$purifier;
     }
 
     public static function sanitize($html)
     {
-        if (empty($html)) return '';
+        if (empty($html)) {
+            return '';
+        }
+
         return self::getPurifier()->purify($html);
     }
 }

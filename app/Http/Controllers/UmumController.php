@@ -4,63 +4,62 @@ namespace App\Http\Controllers;
 
 use App\Models\Berita;
 use App\Models\Event;
-use App\Models\Katalog;
 use App\Models\Galeri;
-use App\Models\ProfilSanggar;
+use App\Models\Katalog;
 use App\Models\Personel;
-use Illuminate\Http\Request;
+use App\Models\ProfilSanggar;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class UmumController extends Controller
 {
     public function index()
     {
         // 1. Ambil data utama sanggar
-        $profil = \App\Models\ProfilSanggar::first(); // Sesuaikan nama namespace model kamu
-        
+        $profil = ProfilSanggar::first(); // Sesuaikan nama namespace model kamu
+
         // 2. Ambil data katalog secara acak
-        $katalogs = \App\Models\Katalog::inRandomOrder()->take(3)->get();
-        
+        $katalogs = Katalog::inRandomOrder()->take(3)->get();
+
         // 3. Logika pengambilan Berita
-        $beritaUtama = \App\Models\Berita::where('status', 'tayang')->latest()->first();
-        $beritaTerbaru = \App\Models\Berita::where('status', 'tayang')
-                            ->where('id', '!=', $beritaUtama?->id)
-                            ->latest()
-                            ->take(3)
-                            ->get();
-        
+        $beritaUtama = Berita::where('status', 'tayang')->latest()->first();
+        $beritaTerbaru = Berita::where('status', 'tayang')
+            ->where('id', '!=', $beritaUtama?->id)
+            ->latest()
+            ->take(3)
+            ->get();
+
         // 4. Ambil data Galeri secara acak
         $kategoriPengecualian = ['pembina', 'admin', 'logo', 'header', 'profil'];
 
-        $galeri = \App\Models\Galeri::whereNotIn(\DB::raw('LOWER(kategori)'), $kategoriPengecualian)
-            ->where(function($query) use ($kategoriPengecualian) {
+        $galeri = Galeri::whereNotIn(\DB::raw('LOWER(kategori)'), $kategoriPengecualian)
+            ->where(function ($query) use ($kategoriPengecualian) {
                 foreach ($kategoriPengecualian as $keyword) {
-                    $query->where(\DB::raw('LOWER(path)'), 'not like', '%' . $keyword . '%');
+                    $query->where(\DB::raw('LOWER(path)'), 'not like', '%'.$keyword.'%');
                 }
             })
             ->inRandomOrder()
             ->take(6)
             ->get();
-            
+
         // 5. Ambil data Event secara acak
-        $events = \App\Models\Event::inRandomOrder()->take(3)->get();
-        
+        $events = Event::inRandomOrder()->take(3)->get();
 
         // Data pembantu untuk widget kalender bawaan (jika diperlukan)
-        $blankDays = 5; 
+        $blankDays = 5;
         $daysInMonth = 31;
-        $eventDays = \App\Models\Event::pluck('tanggal')->map(function($tgl) {
-            return (int) \Carbon\Carbon::parse($tgl)->format('d');
+        $eventDays = Event::pluck('tanggal')->map(function ($tgl) {
+            return (int) Carbon::parse($tgl)->format('d');
         })->toArray();
 
         // Kirim SEMUA variabel yang dibutuhkan view di dalam compact()
         return view('umum.landing_page', compact(
-            'profil', 
-            'katalogs', 
-            'beritaUtama', 
-            'beritaTerbaru', 
-            'galeri', 
-            'events', 
+            'profil',
+            'katalogs',
+            'beritaUtama',
+            'beritaTerbaru',
+            'galeri',
+            'events',
             'blankDays',
             'daysInMonth',
             'eventDays'
@@ -82,15 +81,15 @@ class UmumController extends Controller
         $query = Berita::where('status', 'tayang')->with(['user', 'galeri']);
 
         // 1. Penerapan Fitur Global Searching (Judul atau Isi Teks Berita)
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('judul', 'like', '%' . $search . '%')
-                  ->orWhere('isi_berita', 'like', '%' . $search . '%');
+                $q->where('judul', 'like', '%'.$search.'%')
+                    ->orWhere('isi_berita', 'like', '%'.$search.'%');
             });
         }
 
         // 2. Penerapan Fitur Multi-Filtering Kategori Konten Berita
-        if (!empty($categories)) {
+        if (! empty($categories)) {
             $query->whereIn('jenis_berita', $categories);
         }
 
@@ -131,15 +130,15 @@ class UmumController extends Controller
         $query = Event::query();
 
         // Filter Pencarian Teks
-        if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->where('nama', 'like', '%' . $search . '%')
-                ->orWhere('lokasi', 'like', '%' . $search . '%');
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', '%'.$search.'%')
+                    ->orWhere('lokasi', 'like', '%'.$search.'%');
             });
         }
 
         // Filter Status Kegiatan
-        if (!empty($statuses)) {
+        if (! empty($statuses)) {
             $query->whereIn('status', $statuses);
         }
 
@@ -151,7 +150,7 @@ class UmumController extends Controller
 
         return view('umum.event.index', [
             'events' => $events,
-            'allEvents' => $allEvents, 
+            'allEvents' => $allEvents,
             'profil' => $profil,
         ]);
     }
@@ -188,15 +187,15 @@ class UmumController extends Controller
         $query = Katalog::with('galeri');
 
         // 1. Logika Global Searching Kostum (Nama Tari atau Deskripsi)
-        if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->where('nama_tari', 'like', '%' . $search . '%')
-                ->orWhere('deskripsi', 'like', '%' . $search . '%');
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_tari', 'like', '%'.$search.'%')
+                    ->orWhere('deskripsi', 'like', '%'.$search.'%');
             });
         }
 
         // 2. Logika Multi-Filter Checkbox Kategori Kostum
-        if (!empty($categories)) {
+        if (! empty($categories)) {
             $query->whereIn('kategori', $categories);
         }
 
@@ -213,7 +212,7 @@ class UmumController extends Controller
     {
         $profil = ProfilSanggar::with('headers')->first();
         $katalog = Katalog::with('galeri')->findOrFail($id);
-        
+
         $katalogLain = Katalog::with('galeri')
             ->where('id', '!=', $id)
             ->inRandomOrder()
@@ -233,28 +232,28 @@ class UmumController extends Controller
 
         // 1. BLOKIR FOTO INTERNAL: Menghalang kategori internal, file dummy, dan path personel langsung dari query database
         $query = Galeri::whereNotIn(\DB::raw('LOWER(kategori)'), ['logo', 'pembina', 'profil', 'header', 'admin'])
-            ->where(function($q) {
+            ->where(function ($q) {
                 $q->where('path', 'not like', '%personel%')
-                  ->where('path', 'not like', '%pembina%')
-                  ->where('nama_file', 'not like', '%pengurus%')
-                  ->where('nama_file', 'not like', '%pelatih%')
-                  ->where('nama_file', 'not like', '%pembina%')
-                  ->where('nama_file', 'not like', '%dummy%');
+                    ->where('path', 'not like', '%pembina%')
+                    ->where('nama_file', 'not like', '%pengurus%')
+                    ->where('nama_file', 'not like', '%pelatih%')
+                    ->where('nama_file', 'not like', '%pembina%')
+                    ->where('nama_file', 'not like', '%dummy%');
             });
 
         $search = $request->input('search');
         $categories = $request->input('kategori', []); // Array checkbox kategori galeri
 
         // 2. Logika Global Searching Data File Galeri
-        if (!empty($search)) {
-            $query->where(function($q) use ($search) {
-                $q->where('nama_file', 'like', '%' . $search . '%')
-                ->orWhere('kategori', 'like', '%' . $search . '%');
+        if (! empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nama_file', 'like', '%'.$search.'%')
+                    ->orWhere('kategori', 'like', '%'.$search.'%');
             });
         }
 
         // 3. Logika Multi-Filter Checkbox Kategori
-        if (!empty($categories)) {
+        if (! empty($categories)) {
             $query->whereIn('kategori', $categories);
         }
 
@@ -274,7 +273,7 @@ class UmumController extends Controller
 
         // Menggunakan inRandomOrder() untuk mengacak rekomendasi dokumentasi
         $galeriLainnya = Galeri::where('id', '!=', $id)
-            ->where('kategori', $galeriUtama->kategori) 
+            ->where('kategori', $galeriUtama->kategori)
             ->inRandomOrder()
             ->take(4)
             ->get();
@@ -288,13 +287,13 @@ class UmumController extends Controller
     public function profil()
     {
         $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
-        
+
         // PERBAIKAN: Kunci relasi galeri hanya untuk kategori 'profil' (foto personel resmi)
-        $pengurus = Personel::with(['galeri' => function($query) {
+        $pengurus = Personel::with(['galeri' => function ($query) {
             $query->where('kategori', 'profil');
         }])->where('peran', 'pengurus')->where('status', 'aktif')->get();
 
-        $pelatih = Personel::with(['galeri' => function($query) {
+        $pelatih = Personel::with(['galeri' => function ($query) {
             $query->where('kategori', 'profil');
         }])->where('peran', 'pelatih')->where('status', 'aktif')->get();
 

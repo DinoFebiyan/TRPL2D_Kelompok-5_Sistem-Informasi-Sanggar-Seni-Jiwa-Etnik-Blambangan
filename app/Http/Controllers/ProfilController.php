@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\ProfilSanggar;
-use App\Models\Personel;
-use App\Models\Galeri;
-use Illuminate\Support\Facades\Storage;
 use App\Helpers\SanitizeHelper;
 use App\Helpers\UploadHelper;
+use App\Models\Galeri;
+use App\Models\LogAktivitas;
+use App\Models\Personel;
+use App\Models\ProfilSanggar;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProfilController extends Controller
 {
@@ -19,8 +20,8 @@ class ProfilController extends Controller
     {
         $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
 
-        if (!$profil) {
-            $profil = new ProfilSanggar();
+        if (! $profil) {
+            $profil = new ProfilSanggar;
         }
 
         $pengurus = Personel::with('galeri')->where('peran', 'pengurus')->paginate(10);
@@ -43,8 +44,8 @@ class ProfilController extends Controller
     {
         $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
 
-        if (!$profil) {
-            $profil = new ProfilSanggar();
+        if (! $profil) {
+            $profil = new ProfilSanggar;
         }
 
         return view('kelola.profil.edit', compact('profil'));
@@ -56,45 +57,45 @@ class ProfilController extends Controller
     public function update(Request $request)
     {
         $profil = ProfilSanggar::first();
-        if (!$profil) {
+        if (! $profil) {
             $profil = ProfilSanggar::create([
-                'deskripsi' => '', 'visi' => '', 'misi' => '', 'sejarah' => '', 'sambutan_pembina' => ''
+                'deskripsi' => '', 'visi' => '', 'misi' => '', 'sejarah' => '', 'sambutan_pembina' => '',
             ]);
         }
 
         $request->validate([
-            'deskripsi'        => 'required|string',
-            'visi'             => 'required|string',
-            'misi'             => 'required|string',
-            'sejarah'          => 'required|string',
+            'deskripsi' => 'required|string',
+            'visi' => 'required|string',
+            'misi' => 'required|string',
+            'sejarah' => 'required|string',
             'sambutan_pembina' => 'required|string',
-            'logo'             => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
-            'foto_pembina'     => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
-            'header_files'     => 'nullable|array',
-            'header_files.*'   => 'image|mimes:jpeg,png,jpg|max:4096',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'foto_pembina' => 'nullable|image|mimes:jpeg,png,jpg|max:4096',
+            'header_files' => 'nullable|array',
+            'header_files.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         // 🔒 Sanitasi HTML pada semua teks yang mungkin mengandung kode berbahaya
         $request->merge([
-            'deskripsi'        => SanitizeHelper::sanitize($request->deskripsi),
-            'visi'             => SanitizeHelper::sanitize($request->visi),
-            'misi'             => SanitizeHelper::sanitize($request->misi),
-            'sejarah'          => SanitizeHelper::sanitize($request->sejarah),
+            'deskripsi' => SanitizeHelper::sanitize($request->deskripsi),
+            'visi' => SanitizeHelper::sanitize($request->visi),
+            'misi' => SanitizeHelper::sanitize($request->misi),
+            'sejarah' => SanitizeHelper::sanitize($request->sejarah),
             'sambutan_pembina' => SanitizeHelper::sanitize($request->sambutan_pembina),
         ]);
 
         // 🔒 Validasi MIME riil untuk logo
-        if ($request->hasFile('logo') && !UploadHelper::isImageMimeValid($request->file('logo'))) {
+        if ($request->hasFile('logo') && ! UploadHelper::isImageMimeValid($request->file('logo'))) {
             return back()->withErrors(['logo' => 'File logo bukan gambar yang valid.']);
         }
         // 🔒 Validasi MIME riil untuk foto_pembina
-        if ($request->hasFile('foto_pembina') && !UploadHelper::isImageMimeValid($request->file('foto_pembina'))) {
+        if ($request->hasFile('foto_pembina') && ! UploadHelper::isImageMimeValid($request->file('foto_pembina'))) {
             return back()->withErrors(['foto_pembina' => 'File foto pembina bukan gambar yang valid.']);
         }
         // 🔒 Validasi MIME riil untuk header_files
         if ($request->hasFile('header_files')) {
             foreach ($request->file('header_files') as $file) {
-                if (!UploadHelper::isImageMimeValid($file)) {
+                if (! UploadHelper::isImageMimeValid($file)) {
                     return back()->withErrors(['header_files' => 'Salah satu file header bukan gambar yang valid.']);
                 }
             }
@@ -112,15 +113,15 @@ class ProfilController extends Controller
                     }
                     $galeriLogoLama->update([
                         'path' => $pathLogo,
-                        'nama_file' => basename($pathLogo) // REMEDIASI
+                        'nama_file' => $fileLogo->getClientOriginalName(),
                     ]);
                 }
             } else {
                 $galeriLogoBaru = Galeri::create([
-                    'sumber_id'    => $profil->id,
-                    'path'         => $pathLogo,
-                    'nama_file'    => basename($pathLogo), // REMEDIASI
-                    'kategori'     => 'logo',
+                    'sumber_id' => $profil->id,
+                    'path' => $pathLogo,
+                    'nama_file' => $fileLogo->getClientOriginalName(),
+                    'kategori' => 'logo',
                     'is_watermark' => false,
                 ]);
                 $profil->logo_id = $galeriLogoBaru->id;
@@ -139,15 +140,15 @@ class ProfilController extends Controller
                     }
                     $galeriPembinaLama->update([
                         'path' => $pathPembina,
-                        'nama_file' => basename($pathPembina) // REMEDIASI
+                        'nama_file' => $filePembina->getClientOriginalName(),
                     ]);
                 }
             } else {
                 $galeriPembinaBaru = Galeri::create([
-                    'sumber_id'    => $profil->id,
-                    'path'         => $pathPembina,
-                    'nama_file'    => basename($pathPembina), // REMEDIASI
-                    'kategori'     => 'pembina',
+                    'sumber_id' => $profil->id,
+                    'path' => $pathPembina,
+                    'nama_file' => $filePembina->getClientOriginalName(),
+                    'kategori' => 'pembina',
                     'is_watermark' => false,
                 ]);
                 $profil->foto_pembina_id = $galeriPembinaBaru->id;
@@ -159,10 +160,10 @@ class ProfilController extends Controller
             foreach ($request->file('header_files') as $file) {
                 $path = $file->store('header', 'public');
                 Galeri::create([
-                    'sumber_id'    => $profil->id,
-                    'path'         => $path,
-                    'nama_file'    => basename($path), // REMEDIASI
-                    'kategori'     => 'header',
+                    'sumber_id' => $profil->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'header',
                     'is_watermark' => false,
                 ]);
             }
@@ -170,23 +171,24 @@ class ProfilController extends Controller
 
         // Update data teks yang sudah disanitasi
         $profil->update([
-            'deskripsi'        => $request->deskripsi,
-            'visi'             => $request->visi,
-            'misi'             => $request->misi,
-            'sejarah'          => $request->sejarah,
+            'deskripsi' => $request->deskripsi,
+            'visi' => $request->visi,
+            'misi' => $request->misi,
+            'sejarah' => $request->sejarah,
             'sambutan_pembina' => $request->sambutan_pembina,
         ]);
 
         if (class_exists('App\Models\LogAktivitas')) {
-            \App\Models\LogAktivitas::create([
-                'user_id'   => auth()->id(),
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
                 'aktivitas' => 'Memperbarui profil sanggar',
-                'waktu'     => now(),
+                'waktu' => now(),
             ]);
         }
 
         $role = auth()->user()->peran;
         $routeName = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
+
         return redirect()->route($routeName)->with('success', 'Profil sanggar berhasil diperbarui.');
     }
 
@@ -202,51 +204,51 @@ class ProfilController extends Controller
     public function storePengurus(Request $request)
     {
         $request->validate([
-            'nama'      => 'required|string|max:255',
-            'jabatan'   => 'required|string',
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'required|string',
             'instagram' => 'nullable|string|max:255',
-            'no_hp'     => 'nullable|string|max:20',
-            'status'    => 'required|in:aktif,nonaktif',
-            'foto'      => 'required|array',
-            'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096',
+            'no_hp' => 'nullable|string|max:20',
+            'status' => 'required|in:aktif,nonaktif',
+            'foto' => 'required|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         // Validasi MIME riil
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                if (!UploadHelper::isImageMimeValid($file)) {
+                if (! UploadHelper::isImageMimeValid($file)) {
                     return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
                 }
             }
         }
 
         $personel = Personel::create([
-            'nama'         => $request->nama,
-            'jabatan'      => $request->jabatan,
-            'instagram'    => $request->instagram,
+            'nama' => $request->nama,
+            'jabatan' => $request->jabatan,
+            'instagram' => $request->instagram,
             'no_handphone' => $request->no_hp,
-            'status'       => $request->status,
-            'peran'        => 'pengurus',
+            'status' => $request->status,
+            'peran' => 'pengurus',
         ]);
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
                 Galeri::create([
-                    'sumber_id'    => $personel->id,
-                    'path'         => $path,
-                    'nama_file'    => basename($path), // REMEDIASI
-                    'kategori'     => 'profil',
+                    'sumber_id' => $personel->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'profil',
                     'is_watermark' => false,
                 ]);
             }
         }
 
         if (class_exists('App\Models\LogAktivitas')) {
-            \App\Models\LogAktivitas::create([
-                'user_id'   => auth()->id(),
-                'aktivitas' => 'Menambahkan pengurus baru: ' . $request->nama,
-                'waktu'     => now(),
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Menambahkan pengurus baru: '.$request->nama,
+                'waktu' => now(),
             ]);
         }
 
@@ -263,6 +265,7 @@ class ProfilController extends Controller
     public function editPengurus(string $id)
     {
         $pengurus = Personel::with('galeri')->findOrFail($id);
+
         return view('kelola.profil.edit_pengurus', compact('pengurus'));
     }
 
@@ -271,39 +274,39 @@ class ProfilController extends Controller
         $pengurus = Personel::findOrFail($id);
 
         $request->validate([
-            'nama'         => 'required|string|max:255',
-            'jabatan'      => 'required|string',
-            'instagram'    => 'nullable|string|max:255',
-            'no_hp'        => 'nullable|string|max:20',
-            'status'       => 'required|in:aktif,nonaktif',
-            'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
-            'hapus_foto'   => 'nullable|array',
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'required|string',
+            'instagram' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'status' => 'required|in:aktif,nonaktif',
+            'foto' => 'nullable|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                if (!UploadHelper::isImageMimeValid($file)) {
+                if (! UploadHelper::isImageMimeValid($file)) {
                     return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
                 }
             }
         }
 
         $pengurus->update([
-            'nama'         => $request->nama,
-            'jabatan'      => $request->jabatan,
-            'instagram'    => $request->instagram,
+            'nama' => $request->nama,
+            'jabatan' => $request->jabatan,
+            'instagram' => $request->instagram,
             'no_handphone' => $request->no_hp,
-            'status'       => $request->status,
+            'status' => $request->status,
         ]);
 
         // Hapus foto lama yang ditandai
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pengurus->id)
-                                  ->where('kategori', 'profil')
-                                  ->find($fotoId);
+                    ->where('kategori', 'profil')
+                    ->find($fotoId);
                 if ($fotoLama) {
                     if (Storage::disk('public')->exists($fotoLama->path)) {
                         Storage::disk('public')->delete($fotoLama->path);
@@ -318,20 +321,20 @@ class ProfilController extends Controller
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
                 Galeri::create([
-                    'sumber_id'    => $pengurus->id,
-                    'path'         => $path,
-                    'nama_file'    => basename($path), // REMEDIASI
-                    'kategori'     => 'profil',
+                    'sumber_id' => $pengurus->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'profil',
                     'is_watermark' => false,
                 ]);
             }
         }
 
         if (class_exists('App\Models\LogAktivitas')) {
-            \App\Models\LogAktivitas::create([
-                'user_id'   => auth()->id(),
-                'aktivitas' => 'Memperbarui data pengurus: ' . $pengurus->nama,
-                'waktu'     => now(),
+            LogAktivitas::create([
+                'user_id' => auth()->id(),
+                'aktivitas' => 'Memperbarui data pengurus: '.$pengurus->nama,
+                'waktu' => now(),
             ]);
         }
 
@@ -378,40 +381,40 @@ class ProfilController extends Controller
     public function storePelatih(Request $request)
     {
         $request->validate([
-            'nama'      => 'required|string|max:255',
-            'jabatan'   => 'required|string',
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'required|string',
             'instagram' => 'nullable|string|max:255',
-            'no_hp'     => 'nullable|string|max:20',
-            'status'    => 'required|in:aktif,nonaktif',
-            'foto'      => 'required|array',
-            'foto.*'    => 'image|mimes:jpeg,png,jpg|max:4096',
+            'no_hp' => 'nullable|string|max:20',
+            'status' => 'required|in:aktif,nonaktif',
+            'foto' => 'required|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                if (!UploadHelper::isImageMimeValid($file)) {
+                if (! UploadHelper::isImageMimeValid($file)) {
                     return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
                 }
             }
         }
 
         $personel = Personel::create([
-            'nama'         => $request->nama,
-            'jabatan'      => $request->jabatan,
-            'instagram'    => $request->instagram,
+            'nama' => $request->nama,
+            'jabatan' => $request->jabatan,
+            'instagram' => $request->instagram,
             'no_handphone' => $request->no_hp,
-            'status'       => $request->status,
-            'peran'        => 'pelatih',
+            'status' => $request->status,
+            'peran' => 'pelatih',
         ]);
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
                 Galeri::create([
-                    'sumber_id'    => $personel->id,
-                    'path'         => $path,
-                    'nama_file'    => basename($path), // REMEDIASI
-                    'kategori'     => 'profil',
+                    'sumber_id' => $personel->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'profil',
                     'is_watermark' => false,
                 ]);
             }
@@ -430,6 +433,7 @@ class ProfilController extends Controller
     public function editPelatih(string $id)
     {
         $pelatih = Personel::with('galeri')->findOrFail($id);
+
         return view('kelola.profil.edit_pelatih', compact('pelatih'));
     }
 
@@ -438,39 +442,39 @@ class ProfilController extends Controller
         $pelatih = Personel::findOrFail($id);
 
         $request->validate([
-            'nama'         => 'required|string|max:255',
-            'jabatan'      => 'required|string',
-            'instagram'    => 'nullable|string|max:255',
-            'no_hp'        => 'nullable|string|max:20',
-            'status'       => 'required|in:aktif,nonaktif',
-            'foto'         => 'nullable|array',
-            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:4096',
-            'hapus_foto'   => 'nullable|array',
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'required|string',
+            'instagram' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'status' => 'required|in:aktif,nonaktif',
+            'foto' => 'nullable|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                if (!UploadHelper::isImageMimeValid($file)) {
+                if (! UploadHelper::isImageMimeValid($file)) {
                     return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
                 }
             }
         }
 
         $pelatih->update([
-            'nama'         => $request->nama,
-            'jabatan'      => $request->jabatan,
-            'instagram'    => $request->instagram,
+            'nama' => $request->nama,
+            'jabatan' => $request->jabatan,
+            'instagram' => $request->instagram,
             'no_handphone' => $request->no_hp,
-            'status'       => $request->status,
+            'status' => $request->status,
         ]);
 
         // Hapus foto lama yang ditandai
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pelatih->id)
-                                  ->where('kategori', 'profil')
-                                  ->find($fotoId);
+                    ->where('kategori', 'profil')
+                    ->find($fotoId);
                 if ($fotoLama) {
                     if (Storage::disk('public')->exists($fotoLama->path)) {
                         Storage::disk('public')->delete($fotoLama->path);
@@ -485,10 +489,10 @@ class ProfilController extends Controller
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
                 Galeri::create([
-                    'sumber_id'    => $pelatih->id,
-                    'path'         => $path,
-                    'nama_file'    => basename($path), // REMEDIASI
-                    'kategori'     => 'profil',
+                    'sumber_id' => $pelatih->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'profil',
                     'is_watermark' => false,
                 ]);
             }

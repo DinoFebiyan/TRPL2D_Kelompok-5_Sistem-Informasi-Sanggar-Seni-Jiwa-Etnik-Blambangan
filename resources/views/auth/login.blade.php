@@ -625,7 +625,7 @@
                  {{-- recaptcha --}}
                 <div style="margin-bottom:20px;">
                     <div class="g-recaptcha"
-                        data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
+                        data-sitekey="{{ config('services.recaptcha.site_key') }}">
                     </div>
 
                     @error('g-recaptcha-response')

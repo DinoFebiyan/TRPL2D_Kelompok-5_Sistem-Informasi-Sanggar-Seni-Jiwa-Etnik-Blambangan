@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Katalog;
-use App\Models\Event;
 use App\Models\Berita;
-use Illuminate\Http\Request;
+use App\Models\Event;
+use App\Models\Katalog;
 use Carbon\Carbon;
 
 class DashboardAdminController extends Controller

@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('galeri', function (Blueprint $table) {
-        $table->id();
-        $table->unsignedBigInteger('sumber_id')->nullable();
-        $table->longText('path'); 
-        $table->string('nama_file');
-        $table->string('kategori'); 
-        $table->boolean('is_watermark')->default(false);
-        $table->timestamps();
- });
+            $table->id();
+            $table->unsignedBigInteger('sumber_id')->nullable();
+            $table->longText('path');
+            $table->string('nama_file');
+            $table->string('kategori');
+            $table->boolean('is_watermark')->default(false);
+            $table->timestamps();
+        });
     }
 
     /**

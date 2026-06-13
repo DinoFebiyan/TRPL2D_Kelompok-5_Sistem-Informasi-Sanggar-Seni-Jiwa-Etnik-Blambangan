@@ -35,10 +35,9 @@ class User extends Authenticatable
     /** * Hubungan (Relationships):
      * Seorang User (Admin) bisa membuat banyak data konten.
      */
-
     public function galeri()
     {
-         return $this->hasOne(Galeri::class, 'sumber_id', 'id')->where('kategori', 'admin');
+        return $this->hasOne(Galeri::class, 'sumber_id', 'id')->where('kategori', 'admin');
     }
 
     public function berita()

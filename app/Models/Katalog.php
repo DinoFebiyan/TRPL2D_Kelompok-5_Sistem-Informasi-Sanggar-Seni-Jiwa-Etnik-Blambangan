@@ -21,7 +21,7 @@ class Katalog extends Model
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
-    
+
     // PERBAIKAN: Diubah menjadi HasMany agar satu produk katalog bisa memiliki banyak foto header sekaligus
     public function galeri(): HasMany
     {

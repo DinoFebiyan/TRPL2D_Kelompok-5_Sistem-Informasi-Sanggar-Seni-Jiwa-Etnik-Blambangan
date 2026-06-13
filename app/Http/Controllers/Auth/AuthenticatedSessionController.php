@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -36,17 +36,17 @@ class AuthenticatedSessionController extends Controller
         $response = Http::asForm()->post(
             'https://www.google.com/recaptcha/api/siteverify',
             [
-                'secret' => env('RECAPTCHA_SECRET_KEY'),
+                'secret' => config('services.recaptcha.secret_key'),
                 'response' => $request->input('g-recaptcha-response'),
             ]
         );
 
         $hasilCaptcha = $response->json();
 
-        if (!($hasilCaptcha['success'] ?? false)) {
+        if (! ($hasilCaptcha['success'] ?? false)) {
             return back()
                 ->withErrors([
-                    'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal.'
+                    'g-recaptcha-response' => 'Verifikasi reCAPTCHA gagal.',
                 ])
                 ->withInput();
         }
@@ -66,7 +66,7 @@ class AuthenticatedSessionController extends Controller
             $request->session()->regenerateToken();
 
             return back()->withErrors([
-                'email' => 'Akun Anda telah dinonaktifkan. Hubungi Super Admin.'
+                'email' => 'Akun Anda telah dinonaktifkan. Hubungi Super Admin.',
             ]);
         }
 

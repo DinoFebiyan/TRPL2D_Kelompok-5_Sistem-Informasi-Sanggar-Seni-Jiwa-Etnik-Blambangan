@@ -1,0 +1,118 @@
+# =============================================================
+#  docker-compose.yml — DEVELOPMENT
+#
+#  Features:
+#    - Source code mounted (live edits reflect instantly)
+#    - Vite hot-reload (HMR) via dedicated container
+#    - MySQL exposed on host port 3307 (avoids local MySQL conflict)
+#    - APP_DEBUG=true, opcache disabled
+#    - Auto seeds database on first boot
+#
+#  Usage:
+#    docker compose up -d
+#    docker compose logs -f app
+#    docker compose down -v   ← also removes volumes (wipe DB)
+# =============================================================
+
+name: jeb-dev
+
+services:
+
+  # ──────────────────────────────────────────────────
+  # PHP-FPM Application Server (Development)
+  # ──────────────────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    container_name: jeb_app
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Mount source code for live editing
+      - .:/var/www/html
+      # Isolate vendor inside container (avoid Windows path issues)
+      - jeb_vendor:/var/www/html/vendor
+    networks:
+      - jeb
+    depends_on:
+      db:
+        condition: service_healthy
+
+  # ──────────────────────────────────────────────────
+  # Nginx Web Server
+  # ──────────────────────────────────────────────────
+  webserver:
+    image: nginx:1.27-alpine
+    container_name: jeb_webserver
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:80"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - jeb
+    depends_on:
+      - app
+
+  # ──────────────────────────────────────────────────
+  # MySQL 8.0 Database
+  # ──────────────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: jeb_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: "${DB_PASSWORD:-secret}"
+      MYSQL_DATABASE: "${DB_DATABASE:-jeb_db}"
+      MYSQL_USER: "${DB_USERNAME:-jeb_user}"
+      MYSQL_PASSWORD: "${DB_PASSWORD:-secret}"
+    ports:
+      # Exposed for DB client access from host (e.g., TablePlus, DBeaver)
+      - "${DB_EXTERNAL_PORT:-3307}:3306"
+    volumes:
+      - jeb_db:/var/lib/mysql
+    networks:
+      - jeb
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p${DB_PASSWORD:-secret}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  # ──────────────────────────────────────────────────
+  # Vite Dev Server (Hot Module Replacement)
+  # Access HMR at http://localhost:5173
+  # ──────────────────────────────────────────────────
+  vite:
+    image: node:20-alpine
+    container_name: jeb_vite
+    working_dir: /app
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      # Isolate node_modules inside container
+      - jeb_node_modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    networks:
+      - jeb
+
+# ──────────────────────────────────────────────────
+# Networks & Volumes
+# ──────────────────────────────────────────────────
+networks:
+  jeb:
+    driver: bridge
+
+volumes:
+  jeb_db:
+    driver: local
+  jeb_vendor:
+    driver: local
+  jeb_node_modules:
+    driver: local

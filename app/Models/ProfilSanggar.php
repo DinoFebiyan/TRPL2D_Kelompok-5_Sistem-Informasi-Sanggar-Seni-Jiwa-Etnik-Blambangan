@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use App\Models\Galeri;
 
 class ProfilSanggar extends Model
 {
@@ -17,7 +16,7 @@ class ProfilSanggar extends Model
         'sejarah',
         'sambutan_pembina',
         'logo_id',
-        'foto_pembina_id'
+        'foto_pembina_id',
     ];
 
     // Relasi untuk Logo dan Foto Pembina (keduanya merujuk ke tabel media)
@@ -25,6 +24,7 @@ class ProfilSanggar extends Model
     {
         return $this->belongsTo(Galeri::class, 'logo_id');
     }
+
     public function fotoPembina()
     {
         return $this->belongsTo(Galeri::class, 'foto_pembina_id');

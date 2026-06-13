@@ -14,7 +14,7 @@ class PengaturanSistem extends Model
         'link_wa',
         'link_email',
         'link_instagram',
-        'link_tiktok'
+        'link_tiktok',
     ];
 
     /**

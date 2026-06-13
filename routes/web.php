@@ -1,21 +1,19 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use App\http\Controllers\AdminController;
-use App\Http\Controllers\LandingPageController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Auth\OtpController;
 use App\Http\Controllers\BeritaController;
-use App\Http\Controllers\ProfilController;
-use App\Http\Controllers\KatalogController;
+use App\Http\Controllers\DashboardAdminController;
+use App\Http\Controllers\DashboardSuperadminController;
 use App\Http\Controllers\EventController;
-use App\Http\Controllers\GaleriController;
+use App\Http\Controllers\KatalogController;
 use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\PengaturanController;
-use App\Http\Controllers\DashboardSuperadminController;
-use App\Http\Controllers\DashboardAdminController;
-use App\Http\Controllers\UmumController;
 use App\Http\Controllers\PengaturanSistemController;
+use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\UmumController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\OtpController;
 
 // =========================================================================
 // 1. HALAMAN UTAMA & PUBLIK (Folder: views/umum)
@@ -35,14 +33,14 @@ Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.pro
 // 2. AUTH & REDIRECTION ROLE
 // =========================================================================
 Route::get('/dashboard', function () {
-     $user = auth()->user();
-    
+    $user = auth()->user();
+
     if ($user->peran === 'superadmin') {
         return redirect()->route('superadmin.dashboard');
     } elseif ($user->peran === 'admin') {
         return redirect()->route('admin.dashboard');
     }
-    
+
     return abort(403, 'Akses peran tidak sah.');
 })->middleware(['auth'])->name('dashboard');
 
@@ -53,39 +51,38 @@ Route::get('/dashboard', function () {
 Route::middleware('guest')->group(function () {
     // Step 1 – Tampilkan form email lupa password
     Route::get('/auth/forgot-password', [OtpController::class, 'showForgotForm'])
-         ->name('otp.forgot.form');
+        ->name('otp.forgot.form');
 
     // Step 2 – Proses kirim OTP ke email
     Route::post('/auth/forgot-password', [OtpController::class, 'sendOtp'])
-         ->name('otp.send');
+        ->name('otp.send');
 
     // Step 3 – Tampilkan form verifikasi OTP
     Route::get('/auth/verifikasi-otp', [OtpController::class, 'showVerifyForm'])
-         ->name('otp.verify.form');
+        ->name('otp.verify.form');
 
     // Step 4 – Proses verifikasi kode OTP
     Route::post('/auth/verifikasi-otp', [OtpController::class, 'verifyOtp'])
-         ->name('otp.verify');
+        ->name('otp.verify');
 
     // Step 5 – Tampilkan form reset password baru
     Route::get('/auth/reset-password', [OtpController::class, 'showResetForm'])
-         ->name('otp.reset.form');
+        ->name('otp.reset.form');
 
     // Step 6 – Simpan password baru
     Route::post('/auth/reset-password', [OtpController::class, 'resetPassword'])
-         ->name('otp.reset');
+        ->name('otp.reset');
 
     // Bonus – Kirim ulang OTP
     Route::post('/auth/resend-otp', [OtpController::class, 'resendOtp'])
-         ->name('otp.resend');
+        ->name('otp.resend');
 });
-
 
 // =========================================================================
 // 3. ROUTE UNTUK ADMIN BIASA
 // =========================================================================
 Route::prefix('admin')->middleware(['admin.auth'])->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
 
@@ -97,7 +94,7 @@ Route::prefix('admin')->middleware(['admin.auth'])->group(function () {
     Route::put('/event/update/{id}', [EventController::class, 'update'])->name('admin.update-event');
     Route::delete('/event/hapus/{id}', [EventController::class, 'destroy'])->name('admin.hapus-event');
 
-    // Kelola Berita 
+    // Kelola Berita
     Route::get('/kelola-berita', [BeritaController::class, 'index'])->name('admin.kelola-berita');
     Route::get('/kelola-berita/tambah-berita', [BeritaController::class, 'create'])->name('admin.tambah-berita');
     Route::post('/kelola-berita/store', [BeritaController::class, 'store'])->name('admin.store-berita');
@@ -146,7 +143,7 @@ Route::get('/error/path', function () {
 // 4. ROUTE UNTUK SUPER ADMIN
 // =========================================================================
 Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () {
-    
+
     // Dashboard
     Route::get('/dashboard', [DashboardSuperadminController::class, 'index'])->name('superadmin.dashboard');
 
@@ -174,7 +171,7 @@ Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () 
     Route::put('/event/update/{id}', [EventController::class, 'update'])->name('superadmin.update-event');
     Route::delete('/event/hapus/{id}', [EventController::class, 'destroy'])->name('superadmin.hapus-event');
 
-    // Kelola Berita 
+    // Kelola Berita
     Route::get('/kelola-berita', [BeritaController::class, 'index'])->name('superadmin.kelola-berita');
     Route::get('/kelola-berita/tambah-berita', [BeritaController::class, 'create'])->name('superadmin.tambah-berita');
     Route::post('/kelola-berita/store', [BeritaController::class, 'store'])->name('superadmin.store-berita');
@@ -202,12 +199,12 @@ Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () 
     Route::get('/pengaturan-sistem/edit', [PengaturanSistemController::class, 'edit'])->name('superadmin.pengaturan-sistem.edit');
     Route::put('/pengaturan-sistem/update', [PengaturanSistemController::class, 'update'])->name('superadmin.pengaturan-sistem.update');
 
-    // Pengaturan   
+    // Pengaturan
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('superadmin.pengaturan');
     Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('superadmin.pengaturan.update-profil');
     Route::put('/pengaturan/update-password', [PengaturanController::class, 'updatePassword'])->name('superadmin.pengaturan.update-password');
 
-    // Log Aktivitas 
+    // Log Aktivitas
     Route::get('/log-aktivitas', [LogAktivitasController::class, 'index'])->name('superadmin.log-aktivitas');
 });
 

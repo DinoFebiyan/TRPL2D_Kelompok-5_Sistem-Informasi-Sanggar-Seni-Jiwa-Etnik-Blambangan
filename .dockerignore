@@ -1,0 +1,60 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Environment files — NEVER bake into image
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Local dev artifacts
+public/hot
+public/storage
+
+# Tests & CI
+tests
+phpunit.xml
+.phpunit.result.cache
+.phpunit.cache
+
+# IDE & Editor configs
+.idea
+.vscode
+.fleet
+.nova
+.zed
+.editorconfig
+.phpactor.json
+
+# Docker files (not needed in image context)
+docker-compose*.yml
+Dockerfile*
+
+# OS
+.DS_Store
+Thumbs.db
+*.log
+
+# Docs
+README.md
+DEPLOY_SHARED_HOSTING.md
+
+# Laravel dev tools
+.php-cs-fixer.cache
+.php_cs.cache
+
+# Storage runtime files (bind-mounted in prod)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+!storage/logs/.gitignore
+!storage/framework/cache/.gitignore
+!storage/framework/sessions/.gitignore
+!storage/framework/views/.gitignore

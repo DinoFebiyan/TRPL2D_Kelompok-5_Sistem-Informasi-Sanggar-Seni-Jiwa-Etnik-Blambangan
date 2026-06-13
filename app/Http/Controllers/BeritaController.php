@@ -2,26 +2,34 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Helpers\SanitizeHelper;
+use App\Helpers\UploadHelper;
 use App\Models\Berita;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
-use App\Helpers\SanitizeHelper;
-use App\Helpers\UploadHelper;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
 use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class BeritaController extends Controller
 {
     // Fungsi untuk menyimpan gambar dengan watermark
     private function simpanDenganWatermark($file)
     {
-        $manager = new ImageManager(new Driver());
+        $manager = new ImageManager(new Driver);
 
-        // REMEDIASI: Simpan file asli terlebih dahulu dengan nama acak dari Laravel untuk menghindari input mentah klien
-        $temporaryPath = $file->store('berita/asli', 'public');
-        $filename = basename($temporaryPath);
+        $filename =
+            time().'_'.
+            uniqid().'.'.
+            $file->getClientOriginalExtension();
+
+        // Simpan file asli
+        $file->storeAs(
+            'berita/asli',
+            $filename,
+            'public'
+        );
 
         // Baca gambar asli
         $image = $manager->read(
@@ -47,12 +55,12 @@ class BeritaController extends Controller
         // Simpan hasil watermark
         $image->save(
             storage_path(
-                'app/public/berita/watermark/' .
+                'app/public/berita/watermark/'.
                 $filename
             )
         );
 
-        return 'berita/watermark/' . $filename;
+        return 'berita/watermark/'.$filename;
     }
 
     /**
@@ -66,18 +74,18 @@ class BeritaController extends Controller
         $query = Berita::with(['user', 'galeri']);
 
         // 1. Global Search (Judul, Isi Berita, Nama Penulis)
-        if (!empty($search)) {
+        if (! empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('judul', 'like', '%' . $search . '%')
-                    ->orWhere('isi_berita', 'like', '%' . $search . '%')
+                $q->where('judul', 'like', '%'.$search.'%')
+                    ->orWhere('isi_berita', 'like', '%'.$search.'%')
                     ->orWhereHas('user', function ($userQuery) use ($search) {
-                        $userQuery->where('name', 'like', '%' . $search . '%');
+                        $userQuery->where('name', 'like', '%'.$search.'%');
                     });
             });
         }
 
         // 2. Multi-Filter Status Checkbox
-        if (!empty($statuses)) {
+        if (! empty($statuses)) {
             $query->whereIn('status', $statuses);
         }
 
@@ -125,7 +133,7 @@ class BeritaController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                if (!UploadHelper::isImageMimeValid($file)) {
+                if (! UploadHelper::isImageMimeValid($file)) {
                     return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
                 }
             }
@@ -146,7 +154,7 @@ class BeritaController extends Controller
                 Galeri::create([
                     'sumber_id' => $berita->id,
                     'path' => $path,
-                    'nama_file' => basename($path), // REMEDIASI: Menggunakan nama aman dari path acak internal
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'berita',
                     'is_watermark' => true,
                 ]);
@@ -155,7 +163,7 @@ class BeritaController extends Controller
 
         LogAktivitas::create([
             'user_id' => auth()->id(),
-            'aktivitas' => 'Menambahkan berita baru: ' . $request->judul,
+            'aktivitas' => 'Menambahkan berita baru: '.$request->judul,
             'waktu' => now(),
         ]);
 
@@ -184,6 +192,7 @@ class BeritaController extends Controller
     public function edit(string $id)
     {
         $berita = Berita::with('galeri')->findOrFail($id);
+
         return view('kelola.berita.update', compact('berita'));
     }
 
@@ -209,7 +218,7 @@ class BeritaController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                if (!UploadHelper::isImageMimeValid($file)) {
+                if (! UploadHelper::isImageMimeValid($file)) {
                     return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
                 }
             }
@@ -244,7 +253,7 @@ class BeritaController extends Controller
                 Galeri::create([
                     'sumber_id' => $berita->id,
                     'path' => $path,
-                    'nama_file' => basename($path), // REMEDIASI: Menggunakan nama aman dari path acak internal
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'berita',
                     'is_watermark' => true,
                 ]);
@@ -253,7 +262,7 @@ class BeritaController extends Controller
 
         LogAktivitas::create([
             'user_id' => auth()->id(),
-            'aktivitas' => 'Memperbarui data berita: ' . $berita->judul,
+            'aktivitas' => 'Memperbarui data berita: '.$berita->judul,
             'waktu' => now(),
         ]);
 
@@ -281,7 +290,7 @@ class BeritaController extends Controller
         $file = $request->file('file');
 
         // REMEDIASI: Menambahkan proteksi MIME riil tambahan sebelum memproses berkas TinyMCE
-        if (!UploadHelper::isImageMimeValid($file)) {
+        if (! UploadHelper::isImageMimeValid($file)) {
             return response()->json(['error' => 'Berkas tidak valid.'], 400);
         }
 
@@ -311,7 +320,7 @@ class BeritaController extends Controller
 
         LogAktivitas::create([
             'user_id' => auth()->id(),
-            'aktivitas' => 'Menghapus berita: ' . $judulBerita,
+            'aktivitas' => 'Menghapus berita: '.$judulBerita,
             'waktu' => now(),
         ]);
 

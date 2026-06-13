@@ -11,11 +11,11 @@ class SuperAdminAuth
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || auth()->user()->peran !== 'superadmin') {
+        if (! auth()->check() || auth()->user()->peran !== 'superadmin') {
             return response()->view('error.akses', ['peran' => 'Super Admin'], 403);
         }
 
