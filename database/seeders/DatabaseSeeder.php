@@ -56,60 +56,67 @@ class DatabaseSeeder extends Seeder
         // ====================================================================
 
         // Ambil data dari .env secara ketat (tanpa default/fallback hardcode)
-        $superAdmin = User::create([
-            'name' => $this->getEnvOrThrow('SUPERADMIN_NAME'),
+        $superAdmin = User::updateOrCreate([
             'email' => $this->getEnvOrThrow('SUPERADMIN_EMAIL'),
+        ], [
+            'name' => $this->getEnvOrThrow('SUPERADMIN_NAME'),
             'password' => Hash::make($this->getEnvOrThrow('SUPERADMIN_PASSWORD')),
             'peran' => 'superadmin',
             'no_handphone' => '081234567890',
             'status' => 'aktif',
         ]);
 
-        $admin = User::create([
-            'name' => $this->getEnvOrThrow('ADMIN_NAME'),
+        $admin = User::updateOrCreate([
             'email' => $this->getEnvOrThrow('ADMIN_EMAIL'),
+        ], [
+            'name' => $this->getEnvOrThrow('ADMIN_NAME'),
             'password' => Hash::make($this->getEnvOrThrow('ADMIN_PASSWORD')),
             'peran' => 'admin',
             'no_handphone' => '081298765432',
             'status' => 'aktif',
         ]);
 
-        User::create([
-            'name' => $this->getEnvOrThrow('OTP_NAME'),
+        User::updateOrCreate([
             'email' => $this->getEnvOrThrow('OTP_EMAIL'),
+        ], [
+            'name' => $this->getEnvOrThrow('OTP_NAME'),
             'password' => Hash::make($this->getEnvOrThrow('OTP_PASSWORD')),
             'peran' => 'superadmin',
             'no_handphone' => '081234567890',
             'status' => 'aktif',
         ]);
 
-        PengaturanSistem::create([
-            'link_maps' => 'https://maps.app.goo.gl/gYaB32Nd5wr9o83h8',
-            'link_wa' => '6282232505355',
-            'link_email' => 'mustikasadida@gmail.com',
-            'link_instagram' => 'https://www.instagram.com/jiwaetnikblambangan',
-            'link_tiktok' => 'https://www.tiktok.com/@jiwaetnikblambangan',
-        ]);
+        if (PengaturanSistem::count() === 0) {
+            PengaturanSistem::create([
+                'link_maps' => 'https://maps.app.goo.gl/gYaB32Nd5wr9o83h8',
+                'link_wa' => '6282232505355',
+                'link_email' => 'mustikasadida@gmail.com',
+                'link_instagram' => 'https://www.instagram.com/jiwaetnikblambangan',
+                'link_tiktok' => 'https://www.tiktok.com/@jiwaetnikblambangan',
+            ]);
+        }
 
-        // Setup Profil Sanggar (Contoh data statis yang aman di-hardcode)
-        $pathLogo = $this->copyDemoImage('img/images-landing-page/galeri/logo-jeb.jpg', 'galeri/logo-jeb.jpg');
-        $pathPembina = $this->copyDemoImage('img/images-landing-page/galeri/foto_pembina.jpg', 'galeri/foto_pembina.jpg');
+        if (ProfilSanggar::count() === 0) {
+            // Setup Profil Sanggar (Contoh data statis yang aman di-hardcode)
+            $pathLogo = $this->copyDemoImage('img/images-landing-page/galeri/logo-jeb.jpg', 'galeri/logo-jeb.jpg');
+            $pathPembina = $this->copyDemoImage('img/images-landing-page/galeri/foto_pembina.jpg', 'galeri/foto_pembina.jpg');
 
-        $galeri1 = Galeri::create(['sumber_id' => 0, 'path' => $pathLogo, 'nama_file' => uniqid().'_logo-jeb.jpg', 'kategori' => 'profil', 'is_watermark' => false]);
-        $galeri2 = Galeri::create(['sumber_id' => 0, 'path' => $pathPembina, 'nama_file' => uniqid().'_foto_pembina.jpg', 'kategori' => 'profil', 'is_watermark' => false]);
+            $galeri1 = Galeri::create(['sumber_id' => 0, 'path' => $pathLogo, 'nama_file' => uniqid().'_logo-jeb.jpg', 'kategori' => 'profil', 'is_watermark' => false]);
+            $galeri2 = Galeri::create(['sumber_id' => 0, 'path' => $pathPembina, 'nama_file' => uniqid().'_foto_pembina.jpg', 'kategori' => 'profil', 'is_watermark' => false]);
 
-        $profil = ProfilSanggar::create([
-            'deskripsi' => 'Sanggar Tari Jiwa Etnik Blambangan (JEB)...',
-            'visi' => 'Menjadi sanggar seni yang unggul...',
-            'misi' => 'Mengembangkan potensi anggota...',
-            'sejarah' => 'Berdiri sejak 2010...',
-            'sambutan_pembina' => 'Selamat datang di JEB...',
-            'logo_id' => $galeri1->id,
-            'foto_pembina_id' => $galeri2->id,
-        ]);
+            $profil = ProfilSanggar::create([
+                'deskripsi' => 'Sanggar Tari Jiwa Etnik Blambangan (JEB)...',
+                'visi' => 'Menjadi sanggar seni yang unggul...',
+                'misi' => 'Mengembangkan potensi anggota...',
+                'sejarah' => 'Berdiri sejak 2010...',
+                'sambutan_pembina' => 'Selamat datang di JEB...',
+                'logo_id' => $galeri1->id,
+                'foto_pembina_id' => $galeri2->id,
+            ]);
 
-        $galeri1->update(['sumber_id' => $profil->id]);
-        $galeri2->update(['sumber_id' => $profil->id]);
+            $galeri1->update(['sumber_id' => $profil->id]);
+            $galeri2->update(['sumber_id' => $profil->id]);
+        }
 
         // ====================================================================
         // 3. SEEDER DATA DUMMY (HANYA Dijalankan di Local/Dev)
