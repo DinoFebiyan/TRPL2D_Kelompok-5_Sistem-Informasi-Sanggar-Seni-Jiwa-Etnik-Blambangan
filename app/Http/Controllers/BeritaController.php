@@ -24,13 +24,6 @@ class BeritaController extends Controller
             uniqid().'.'.
             $file->getClientOriginalExtension();
 
-        // Simpan file asli
-        $file->storeAs(
-            'berita/asli',
-            $filename,
-            'public'
-        );
-
         // Baca gambar asli
         $image = $manager->read(
             $file->getRealPath()
@@ -55,12 +48,12 @@ class BeritaController extends Controller
         // Simpan hasil watermark
         $image->save(
             storage_path(
-                'app/public/berita/watermark/'.
+                'app/public/berita/'.
                 $filename
             )
         );
 
-        return 'berita/watermark/'.$filename;
+        return 'berita/'.$filename;
     }
 
     /**

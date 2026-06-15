@@ -24,14 +24,8 @@ class EventController extends Controller
 
         $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
 
-        // 1. Simpan gambar asli (tanpa watermark) ke storage
-        $file->storeAs(
-            'event/asli',
-            $filename,
-            'public'
-        );
 
-        // 2. Baca gambar untuk diberi watermark
+        //  Baca gambar untuk diberi watermark
         $image = $manager->read($file->getRealPath());
         $watermark = $manager->read(public_path('img/watermark/logo-jeb.png'));
 
@@ -43,9 +37,9 @@ class EventController extends Controller
 
         // Pastikan direktori event/watermark sudah dibuat secara manual atau via script
         // agar proses save() dari Intervention tidak gagal (Permission/Not Found).
-        $image->save(storage_path('app/public/event/watermark/' . $filename));
+        $image->save(storage_path('app/public/event/' . $filename));
 
-        return 'event/watermark/' . $filename;
+        return 'event/' . $filename;
     }
 
     /**

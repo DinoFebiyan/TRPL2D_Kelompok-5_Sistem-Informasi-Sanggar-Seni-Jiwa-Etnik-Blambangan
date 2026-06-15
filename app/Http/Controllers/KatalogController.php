@@ -26,13 +26,6 @@ class KatalogController extends Controller
             uniqid().'.'.
             $file->getClientOriginalExtension();
 
-        // Simpan asli
-        $file->storeAs(
-            'katalog/asli',
-            $filename,
-            'public'
-        );
-
         $image = $manager->read(
             $file->getRealPath()
         );
@@ -55,12 +48,11 @@ class KatalogController extends Controller
 
         $image->save(
             storage_path(
-                'app/public/katalog/watermark/'.
-                $filename
+                'app/public/katalog/'. $filename
             )
         );
 
-        return 'katalog/watermark/'.$filename;
+        return 'katalog/'.$filename;
     }
 
     /**
