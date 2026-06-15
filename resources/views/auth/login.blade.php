@@ -572,7 +572,7 @@
                             type="email"
                             name="email"
                             value="{{ old('email') }}"
-                            placeholder="admin@jeb.id"
+                            placeholder="Masukkan alamat email Anda..."
                             required
                             autofocus
                             autocomplete="username"

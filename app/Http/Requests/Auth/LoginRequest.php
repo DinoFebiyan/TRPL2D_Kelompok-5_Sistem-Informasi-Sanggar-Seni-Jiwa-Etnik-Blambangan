@@ -33,6 +33,15 @@ class LoginRequest extends FormRequest
         ];
     }
 
+    public function messages(): array
+    {
+        return [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid (harus mengandung @).',
+            'password.required' => 'Kata sandi wajib diisi.',
+        ];
+    }
+
     /**
      * Attempt to authenticate the request's credentials.
      *
