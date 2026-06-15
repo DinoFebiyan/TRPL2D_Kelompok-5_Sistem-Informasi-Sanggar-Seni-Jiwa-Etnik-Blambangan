@@ -24,13 +24,13 @@ class DashboardSuperadminController extends Controller
         // 2. Query untuk Tabel Kiri: 5 Event Terdekat yang Belum Selesai
         $upcomingEvents = Event::where('status', 'belum selesai')
             ->orderBy('tanggal', 'asc')
-            ->take(5)
+            ->take(10)
             ->get();
 
         // 3. Query untuk Tabel Kanan: 5 Log Aktivitas Terbaru
         $recentActivities = LogAktivitas::with('user')
             ->latest()
-            ->take(5)
+            ->take(10)
             ->get();
 
         // 4. Melempar semua data ke view dashboard superadmin

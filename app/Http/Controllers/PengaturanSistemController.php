@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Galeri;
-use App\Models\Galeri;
 use App\Models\LogAktivitas;
 use App\Models\PengaturanSistem;
 use Illuminate\Support\Facades\Storage;
