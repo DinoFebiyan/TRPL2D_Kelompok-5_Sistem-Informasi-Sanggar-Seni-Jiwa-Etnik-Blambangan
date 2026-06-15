@@ -517,8 +517,8 @@
 
         <div class="logo-ring">
             {{-- Ganti src sesuai path aset lo --}}
-            <img src="{{ asset('img/logo-jeb.jpg') }}" alt="Logo JEB"
-                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+           <img src="{{ asset('storage/galeri/logo-jeb.jpg') }}" alt="Logo JEB"
+                onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
             <div class="logo-fallback" style="display:none;">JEB</div>
         </div>
 
