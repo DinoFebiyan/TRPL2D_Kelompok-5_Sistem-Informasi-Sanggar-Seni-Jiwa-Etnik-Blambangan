@@ -15,7 +15,7 @@ Sebelumnya, dokumentasi dan informasi sanggar tersebar di berbagai platform medi
 
 **Untuk Admin**
 - Dashboard admin
-- Kelola berita (CRUD, editor rich-text)
+- Kelola berita (CRUD)
 - Kelola event (CRUD)
 - Kelola profil sanggar & data personel (pengurus/pelatih)
 - Pengaturan akun (ubah profil & password)
@@ -50,7 +50,7 @@ Sebelumnya, dokumentasi dan informasi sanggar tersebar di berbagai platform medi
 ## Panduan Instalasi & Menjalankan Aplikasi
 
 ### Prasyarat
-- PHP >= 8.2
+- PHP 8.2
 - Composer
 - Node.js & NPM
 - MySQL
@@ -86,7 +86,7 @@ Sebelumnya, dokumentasi dan informasi sanggar tersebar di berbagai platform medi
 
 6. **Konfigurasi database**
 
-   Buat database baru di MySQL, lalu sesuaikan kredensial pada file `.env`:
+   Buat database baru di MySQL, lalu sesuaikan kredensialnya pada file `.env`:
    ```
    DB_CONNECTION=mysql
    DB_HOST=127.0.0.1
@@ -102,18 +102,18 @@ Sebelumnya, dokumentasi dan informasi sanggar tersebar di berbagai platform medi
    ```
    SUPERADMIN_NAME=Nama Superadmin
    SUPERADMIN_EMAIL=superadmin@example.com
-   SUPERADMIN_PASSWORD=password_aman
+   SUPERADMIN_PASSWORD=password
 
    ADMIN_NAME=Nama Admin
    ADMIN_EMAIL=admin@example.com
-   ADMIN_PASSWORD=password_aman
+   ADMIN_PASSWORD=password
 
    OTP_NAME=Nama Akun OTP
    OTP_EMAIL=otp@example.com
-   OTP_PASSWORD=password_aman
+   OTP_PASSWORD=password
    ```
 
-   Tambahkan juga konfigurasi mail (SMTP) di `.env` agar fitur kirim OTP via email berfungsi.
+   Tambahkan juga konfigurasi mail (SMTP) di `.env` agar fitur kirim OTP via email bisa berfungsi.
 
 8. **Jalankan migrasi & seeder**
    ```bash
@@ -127,10 +127,6 @@ Sebelumnya, dokumentasi dan informasi sanggar tersebar di berbagai platform medi
 
 10. **Build asset frontend**
     ```bash
-    npm run dev
-    ```
-    atau untuk production:
-    ```bash
     npm run build
     ```
 
@@ -138,14 +134,16 @@ Sebelumnya, dokumentasi dan informasi sanggar tersebar di berbagai platform medi
     ```bash
     php artisan serve
     ```
-
+    ```bash
+    nom run dev
+    ```
     Aplikasi dapat diakses melalui `http://127.0.0.1:8000`.
 
 ### Akun Demo
 
 Akun superadmin dan admin **tidak di-hardcode**, melainkan dibuat dari nilai yang diisi pada file `.env` (lihat langkah 7 di atas). Gunakan email & password yang telah dikonfigurasi pada `.env` untuk login sebagai superadmin/admin setelah seeding selesai.
 
-## Struktur Folder (Ringkas — Laravel Default)
+## Struktur Folder
 
 ```
 app/
