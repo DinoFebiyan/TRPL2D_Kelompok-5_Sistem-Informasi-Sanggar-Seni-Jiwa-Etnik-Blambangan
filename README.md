@@ -1,59 +1,180 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Sistem Informasi Sanggar Seni Jiwa Etnik Blambangan (JEB)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Portal informasi dan manajemen digital untuk Sanggar Seni Jiwa Etnik Blambangan (JEB), sebuah organisasi seni di Kecamatan Singojuruh, Kabupaten Banyuwangi, yang berfokus pada pelestarian budaya lokal dan pengembangan kreativitas generasi muda melalui seni tradisional Banyuwangi.
 
-## About Laravel
+Sebelumnya, dokumentasi dan informasi sanggar tersebar di berbagai platform media sosial yang tidak terintegrasi, sehingga menyulitkan pengelolaan dan mempersempit jangkauan promosi. Sistem ini dibangun untuk menjadi satu portal terpadu yang menjawab tiga permasalahan utama: keterbatasan media promosi digital, risiko pencurian dokumentasi karya seni, dan pengelolaan jadwal/kostum yang tidak efisien.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Fitur-Fitur
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Untuk Pengunjung (Publik)**
+- Landing page profil sanggar (visi, misi, sejarah, sambutan pembina, data pengurus & pelatih)
+- Berita & publikasi (pengumuman, prestasi, kolaborasi, event)
+- Kalender event interaktif (latihan, pertunjukan, pelatihan)
+- Katalog penyewaan kostum dengan pencarian, filter, dan status ketersediaan real-time
+- Galeri foto kegiatan sanggar yang terorganisir per kategori
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Untuk Admin**
+- Dashboard admin
+- Kelola berita (CRUD, editor rich-text)
+- Kelola event (CRUD)
+- Kelola profil sanggar & data personel (pengurus/pelatih)
+- Pengaturan akun (ubah profil & password)
 
-## Learning Laravel
+**Untuk Superadmin**
+- Seluruh fitur admin, ditambah:
+- Kelola akun admin (CRUD)
+- Kelola katalog kostum (CRUD)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+**Keamanan**
+- Autentikasi & otorisasi berbasis Role-Based Access Control (RBAC) — superadmin, admin, user
+- Login dengan reset password melalui verifikasi kode OTP via email
+- Sanitasi input HTML menggunakan HTMLPurifier untuk mencegah XSS
+- Query database menggunakan parameter binding (PDO) untuk mencegah SQL Injection
+- Digital watermarking otomatis pada setiap foto yang diunggah (menggunakan Intervention Image) untuk melindungi hak cipta dokumentasi karya seni
+- Pengujian keamanan menyeluruh: SAST, DAST, dan manual penetration testing
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Tech Stack
 
-## Laravel Sponsors
+| Kategori | Teknologi |
+|---|---|
+| Backend Framework | Laravel (PHP 8.2), arsitektur MVC |
+| Database | MySQL (Eloquent ORM) |
+| Templating | Blade |
+| Frontend | HTML, CSS, JavaScript (Blade views) |
+| Pengolahan Gambar | Intervention Image (watermarking) |
+| Sanitasi HTML | HTMLPurifier |
+| Editor Konten | TinyMCE |
+| Desain UI/UX | Figma |
+| Keamanan Akses | RBAC (Role-Based Access Control) |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Panduan Instalasi & Menjalankan Aplikasi
 
-### Premium Partners
+### Prasyarat
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- MySQL
+- Git
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Langkah Instalasi
 
-## Contributing
+1. **Clone repository**
+   ```bash
+   git clone <url-repository-ini>
+   cd <nama-folder-proyek>
+   ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. **Install dependency PHP**
+   ```bash
+   composer install
+   ```
 
-## Code of Conduct
+3. **Install dependency JavaScript**
+   ```bash
+   npm install
+   ```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **Salin file environment**
+   ```bash
+   cp .env.example .env
+   ```
 
-## Security Vulnerabilities
+5. **Generate application key**
+   ```bash
+   php artisan key:generate
+   ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. **Konfigurasi database**
 
-## License
+   Buat database baru di MySQL, lalu sesuaikan kredensial pada file `.env`:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=sanggar_jeb
+   DB_USERNAME=root
+   DB_PASSWORD=
+   ```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+7. **Konfigurasi akun seeder (wajib)**
+
+   Seeder akun superadmin/admin dan konfigurasi OTP diambil dari environment variable, sehingga perlu ditambahkan ke `.env` sebelum migrasi:
+   ```
+   SUPERADMIN_NAME=Nama Superadmin
+   SUPERADMIN_EMAIL=superadmin@example.com
+   SUPERADMIN_PASSWORD=password_aman
+
+   ADMIN_NAME=Nama Admin
+   ADMIN_EMAIL=admin@example.com
+   ADMIN_PASSWORD=password_aman
+
+   OTP_NAME=Nama Akun OTP
+   OTP_EMAIL=otp@example.com
+   OTP_PASSWORD=password_aman
+   ```
+
+   Tambahkan juga konfigurasi mail (SMTP) di `.env` agar fitur kirim OTP via email berfungsi.
+
+8. **Jalankan migrasi & seeder**
+   ```bash
+   php artisan migrate --seed
+   ```
+
+9. **Buat symbolic link storage** (untuk menampilkan gambar yang diunggah)
+   ```bash
+   php artisan storage:link
+   ```
+
+10. **Build asset frontend**
+    ```bash
+    npm run dev
+    ```
+    atau untuk production:
+    ```bash
+    npm run build
+    ```
+
+11. **Jalankan server lokal**
+    ```bash
+    php artisan serve
+    ```
+
+    Aplikasi dapat diakses melalui `http://127.0.0.1:8000`.
+
+### Akun Demo
+
+Akun superadmin dan admin **tidak di-hardcode**, melainkan dibuat dari nilai yang diisi pada file `.env` (lihat langkah 7 di atas). Gunakan email & password yang telah dikonfigurasi pada `.env` untuk login sebagai superadmin/admin setelah seeding selesai.
+
+## Struktur Folder (Ringkas — Laravel Default)
+
+```
+app/
+ ├── Http/Controllers/      # Controller (Admin, Superadmin, Auth, Umum, dll.)
+ └── Models/                # Model Eloquent (User, Berita, Event, Katalog, Galeri, Personel, dll.)
+database/
+ ├── migrations/            # Skema tabel database
+ └── seeders/                # Seeder data awal (akun superadmin/admin, profil, dll.)
+resources/
+ └── views/                 # Tampilan Blade (landing page, dashboard admin/superadmin, auth)
+routes/
+ └── web.php                # Definisi route aplikasi
+public/                     # Asset publik (gambar, storage link, dsb.)
+```
+
+## Anggota Kelompok
+
+**Kelompok 5 — AAH Team** · TRPL2D · Semester 4 · 2026
+
+| Nama | NIM | Peran |
+|---|---|---|
+| Heri Herlambang | 362458302092 | Ketua Tim |
+| Dino Febiyan | 362458302043 | Quality Assurance |
+| Cheryl Aurellya B.J | 362458302037 | Front End |
+| Febriyan Putra H. | 362458302042 | Back End |
+| Rizky Bintang P. | 362458302091 | UI/UX |
+
+## Catatan Tambahan
+
+- Metode pengembangan: Scrum, dengan 5 sprint (analisis kebutuhan & desain, autentikasi & layout, desain mobile/profil/kalender, backend core & portal berita, katalog/watermarking & QA).
+- Total cakupan: 18 use case, 5 fitur utama.
+
