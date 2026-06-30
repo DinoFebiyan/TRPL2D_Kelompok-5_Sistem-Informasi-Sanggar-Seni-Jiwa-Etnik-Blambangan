@@ -19,17 +19,9 @@ class BeritaController extends Controller
     {
         $manager = new ImageManager(new Driver());
 
-        $filename =
-            time() . '_' .
-            uniqid() . '.' .
-            $file->getClientOriginalExtension();
-
-        // Simpan file asli
-        $file->storeAs(
-            'berita/asli',
-            $filename,
-            'public'
-        );
+        // REMEDIASI: Simpan file asli terlebih dahulu dengan nama acak dari Laravel untuk menghindari input mentah klien
+        $temporaryPath = $file->store('berita/asli', 'public');
+        $filename = basename($temporaryPath);
 
         // Baca gambar asli
         $image = $manager->read(
@@ -132,12 +124,12 @@ class BeritaController extends Controller
         $request->merge(['isi' => SanitizeHelper::sanitize($request->isi)]);
 
         if ($request->hasFile('foto')) {
-        foreach ($request->file('foto') as $file) {
-            if (!UploadHelper::isImageMimeValid($file)) {
-                return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+            foreach ($request->file('foto') as $file) {
+                if (!UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
             }
         }
-    }
 
         $berita = Berita::create([
             'judul' => $request->judul,
@@ -154,7 +146,7 @@ class BeritaController extends Controller
                 Galeri::create([
                     'sumber_id' => $berita->id,
                     'path' => $path,
-                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file' => basename($path), // REMEDIASI: Menggunakan nama aman dari path acak internal
                     'kategori' => 'berita',
                     'is_watermark' => true,
                 ]);
@@ -213,15 +205,15 @@ class BeritaController extends Controller
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
-         $request->merge(['isi' => SanitizeHelper::sanitize($request->isi)]);
+        $request->merge(['isi' => SanitizeHelper::sanitize($request->isi)]);
 
-           if ($request->hasFile('foto')) {
-             foreach ($request->file('foto') as $file) {
-            if (!UploadHelper::isImageMimeValid($file)) {
-                return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                if (!UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
             }
         }
-    }
 
         $berita->update([
             'judul' => $request->judul,
@@ -252,7 +244,7 @@ class BeritaController extends Controller
                 Galeri::create([
                     'sumber_id' => $berita->id,
                     'path' => $path,
-                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file' => basename($path), // REMEDIASI: Menggunakan nama aman dari path acak internal
                     'kategori' => 'berita',
                     'is_watermark' => true,
                 ]);
@@ -286,7 +278,14 @@ class BeritaController extends Controller
             'file' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
         ]);
 
-        $path = $this->simpanDenganWatermark($request->file('file'));
+        $file = $request->file('file');
+
+        // REMEDIASI: Menambahkan proteksi MIME riil tambahan sebelum memproses berkas TinyMCE
+        if (!UploadHelper::isImageMimeValid($file)) {
+            return response()->json(['error' => 'Berkas tidak valid.'], 400);
+        }
+
+        $path = $this->simpanDenganWatermark($file);
 
         return response()->json([
             'location' => Storage::disk('public')->url($path),

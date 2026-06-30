@@ -15,24 +15,15 @@ use Intervention\Image\Drivers\Gd\Driver;
 
 class KatalogController extends Controller
 {
-
     private function simpanDenganWatermark($file)
     {
         $manager = new ImageManager(
             new Driver()
         );
 
-        $filename =
-            time() . '_' .
-            uniqid() . '.' .
-            $file->getClientOriginalExtension();
-
-        // Simpan asli
-        $file->storeAs(
-            'katalog/asli',
-            $filename,
-            'public'
-        );
+        // REMEDIASI: Ambil nama acak aman yang diproduksi dari enkapsulasi internal storage Laravel
+        $temporaryPath = $file->store('katalog/asli', 'public');
+        $filename = basename($temporaryPath);
 
         $image = $manager->read(
             $file->getRealPath()
@@ -136,11 +127,11 @@ class KatalogController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-        if (!UploadHelper::isImageMimeValid($file)) {
-            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                if (!UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
+            }
         }
-    }
-}
 
         // 2. Simpan informasi teks produk utama ke database
         $katalog = Katalog::create([
@@ -162,7 +153,7 @@ class KatalogController extends Controller
                 Galeri::create([
                     'sumber_id' => $katalog->id,
                     'path' => $path,
-                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file' => basename($path), // REMEDIASI: Menggunakan penamaan acak aman dari internal
                     'kategori' => 'katalog',
                     'is_watermark' => false,
                 ]);
@@ -215,15 +206,15 @@ class KatalogController extends Controller
             'hapus_foto.*' => 'exists:galeri,id',
         ]);
 
-            $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
+        $request->merge(['deskripsi' => SanitizeHelper::sanitize($request->deskripsi)]);
 
-            if ($request->hasFile('foto')) {
+        if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-        if (!UploadHelper::isImageMimeValid($file)) {
-            return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                if (!UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
+            }
         }
-    }
-}
         // 1. Perbarui teks data utama katalog
         $katalog->update([
             'nama_katalog' => $request->nama_katalog,
@@ -258,7 +249,7 @@ class KatalogController extends Controller
                 Galeri::create([
                     'sumber_id' => $katalog->id,
                     'path' => $path,
-                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
+                    'nama_file' => basename($path), // REMEDIASI: Menggunakan penamaan acak aman dari internal
                     'kategori' => 'katalog',
                     'is_watermark' => false,
                 ]);

@@ -71,8 +71,8 @@ class AdminController extends Controller
         ]);
 
         if ($request->hasFile('foto') && !UploadHelper::isImageMimeValid($request->file('foto'))) {
-         return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
-}
+            return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
+        }
 
         $user = User::create([
             'name'         => $request->name,
@@ -89,7 +89,7 @@ class AdminController extends Controller
             Galeri::create([
                 'sumber_id'    => $user->id,
                 'path'         => $path,
-                'nama_file'    => uniqid().'_'.$request->file('foto')->getClientOriginalName(),
+                'nama_file'    => basename($path), // REMEDIASI: Menggunakan nama acak yang aman dari path Laravel
                 'kategori'     => 'admin',
                 'is_watermark' => false,
             ]);
@@ -130,8 +130,8 @@ class AdminController extends Controller
         ]);
 
         if ($request->hasFile('foto') && !UploadHelper::isImageMimeValid($request->file('foto'))) {
-        return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
-}
+            return back()->withErrors(['foto' => 'File bukan gambar yang valid.']);
+        }
 
         $data = $request->only(['name', 'email', 'no_handphone', 'status']);
         
@@ -143,7 +143,7 @@ class AdminController extends Controller
 
         if ($request->hasFile('foto')) {
             $path = $request->file('foto')->store('admin', 'public');
-            $namaFileBaru = uniqid().'_'.$request->file('foto')->getClientOriginalName();
+            $namaFileBaru = basename($path); // REMEDIASI: Menggunakan nama acak yang aman dari path Laravel
 
             if ($admin->galeri) {
                 if (Storage::disk('public')->exists($admin->galeri->path)) {
