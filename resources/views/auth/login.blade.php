@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login – Sanggar Tari JEB</title>
+    <title>Login – Sanggar Seni JEB</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -30,20 +30,19 @@
             --border:     #F0DADA;
         }
 
-        /* ───── PERBAIKAN TOTAL: Kunci html & body ───── */
+       
         html, body {
             height: 100%;
             width: 100%;
             margin: 0 !important;
             padding: 0 !important;
-            overflow: hidden; /* Matikan scroll di level body */
+            overflow: hidden; 
             font-family: 'Nunito', sans-serif;
             background: var(--cream);
         }
 
-        /* ───── LAYOUT ───── */
+        
         .wrapper {
-            /* KUNCI PAKSA: Menempel di 4 sisi layar, mengabaikan margin body */
             position: fixed;
             top: 0;
             left: 0;
@@ -53,11 +52,11 @@
             display: flex;
             width: 100%;
             height: 100%;
-            overflow-y: auto; /* Scroll hanya terjadi di dalam wrapper ini */
+            overflow-y: auto; 
             overflow-x: hidden;
         }
 
-        /* ───── LEFT PANEL ───── */
+       
         .panel-left {
             width: 45%;
             background: var(--red);
@@ -70,7 +69,7 @@
             overflow: hidden;
         }
 
-        /* Batik-inspired diagonal grid overlay */
+       
         .panel-left::before {
             content: '';
             position: absolute;
@@ -81,7 +80,7 @@
             pointer-events: none;
         }
 
-        /* Gold accent circle – top right */
+        
         .panel-left::after {
             content: '';
             position: absolute;
@@ -95,7 +94,7 @@
             pointer-events: none;
         }
 
-        /* Bottom decorative circle */
+       
         .circle-bottom {
             position: absolute;
             bottom: -90px;
@@ -227,11 +226,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* PERBAIKAN: dari 'center' jadi 'flex-start' biar form nempel ke atas,
-               bukan ke-center vertikal di tengah panel */
             justify-content: flex-start;
-            /* PERBAIKAN: padding-top diperbesar dikit biar ada jarak yang enak
-               dilihat dari garis gold di paling atas, tapi nggak sampe ke-center */
             padding: 4.5rem 3.5rem 3rem;
             background: #fff;
             position: relative;
@@ -540,14 +535,14 @@
             <div class="logo-fallback" style="display:none;">JEB</div>
         </div>
 
-        <div class="brand-name">Sanggar Tari <em>JEB</em></div>
+        <div class="brand-name">Sanggar Seni <em>JEB</em></div>
         <div class="brand-sub">Singojuruh · Banyuwangi</div>
 
         <p class="brand-slogan">
             "Melestarikan Budaya,<br>Menggerakkan Jiwa,<br>Mewujudkan Karya"
         </p>
 
-        <!-- Batik dot motif -->
+        
         <div class="motif-dots">
             @for ($i = 0; $i < 16; $i++)
                 <span></span>
@@ -570,7 +565,6 @@
            
             @if (session('status'))
                 <div style="background:#FFF0F0;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--red);">
-                    {{ session('status') }}
                 </div>
             @endif
 
