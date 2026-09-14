@@ -95,9 +95,7 @@
             width: 100%;
             padding: 12px 20px;
             border: 1px solid #A87C7C;
-            /* Warna garis merah kecoklatan */
             border-radius: 30px;
-            /* Membuat bentuk kapsul */
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             background: #fff;
@@ -107,7 +105,6 @@
 
         .form-group textarea {
             border-radius: 15px;
-            /* Radius kotak khusus teks isi berita */
             resize: vertical;
         }
 
@@ -152,17 +149,6 @@
             margin-left: 10px;
         }
 
-        .preview-img-box {
-            max-width: 100%;
-            max-height: 200px;
-            object-fit: contain;
-            border-radius: 8px;
-            margin-top: 12px;
-            border: 1px dashed #A87C7C;
-            display: none;
-        }
-
-        /* Penyesuaian icon panah pada dropdown */
         select {
             appearance: none;
             -webkit-appearance: none;
@@ -185,6 +171,70 @@
 
         .select-status:invalid {
             color: #b0b0b0;
+        }
+
+       
+        .btn-generate-ai {
+            background: #FEF9E7;
+            border: 1px dashed #D4A017;
+            color: #B08A2D;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .btn-generate-ai:hover {
+            background: #E4C15A;
+            color: #fff;
+            border-style: solid;
+        }
+
+        .btn-generate-ai:disabled {
+            opacity: 0.75;
+            cursor: not-allowed;
+        }
+
+        .ai-generate-wrapper {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .prompt-input {
+            padding: 10px 20px;
+            border: 1px solid #D4A017;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            width: 100%;
+            max-width: 450px;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fff;
+        }
+
+        .prompt-input:focus {
+            border-color: #B08A2D;
+            box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.2);
+        }
+
+        .btn-generate-ai .fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
         }
     </style>
 @endsection
@@ -222,269 +272,295 @@
                 enctype="multipart/form-data">
                 @csrf
 
-                @if(session('success'))
-                    <div
-                        style="background:#dcfce7; color:#16a34a; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #16a34a;">
-                        <i class="fas fa-check-circle"></i> {{ session('success') }}
-                    </div>
-                @endif
-
-                @if($errors->any())
-                    <div
-                        style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
-                        <i class="fas fa-exclamation-circle"></i> Harap perbaiki kesalahan pada form.
-                        <ul style="margin: 5px 0 0 0; padding-left: 20px; color: #dc2626;">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                {{-- Foto Header --}}
+                
                 <div class="form-group">
                     <label>Foto Header (Bisa pilih lebih dari satu)</label>
-                    <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
+                    <div class="custom-file-wrapper">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
                         <span class="file-name-display" id="fileNameDisplay">Masukkan foto-foto baru...</span>
-
                         <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg"
                             style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
                     </div>
                     <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
-                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
-                    </div>
+                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
                 </div>
 
                 {{-- Judul Berita --}}
                 <div class="form-group">
                     <label>Judul Berita</label>
-                    <input type="text" name="judul" value="{{ old('judul_berita') }}" placeholder="Masukkan judul berita..."
-                        class="{{ $errors->has('judul_berita') ? 'is-invalid' : '' }}" required>
+                    <input type="text" name="judul" id="judul_berita" value="{{ old('judul_berita') }}"
+                        placeholder="Masukkan judul berita..." required>
                 </div>
 
-                {{-- Isi Berita --}}
                 <div class="form-group">
+                    <div class="ai-generate-wrapper">
+        
+                        <input type="text" id="prompt-ai" class="prompt-input" 
+                               placeholder="Ketik instruksi/prompt untuk AI di sini..." 
+                               style="display: none;">
+                        
+                        <button type="button" id="btn-generate-ai" class="btn-generate-ai">
+                            <img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg" 
+                                alt="Gemini" 
+                                style="width: 16px; height: 16px; object-fit: contain;"> 
+                            <span id="btn-text">Generate dengan AI</span>
+                        </button>
+                    </div> 
+
                     <label>Isi Berita</label>
-                    <textarea id="isi_berita_editor" name="isi" rows="6" value="{{ old('isi_berita') }}"
-                        placeholder="Masukkan isi berita..." class="{{ $errors->has('isi_berita') ? 'is-invalid' : '' }}"
-                        required>{{ old('isi_berita') }}</textarea>
+                    <textarea id="isi_berita_editor" name="isi" rows="6"
+                        placeholder="Masukkan isi berita..." required>{{ old('isi_berita') }}</textarea>
                 </div>
 
-                {{-- Jenis Berita --}}
+                
                 <div class="form-group">
                     <label>Jenis Berita</label>
-                    <select name="jenis_berita" id="jenis_berita"
-                        class="select-status {{ $errors->has('jenis_berita') ? 'is-invalid' : '' }}" required>
+                    <select name="jenis_berita" id="jenis_berita" class="select-status" required>
                         <option value="" disabled selected hidden>Pilih jenis berita...</option>
-                        <option value="Pengumuman" {{ old('jenis_berita') == 'Pengumuman' ? 'selected' : '' }}>Pengumuman
-                        </option>
+                        <option value="Pengumuman" {{ old('jenis_berita') == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
                         <option value="Prestasi" {{ old('jenis_berita') == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
-                        <option value="Kolaborasi" {{ old('jenis_berita') == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi
-                        </option>
+                        <option value="Kolaborasi" {{ old('jenis_berita') == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
                         <option value="Event" {{ old('jenis_berita') == 'Event' ? 'selected' : '' }}>Event</option>
                         <option value="Lainnya" {{ old('jenis_berita') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
                     </select>
                 </div>
 
-                {{-- Status Tayang --}}
+                
                 <div class="form-group">
                     <label>Status</label>
                     <select name="status" required class="select-status">
                         <option value="" disabled selected hidden>Masukkan status berita...</option>
                         <option value="tayang" {{ old('status') == 'tayang' ? 'selected' : '' }}>Tayang</option>
-                        <option value="tidak ditayangkan" {{ old('status') == 'tidak ditayangkan' ? 'selected' : '' }}>Tidak
-                            Ditayangkan</option>
+                        <option value="tidak ditayangkan" {{ old('status') == 'tidak ditayangkan' ? 'selected' : '' }}>Tidak Ditayangkan</option>
                     </select>
-
                 </div>
             </form>
         </div>
     </div>
-
-    <script>
-        // Sediakan sebuah wadah (array) global untuk menampung semua file biner gambar
-        let kumpulanFileBerita = [];
-
-        function updateFileNameAndPreview(input) {
-            const display = document.getElementById('fileNameDisplay');
-            const container = document.getElementById('imagePreviewContainer');
-
-            if (input.files && input.files.length > 0) {
-                // 1. Masukkan file yang baru dipilih ke dalam wadah array global kita
-                for (let i = 0; i < input.files.length; i++) {
-                    kumpulanFileBerita.push(input.files[i]);
-                }
-
-                // 2. Kosongkan container preview lama untuk digambar ulang semuanya
-                container.innerHTML = '';
-
-                // 3. Gunakan DataTransfer API untuk menggabungkan file ke dalam elemen input HTML asli
-                const dataTransferObat = new DataTransfer();
-
-                kumpulanFileBerita.forEach((file, index) => {
-                    dataTransferObat.items.add(file);
-
-                    // Render Preview Gambar masing-masing beserta tombol hapus satuan (opsional)
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const wrapper = document.createElement('div');
-                        wrapper.style.position = 'relative';
-                        wrapper.style.display = 'inline-block';
-
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.maxWidth = '100px';
-                        img.style.maxHeight = '100px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '6px';
-                        img.style.border = '1px dashed #A87C7C';
-
-                        wrapper.appendChild(img);
-                        container.appendChild(wrapper);
-                    };
-                    reader.readAsDataURL(file);
-                });
-
-                // 4. TIMPA file asli di dalam input HTML dengan daftar gabungan yang baru
-                input.files = dataTransferObat.files;
-
-                // Perbarui teks informasi total file terpilih
-                display.textContent = kumpulanFileBerita.length + " file dipilih (terakumulasi)";
-                display.style.color = "#333";
-            }
-        }
-    </script>
-    {{-- Memuat Library Resmi TinyMCE dari CDN Cloud --}}
-    <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
-        referrerpolicy="origin"></script>
-
-    <script>
-        tinymce.init({
-            selector: '#isi_berita_editor',
-
-            height: 600,
-
-            menubar: 'file edit view insert format table tools',
-
-            plugins: [
-                'advlist',
-                'autolink',
-                'lists',
-                'link',
-                'image',
-                'media',
-                'table',
-                'charmap',
-                'preview',
-                'searchreplace',
-                'visualblocks',
-                'fullscreen',
-                'insertdatetime',
-                'wordcount'
-            ],
-
-            toolbar: [
-                'undo redo | blocks fontfamily fontsize',
-                '| bold italic underline strikethrough',
-                '| forecolor backcolor',
-                '| alignleft aligncenter alignright alignjustify',
-                '| bullist numlist',
-                '| outdent indent',
-                '| link image media',
-                '| table',
-                '| charmap',
-                '| removeformat',
-                '| fullscreen preview'
-            ].join(' '),
-
-            images_upload_url: '/upload-gambar-berita',
-
-            automatic_uploads: true,
-
-            image_title: true,
-
-            images_upload_handler: (blobInfo, progress) => new Promise((resolve, reject) => {
-
-                let xhr = new XMLHttpRequest();
-
-                xhr.open('POST', '/upload-gambar-berita');
-
-                xhr.setRequestHeader(
-                    'X-CSRF-TOKEN',
-                    document.querySelector('meta[name="csrf-token"]').content
-                );
-
-                xhr.onload = function () {
-
-                    if (xhr.status !== 200) {
-                        reject('HTTP Error: ' + xhr.status);
-                        return;
-                    }
-
-                    let json = JSON.parse(xhr.responseText);
-
-                    if (!json.location) {
-                        reject('Upload gagal');
-                        return;
-                    }
-
-                    resolve(json.location);
-                };
-
-                let formData = new FormData();
-                formData.append('file', blobInfo.blob(), blobInfo.filename());
-
-                xhr.send(formData);
-            }),
-
-            font_family_formats:
-                'Arial=arial,helvetica,sans-serif;' +
-                'Calibri=calibri,sans-serif;' +
-                'Cambria=cambria,serif;' +
-                'Times New Roman=times new roman,times;' +
-                'Georgia=georgia,serif;' +
-                'Poppins=Poppins,sans-serif',
-
-            fontsize_formats:
-                '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt 72pt',
-
-            toolbar_mode: 'sliding',
-
-            branding: false,
-
-            content_style:
-                "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }"
-        });
-    </script>
-    @if ($errors->any())
-    <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
-        <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
-            <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
-            <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
-            <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
-            <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
-            <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
-                @foreach ($errors->all() as $error)
-                <li style="margin-bottom:4px;">{{ $error }}</li>
-                @endforeach
-            </ul>
-            <button onclick="document.getElementById('popup-server-inline').style.display='none';" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
-        </div>
-    </div>
-    <script>
-        window.addEventListener('load', function() {
-            document.getElementById('popup-server-inline').style.display = 'flex';
-        });
-    </script>
-    @endif
-
-    {{-- Popup Batal & Simpan --}}
-    @include('popup.batal')
-    @include('popup.simpan')
 @endsection
+
 @push('scripts')
 <script>
     document.body.classList.add('page-form');
+
+    let kumpulanFileBerita = [];
+
+    function updateFileNameAndPreview(input) {
+        const display = document.getElementById('fileNameDisplay');
+        const container = document.getElementById('imagePreviewContainer');
+
+        if (input.files && input.files.length > 0) {
+            for (let i = 0; i < input.files.length; i++) {
+                kumpulanFileBerita.push(input.files[i]);
+            }
+
+            container.innerHTML = '';
+            const dataTransferObat = new DataTransfer();
+
+            kumpulanFileBerita.forEach((file) => {
+                dataTransferObat.items.add(file);
+
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.position = 'relative';
+                    wrapper.style.display = 'inline-block';
+
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '100px';
+                    img.style.maxHeight = '100px';
+                    img.style.objectFit = 'cover';
+                    img.style.borderRadius = '6px';
+                    img.style.border = '1px dashed #A87C7C';
+
+                    wrapper.appendChild(img);
+                    container.appendChild(wrapper);
+                };
+                reader.readAsDataURL(file);
+            });
+
+            input.files = dataTransferObat.files;
+            display.textContent = kumpulanFileBerita.length + " file dipilih (terakumulasi)";
+            display.style.color = "#333";
+        }
+    }
+</script>
+
+// TinyMCE 
+<script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
+    referrerpolicy="origin"></script>
+
+<script>
+    tinymce.init({
+        selector: '#isi_berita_editor',
+        height: 600,
+        menubar: 'file edit view insert format table tools',
+        plugins: [
+            'advlist','autolink','lists','link','image','media','table','charmap','preview',
+            'searchreplace','visualblocks','fullscreen','insertdatetime','wordcount'
+        ],
+        toolbar: [
+            'undo redo | blocks fontfamily fontsize',
+            '| bold italic underline strikethrough',
+            '| forecolor backcolor',
+            '| alignleft aligncenter alignright alignjustify',
+            '| bullist numlist',
+            '| outdent indent',
+            '| link image media',
+            '| table',
+            '| charmap',
+            '| removeformat',
+            '| fullscreen preview'
+        ].join(' '),
+        images_upload_url: '/upload-gambar-berita',
+        automatic_uploads: true,
+        image_title: true,
+        images_upload_handler: (blobInfo) => new Promise((resolve, reject) => {
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', '/upload-gambar-berita');
+            xhr.setRequestHeader('X-CSRF-TOKEN',
+                document.querySelector('meta[name="csrf-token"]').content);
+
+            xhr.onload = function () {
+                if (xhr.status !== 200) return reject('HTTP Error: ' + xhr.status);
+                let json = JSON.parse(xhr.responseText);
+                if (!json.location) return reject('Upload gagal');
+                resolve(json.location);
+            };
+
+            let formData = new FormData();
+            formData.append('file', blobInfo.blob(), blobInfo.filename());
+            xhr.send(formData);
+        }),
+        font_family_formats:
+            'Arial=arial,helvetica,sans-serif;' +
+            'Calibri=calibri,sans-serif;' +
+            'Cambria=cambria,serif;' +
+            'Times New Roman=times new roman,times;' +
+            'Georgia=georgia,serif;' +
+            'Poppins=Poppins,sans-serif',
+        fontsize_formats:
+            '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt 72pt',
+        toolbar_mode: 'sliding',
+        branding: false,
+        content_style: "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }"
+    });
+</script>
+
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const btnGenerate = document.getElementById('btn-generate-ai');
+        const promptInput = document.getElementById('prompt-ai');
+        
+        if (!btnGenerate || !promptInput) return;
+
+       
+        const originalHTML = btnGenerate.innerHTML;
+
+        let isFirstGenerate = true; 
+        let isRegenerate = false;
+
+        const USE_MOCK = true;
+        const API_URL  = '/generate-ai-berita'; 
+
+        btnGenerate.addEventListener('click', async function () {
+            const judul = document.getElementById('judul_berita').value.trim();
+            const jenis = document.getElementById('jenis_berita').value || 'Umum';
+
+            if (!judul) {
+                alert('Silakan isi Judul Berita terlebih dahulu sebagai acuan AI.');
+                document.getElementById('judul_berita').focus();
+                return;
+            }
+
+            
+            if (isFirstGenerate) {
+                btnGenerate.disabled = true;
+                btnGenerate.innerHTML = '<i class="fas fa-spinner"></i> Memproses...';
+
+                setTimeout(() => {
+                   
+                    btnGenerate.innerHTML = originalHTML;
+                    btnGenerate.disabled = false;
+
+                    
+                    const newBtnText = document.getElementById('btn-text');
+                    if (newBtnText) newBtnText.innerText = 'Re-generate Berita';
+
+                    
+                    promptInput.style.display = 'block';
+                    promptInput.focus();
+
+                    isFirstGenerate = false;
+                    isRegenerate = true;
+                }, 1500);
+
+                return; 
+            }
+
+           
+            if (isRegenerate) {
+                const promptText = promptInput.value.trim();
+                if (!promptText) {
+                    alert('Silakan masukkan prompt terlebih dahulu!');
+                    promptInput.focus();
+                    return;
+                }
+
+                btnGenerate.disabled = true;
+                btnGenerate.innerHTML = '<i class="fas fa-spinner"></i> Memproses...';
+
+                try {
+                    let htmlContent = '';
+
+                    if (USE_MOCK) {
+                        await new Promise(r => setTimeout(r, 1500));
+                        htmlContent = `
+                            <p><strong>${judul}</strong></p>
+                            <p>Ini adalah contoh isi berita hasil generate AI berdasarkan prompt: <em>"${promptText}"</em>.</p>
+                            <p>Jenis berita: <em>${jenis}</em>.</p>
+                        `;
+                    } else {
+                        const response = await fetch(API_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({ 
+                                judul: judul, 
+                                jenis_berita: jenis,
+                                prompt: promptText 
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (!data.success || !data.content) {
+                            throw new Error(data.message || 'Gagal generate dari server.');
+                        }
+                        htmlContent = data.content;
+                    }
+
+                   
+                    if (window.tinymce && tinymce.get('isi_berita_editor')) {
+                        tinymce.get('isi_berita_editor').setContent(htmlContent);
+                    } else {
+                        document.getElementById('isi_berita_editor').value = htmlContent;
+                    }
+                } catch (err) {
+                    console.error(err);
+                    alert('Terjadi kesalahan: ' + err.message);
+                } finally {
+                    btnGenerate.innerHTML = originalHTML;
+                    btnGenerate.disabled = false;
+                    
+                    const finalBtnText = document.getElementById('btn-text');
+                    if (finalBtnText) finalBtnText.innerText = 'Re-generate Berita';
+                }
+            }
+        });
+    });
 </script>
 @endpush

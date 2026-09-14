@@ -30,17 +30,31 @@
             --border:     #F0DADA;
         }
 
+        /* ───── PERBAIKAN TOTAL: Kunci html & body ───── */
         html, body {
             height: 100%;
+            width: 100%;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden; /* Matikan scroll di level body */
             font-family: 'Nunito', sans-serif;
             background: var(--cream);
         }
 
         /* ───── LAYOUT ───── */
         .wrapper {
+            /* KUNCI PAKSA: Menempel di 4 sisi layar, mengabaikan margin body */
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            
             display: flex;
-            min-height: 100vh;
-            width: 100vw;
+            width: 100%;
+            height: 100%;
+            overflow-y: auto; /* Scroll hanya terjadi di dalam wrapper ini */
+            overflow-x: hidden;
         }
 
         /* ───── LEFT PANEL ───── */
@@ -213,10 +227,15 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            padding: 3rem 3.5rem;
+            /* PERBAIKAN: dari 'center' jadi 'flex-start' biar form nempel ke atas,
+               bukan ke-center vertikal di tengah panel */
+            justify-content: flex-start;
+            /* PERBAIKAN: padding-top diperbesar dikit biar ada jarak yang enak
+               dilihat dari garis gold di paling atas, tapi nggak sampe ke-center */
+            padding: 4.5rem 3.5rem 3rem;
             background: #fff;
             position: relative;
+            overflow-y: auto;
         }
 
         /* Gold top-border accent */
@@ -287,7 +306,7 @@
             line-height: 1.55;
         }
 
-        /* ───── FORM FIELDS ───── */
+       
         .field-group {
             margin-bottom: 1.4rem;
         }
@@ -342,7 +361,7 @@
         .input-wrap input:focus + .icon,
         .input-wrap:focus-within .icon { color: var(--red); }
 
-        /* Password toggle button */
+       
         .btn-eye {
             position: absolute;
             right: .9rem;
@@ -356,14 +375,14 @@
         }
         .btn-eye:hover { color: var(--red); }
 
-        /* Error message */
+       
         .field-error {
             font-size: .75rem;
             color: var(--red);
             margin-top: .35rem;
         }
 
-        /* ───── REMEMBER + FORGOT ROW ───── */
+        
         .row-options {
             display: flex;
             align-items: center;
@@ -421,7 +440,6 @@
         }
         .forgot-link:hover { color: var(--red-dark); text-decoration: underline; }
 
-        /* ───── SUBMIT BUTTON ───── */
         .btn-login {
             width: 100%;
             padding: .95rem;
@@ -459,7 +477,7 @@
         .btn-login:hover::after { transform: translateX(100%); }
         .btn-login:active { transform: translateY(0); box-shadow: 0 4px 12px rgba(192,39,45,.25); }
 
-        /* ───── DIVIDER ───── */
+        
         .divider {
             display: flex;
             align-items: center;
@@ -477,7 +495,7 @@
             letter-spacing: .5px;
         }
 
-        /* ───── FOOTER NOTE ───── */
+       
         .footer-note {
             text-align: center;
             font-size: .78rem;
@@ -487,7 +505,7 @@
 
         .footer-note strong { color: var(--text); }
 
-        /* ───── CORNER DECORATION (RIGHT) ───── */
+        
         .corner-deco {
             position: absolute;
             bottom: 2.5rem;
@@ -496,10 +514,10 @@
             pointer-events: none;
         }
 
-        /* ───── RESPONSIVE ───── */
+       
         @media (max-width: 768px) {
             .panel-left { display: none; }
-            .panel-right { padding: 2.5rem 1.6rem; }
+            .panel-right { padding: 3rem 1.6rem 2.5rem; }
         }
     </style>
 
@@ -510,7 +528,7 @@
 <body>
 <div class="wrapper">
 
-    <!-- ══════════ LEFT PANEL ══════════ -->
+    
     <div class="panel-left">
         <div class="circle-bottom"></div>
         <div class="gold-line"></div>
@@ -537,7 +555,7 @@
         </div>
     </div>
 
-    <!-- ══════════ RIGHT PANEL ══════════ -->
+   
     <div class="panel-right">
 
         <div class="form-box">
@@ -549,7 +567,7 @@
             <h1 class="title-big">Selamat <em>Datang</em> Kembali</h1>
             <p class="title-desc">Masuk ke sistem informasi Sanggar Tari Jiwa Etnik Blambangan.</p>
 
-            {{-- Session Status --}}
+           
             @if (session('status'))
                 <div style="background:#FFF0F0;border:1px solid var(--border);border-radius:8px;padding:.75rem 1rem;margin-bottom:1.2rem;font-size:.82rem;color:var(--red);">
                     {{ session('status') }}
@@ -559,7 +577,7 @@
             <form method="POST" action="{{ route('login') }}" novalidate>
                 @csrf
 
-                {{-- Email --}}
+               
                 <div class="field-group">
                     <label class="field-label" for="email">Alamat Email</label>
                     <div class="input-wrap">
@@ -583,7 +601,7 @@
                     @enderror
                 </div>
 
-                {{-- Password --}}
+              
                 <div class="field-group">
                     <label class="field-label" for="password">Kata Sandi</label>
                     <div class="input-wrap">
@@ -611,7 +629,7 @@
                     @enderror
                 </div>
 
-                {{-- Remember + Forgot --}}
+                
                 <div class="row-options">
                     <label class="checkbox-label">
                         <input type="checkbox" name="remember" {{ old('remember') ? 'checked' : '' }}>
@@ -622,7 +640,7 @@
                     @endif
                 </div>
                 
-                 {{-- recaptcha --}}
+                
                 <div style="margin-bottom:20px;">
                     <div class="g-recaptcha"
                         data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}">
@@ -633,7 +651,7 @@
                     @enderror
                 </div>
 
-                {{-- Submit --}}
+                
                 <button type="submit" class="btn-login">Masuk</button>
 
                 <div class="divider">
@@ -649,7 +667,7 @@
             </form>
         </div>
 
-        <!-- Corner decoration SVG -->
+       
         <svg class="corner-deco" width="120" height="120" viewBox="0 0 120 120" fill="none">
             <circle cx="60" cy="60" r="58" stroke="#C0272D" stroke-width="3"/>
             <circle cx="60" cy="60" r="44" stroke="#dfb15b" stroke-width="2"/>
