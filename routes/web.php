@@ -216,6 +216,11 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/profile/edit', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/upload-gambar-berita', [BeritaController::class, 'uploadGambar'])->name('berita.upload-gambar');
     Route::post('/generate-ai-berita', [BeritaController::class, 'generateAiBerita'])->name('generate.ai.berita');
+    Route::get('/cek-gemini-model', function () {
+    $apiKey = config('services.gemini.key');
+    $response = \Illuminate\Support\Facades\Http::get("https://generativelanguage.googleapis.com/v1beta/models?key={$apiKey}");
+    return $response->json();
+});
 });
 
 require __DIR__.'/auth.php';

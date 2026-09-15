@@ -414,6 +414,14 @@
             '| removeformat',
             '| fullscreen preview'
         ].join(' '),
+
+        // TAMBAHKAN DUA BARIS INI:
+    setup: function (editor) {
+        editor.on('change keyup NodeChange', function () {
+            editor.save(); // Menyinkronkan konten TinyMCE ke textarea asli
+        });
+    },
+
         images_upload_url: '/upload-gambar-berita',
         automatic_uploads: true,
         image_title: true,
@@ -450,117 +458,102 @@
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const btnGenerate = document.getElementById('btn-generate-ai');
-        const promptInput = document.getElementById('prompt-ai');
-        
-        if (!btnGenerate || !promptInput) return;
+document.addEventListener('DOMContentLoaded', function () {
+    const btnGenerate   = document.getElementById('btn-generate-ai');
+    const promptInput   = document.getElementById('prompt-ai');
+    const promptContainer = document.getElementById('prompt-extra-container'); // Container form prompt tambahan
+    const fileInput     = document.getElementById('foto');
+    const btnText       = document.getElementById('btn-text'); // Span/teks di dalam tombol
+    
+    if (!btnGenerate) return;
 
-       
-        const originalHTML = btnGenerate.innerHTML;
+    const API_URL = '{{ route("generate.ai.berita") }}'; 
 
-        let isFirstGenerate = true; 
-        let isRegenerate = false;
+    btnGenerate.addEventListener('click', async function () {
+        const judul = document.getElementById('judul_berita').value.trim();
+        const jenis = document.getElementById('jenis_berita').value || '';
+        const promptText = promptInput ? promptInput.value.trim() : '';
 
-        const USE_MOCK = false;
-        const API_URL  = '{{ route("generate.ai.berita") }}'; 
+        // 1. Siapkan FormData untuk request ke Laravel
+        const formData = new FormData();
+        formData.append('judul', judul);
+        formData.append('jenis_berita', jenis);
+        formData.append('prompt', promptText);
 
-        btnGenerate.addEventListener('click', async function () {
-            const judul = document.getElementById('judul_berita').value.trim();
-            const jenis = document.getElementById('jenis_berita').value || 'Umum';
-
-            if (!judul) {
-                alert('Silakan isi Judul Berita terlebih dahulu sebagai acuan AI.');
-                document.getElementById('judul_berita').focus();
-                return;
+        if (fileInput && fileInput.files.length > 0) {
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('foto[]', fileInput.files[i]);
             }
+        }
 
-            
-            if (isFirstGenerate) {
-                btnGenerate.disabled = true;
-                btnGenerate.innerHTML = '<i class="fas fa-spinner"></i> Memproses...';
+        // 2. Tampilan Loading State
+        btnGenerate.disabled = true;
+        const originalText = btnText ? btnText.innerText : btnGenerate.innerHTML;
+        if (btnText) {
+            btnText.innerText = 'Memproses...';
+        } else {
+            btnGenerate.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        }
 
-                setTimeout(() => {
-                   
-                    btnGenerate.innerHTML = originalHTML;
-                    btnGenerate.disabled = false;
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData
+            });
 
-                    
-                    const newBtnText = document.getElementById('btn-text');
-                    if (newBtnText) newBtnText.innerText = 'Re-generate Berita';
-
-                    
-                    promptInput.style.display = 'block';
-                    promptInput.focus();
-
-                    isFirstGenerate = false;
-                    isRegenerate = true;
-                }, 1500);
-
-                return; 
-            }
-
-           
-            if (isRegenerate) {
-                const promptText = promptInput.value.trim();
-                if (!promptText) {
-                    alert('Silakan masukkan prompt terlebih dahulu!');
-                    promptInput.focus();
-                    return;
-                }
-
-                btnGenerate.disabled = true;
-                btnGenerate.innerHTML = '<i class="fas fa-spinner"></i> Memproses...';
-
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = `Server Error (${response.status})`;
                 try {
-                    let htmlContent = '';
-
-                    if (USE_MOCK) {
-                        await new Promise(r => setTimeout(r, 1500));
-                        htmlContent = `
-                            <p><strong>${judul}</strong></p>
-                            <p>Ini adalah contoh isi berita hasil generate AI berdasarkan prompt: <em>"${promptText}"</em>.</p>
-                            <p>Jenis berita: <em>${jenis}</em>.</p>
-                        `;
-                    } else {
-                        const response = await fetch(API_URL, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                            },
-                            body: JSON.stringify({ 
-                                judul: judul, 
-                                jenis_berita: jenis,
-                                prompt: promptText 
-                            })
-                        });
-
-                        const data = await response.json();
-                        if (!data.success || !data.content) {
-                            throw new Error(data.message || 'Gagal generate dari server.');
-                        }
-                        htmlContent = data.content;
-                    }
-
-                   
-                    if (window.tinymce && tinymce.get('isi_berita_editor')) {
-                        tinymce.get('isi_berita_editor').setContent(htmlContent);
-                    } else {
-                        document.getElementById('isi_berita_editor').value = htmlContent;
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert('Terjadi kesalahan: ' + err.message);
-                } finally {
-                    btnGenerate.innerHTML = originalHTML;
-                    btnGenerate.disabled = false;
-                    
-                    const finalBtnText = document.getElementById('btn-text');
-                    if (finalBtnText) finalBtnText.innerText = 'Re-generate Berita';
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.message || errorMessage;
+                } catch (e) {
+                    console.error("HTML Error Response:", errorText);
                 }
+                throw new Error(errorMessage);
             }
-        });
+
+            const data = await response.json();
+            
+            if (!data.success || !data.content) {
+                throw new Error(data.message || 'Gagal generate dari server.');
+            }
+
+            // 3. Masukkan Hasil ke TinyMCE / Textarea
+            if (window.tinymce && tinymce.get('isi_berita_editor')) {
+                tinymce.get('isi_berita_editor').setContent(data.content);
+            } else {
+                document.getElementById('isi_berita_editor').value = data.content;
+            }
+
+            // 4. MUNCULKAN FORM PROMPT TAMBAHAN & UBAH TEKS TOMBOL
+            if (promptContainer) {
+                promptContainer.style.display = 'block'; // Tampilkan container prompt tambahan
+            }
+            if (promptInput) {
+                promptInput.style.display = 'block';
+            }
+            
+            // Ubah teks tombol menjadi Re-generate Berita
+            if (btnText) {
+                btnText.innerText = 'Re-generate Berita';
+            } else {
+                btnGenerate.innerHTML = '<i class="fas fa-sync-alt"></i> Re-generate Berita';
+            }
+
+        } catch (err) {
+            console.error(err);
+            alert('Terjadi kesalahan: ' + err.message);
+            // Kembalikan teks jika gagal
+            if (btnText) btnText.innerText = originalText;
+        } finally {
+            btnGenerate.disabled = false;
+        }
     });
+});
 </script>
 @endpush
