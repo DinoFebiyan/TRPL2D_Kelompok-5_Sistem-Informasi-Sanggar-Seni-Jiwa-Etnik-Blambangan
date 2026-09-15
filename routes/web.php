@@ -101,7 +101,6 @@ Route::prefix('admin')->middleware(['admin.auth'])->group(function () {
     Route::get('/berita/edit/{id}', [BeritaController::class, 'edit'])->name('admin.edit-berita');
     Route::put('/berita/update/{id}', [BeritaController::class, 'update'])->name('admin.update-berita');
     Route::delete('/berita/hapus/{id}', [BeritaController::class, 'destroy'])->name('admin.hapus-berita');
-
     // Kelola Profil Sanggar
     Route::get('/kelola-profil', [ProfilController::class, 'index'])->name('admin.kelola-profil');
     Route::get('/kelola-profil/edit-profil', [ProfilController::class, 'edit'])->name('admin.edit-profil');
@@ -216,6 +215,7 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/edit', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/upload-gambar-berita', [BeritaController::class, 'uploadGambar'])->name('berita.upload-gambar');
+    Route::post('/generate-ai-berita', [BeritaController::class, 'generateAiBerita'])->name('generate.ai.berita');
 });
 
 require __DIR__.'/auth.php';

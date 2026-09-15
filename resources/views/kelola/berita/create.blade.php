@@ -217,7 +217,6 @@
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             width: 100%;
-            max-width: 450px;
             outline: none;
             transition: all 0.3s ease;
             background: #fff;
@@ -277,7 +276,7 @@
                     <label>Foto Header (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
-                        <span class="file-name-display" id="fileNameDisplay">Masukkan foto-foto baru...</span>
+                        <span class="file-name-display" id="fileNameDisplay">Masukkan header berita...</span>
                         <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg"
                             style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
                     </div>
@@ -293,6 +292,20 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Jenis Berita</label>
+                    <select name="jenis_berita" id="jenis_berita" class="select-status" required>
+                        <option value="" disabled selected hidden>Pilih jenis berita...</option>
+                        <option value="Pengumuman" {{ old('jenis_berita') == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
+                        <option value="Prestasi" {{ old('jenis_berita') == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
+                        <option value="Kolaborasi" {{ old('jenis_berita') == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
+                        <option value="Event" {{ old('jenis_berita') == 'Event' ? 'selected' : '' }}>Event</option>
+                        <option value="Lainnya" {{ old('jenis_berita') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    
+                    <label>Isi Berita</label>
                     <div class="ai-generate-wrapper">
         
                         <input type="text" id="prompt-ai" class="prompt-input" 
@@ -307,23 +320,12 @@
                         </button>
                     </div> 
 
-                    <label>Isi Berita</label>
                     <textarea id="isi_berita_editor" name="isi" rows="6"
                         placeholder="Masukkan isi berita..." required>{{ old('isi_berita') }}</textarea>
                 </div>
 
                 
-                <div class="form-group">
-                    <label>Jenis Berita</label>
-                    <select name="jenis_berita" id="jenis_berita" class="select-status" required>
-                        <option value="" disabled selected hidden>Pilih jenis berita...</option>
-                        <option value="Pengumuman" {{ old('jenis_berita') == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
-                        <option value="Prestasi" {{ old('jenis_berita') == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
-                        <option value="Kolaborasi" {{ old('jenis_berita') == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
-                        <option value="Event" {{ old('jenis_berita') == 'Event' ? 'selected' : '' }}>Event</option>
-                        <option value="Lainnya" {{ old('jenis_berita') == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
-                    </select>
-                </div>
+                
 
                 
                 <div class="form-group">
@@ -387,7 +389,6 @@
     }
 </script>
 
-// TinyMCE 
 <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
     referrerpolicy="origin"></script>
 
@@ -448,7 +449,6 @@
     });
 </script>
 
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const btnGenerate = document.getElementById('btn-generate-ai');
@@ -462,8 +462,8 @@
         let isFirstGenerate = true; 
         let isRegenerate = false;
 
-        const USE_MOCK = true;
-        const API_URL  = '/generate-ai-berita'; 
+        const USE_MOCK = false;
+        const API_URL  = '{{ route("generate.ai.berita") }}'; 
 
         btnGenerate.addEventListener('click', async function () {
             const judul = document.getElementById('judul_berita').value.trim();

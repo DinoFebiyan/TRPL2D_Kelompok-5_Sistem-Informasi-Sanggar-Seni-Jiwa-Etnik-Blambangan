@@ -297,6 +297,142 @@ class BeritaController extends Controller
         ]);
     }
 
+    public function generateAiBerita(Request $request)
+    {
+        try {
+            // 1. Validasi input dari front-end
+            $request->validate([
+                'judul'        => 'nullable|string|max:255',
+                'jenis_berita' => 'nullable|string',
+                'prompt'       => 'nullable|string',
+            ]);
+
+            $judul     = $request->input('judul', 'berita sanggar jeb');
+            $jenis     = $request->input('jenis_berita', 'Umum');
+            $promptUser = $request->input('prompt', 'Buatkan berita yang menarik dan informatif.');
+
+            // 2. Ambil API Key dari config/services.php
+            $apiKey = config('services.gemini.key');
+            if (empty($apiKey)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'GEMINI_API_KEY belum dikonfigurasi di file .env',
+                ], 500);
+            }
+
+            // 3. Bangun instruksi tambahan jika user memberi prompt
+            $instruksiTambahan = '';
+            if (! empty($promptUser)) {
+                $instruksiTambahan = "\n\nCatatan Perbaikan/Permintaan Tambahan dari Pengurus:\n\"{$promptUser}\"\nHarap sesuaikan narasi berita dengan memperhatikan permintaan tambahan di atas.";
+            }
+
+            // 4. Susun prompt final (mengikuti struktur dari Python)
+            $promptFinal = <<<PROMPT
+Kamu adalah seorang jurnalis senior untuk Sanggar Tari JEB. Buatkan draf artikel berita singkat yang menarik berdasarkan konteks berikut.
+
+Konteks/Kategori Kegiatan: {$jenis}
+Gunakan judul berikut sebagai judul utama: "{$judul}". Tuliskan judul ini dalam komentar HTML <!-- Judul Utama: ... -->.
+{$instruksiTambahan}
+
+Panduan Penulisan sesuai Kategori:
+- Jika 'Latihan Rutin': fokus pada semangat penari, detail gerakan, dan proses latihan di sanggar.
+- Jika 'Event / Pentas': fokus pada kemeriahan acara, kostum/pakaian adat, dan antusiasme penonton.
+- Jika 'Prestasi': fokus pada rasa bangga, penghargaan, dan kerja keras tim.
+- Jika 'Pengumuman': fokus pada informasi yang jelas, waktu, tempat, dan ajakan.
+
+ATURAN FORMAT OUTPUT (SANGAT PENTING):
+1. SELURUH penanda bagian (Paragraf Pembuka, Isi Berita, Penutup) HARUS DITULIS DALAM BENTUK KOMENTAR HTML (<!-- ... -->).
+2. Teks paragraf berita ditulis menggunakan tag <p> HTML yang siap dimasukkan ke WYSIWYG Editor (TinyMCE).
+3. JANGAN gunakan tag header <h3> untuk penanda bagian atau judul.
+
+CONTOH STRUKTUR OUTPUT YANG DIHARAPKAN:
+<!-- Paragraf Pembuka -->
+<p>Isi paragraf pembuka di sini (5W+1H dan makna budaya)...</p>
+
+<!-- Isi Berita -->
+<p>Paragraf pertama isi berita...</p>
+<p>Paragraf kedua isi berita...</p>
+
+<!-- Penutup -->
+<p>Paragraf penutup di sini...</p>
+PROMPT;
+
+            // 5. Siapkan payload untuk Gemini REST API
+            $payload = [
+                'contents' => [
+                    [
+                        'parts' => [
+                            ['text' => $promptFinal],
+                        ],
+                    ],
+                ],
+                'generationConfig' => [
+                    'temperature'     => 0.9,
+                    'maxOutputTokens' => 2048,
+                ],
+            ];
+
+            // 6. Daftar model yang akan dicoba (fallback jika model utama gagal)
+            $modelList = [
+                'gemini-3.7-flash',
+                'gemini-3.6-flash',
+                'gemini-3.5-flash',
+                'gemini-2.5-flash',
+            ];
+
+            $hasilGenerasi = null;
+            $errorTerakhir = null;
+
+            foreach ($modelList as $model) {
+                $url = "https://generativelanguage.googleapis.com/v1beta/models/{$model}:generateContent?key={$apiKey}";
+
+                $response = \Illuminate\Support\Facades\Http::timeout(60)
+                    ->withHeaders(['Content-Type' => 'application/json'])
+                    ->post($url, $payload);
+
+                if ($response->successful()) {
+                    $data = $response->json();
+                    $hasilGenerasi = $data['candidates'][0]['content']['parts'][0]['text'] ?? null;
+
+                    if (! empty($hasilGenerasi)) {
+                        break; // Berhasil, keluar dari loop
+                    }
+                } else {
+                    $errorTerakhir = "Model {$model} error: " . $response->body();
+                    \Illuminate\Support\Facades\Log::warning("Gemini {$model} gagal: " . $response->body());
+                }
+            }
+
+            if (empty($hasilGenerasi)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Gagal generate dari semua model Gemini. ' . ($errorTerakhir ?? ''),
+                ], 500);
+            }
+
+            // 7. Bersihkan output dari ```html jika ada
+            $cleanText = trim(str_replace(['```html', '```'], '', $hasilGenerasi));
+
+            return response()->json([
+                'success' => true,
+                'content' => $cleanText,
+            ]);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Input tidak valid: ' . $e->getMessage(),
+            ], 422);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Gemini Generate Error: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Error Server: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      */
