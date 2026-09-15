@@ -46,6 +46,8 @@ class KatalogController extends Controller
             'center'
         );
 
+        Storage::disk('public')->makeDirectory('katalog/watermark');
+
         $image->save(
             storage_path(
                 'app/public/katalog/'. $filename
@@ -155,7 +157,7 @@ class KatalogController extends Controller
                     'path' => $path,
                     'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'katalog',
-                    'is_watermark' => false,
+                    'is_watermark' => true,
                 ]);
             }
         }
@@ -252,7 +254,7 @@ class KatalogController extends Controller
                     'path' => $path,
                     'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'katalog',
-                    'is_watermark' => false,
+                    'is_watermark' => true,
                 ]);
             }
         }
