@@ -26,13 +26,6 @@ class KatalogController extends Controller
             uniqid().'.'.
             $file->getClientOriginalExtension();
 
-        // Simpan asli
-        $file->storeAs(
-            'katalog/asli',
-            $filename,
-            'public'
-        );
-
         $image = $manager->read(
             $file->getRealPath()
         );
@@ -53,14 +46,15 @@ class KatalogController extends Controller
             'center'
         );
 
+        Storage::disk('public')->makeDirectory('katalog/watermark');
+
         $image->save(
             storage_path(
-                'app/public/katalog/watermark/'.
-                $filename
+                'app/public/katalog/'. $filename
             )
         );
 
-        return 'katalog/watermark/'.$filename;
+        return 'katalog/'.$filename;
     }
 
     /**
@@ -166,7 +160,7 @@ class KatalogController extends Controller
                     'path' => $path,
                     'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'katalog',
-                    'is_watermark' => false,
+                    'is_watermark' => true,
                 ]);
             }
         }
@@ -263,7 +257,7 @@ class KatalogController extends Controller
                     'path' => $path,
                     'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'katalog',
-                    'is_watermark' => false,
+                    'is_watermark' => true,
                 ]);
             }
         }

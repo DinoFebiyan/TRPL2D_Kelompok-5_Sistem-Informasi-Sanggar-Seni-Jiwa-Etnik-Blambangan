@@ -10,9 +10,38 @@ use App\Models\LogAktivitas;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Drivers\Gd\Driver;
+use Intervention\Image\ImageManager;
 
 class EventController extends Controller
 {
+    /**
+     * Method privat untuk memproses gambar dan menambahkan watermark.
+     */
+    private function simpanDenganWatermark($file)
+    {
+        $manager = new ImageManager(new Driver());
+
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+
+
+        //  Baca gambar untuk diberi watermark
+        $image = $manager->read($file->getRealPath());
+        $watermark = $manager->read(public_path('img/watermark/logo-jeb.png'));
+
+        // Skala ukuran watermark
+        $watermark->scale(width: 500);
+
+        // Tempatkan watermark di tengah
+        $image->place($watermark, 'center');
+
+        // Pastikan direktori event/watermark sudah dibuat secara manual atau via script
+        // agar proses save() dari Intervention tidak gagal (Permission/Not Found).
+        $image->save(storage_path('app/public/event/' . $filename));
+
+        return 'event/' . $filename;
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -26,10 +55,10 @@ class EventController extends Controller
         // 1. Logika Global Search Multi Kolom
         if (! empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', '%'.$search.'%')
-                    ->orWhere('lokasi', 'like', '%'.$search.'%')
-                    ->orWhere('kategori', 'like', '%'.$search.'%')
-                    ->orWhere('deskripsi', 'like', '%'.$search.'%');
+                $q->where('nama', 'like', '%' . $search . '%')
+                    ->orWhere('lokasi', 'like', '%' . $search . '%')
+                    ->orWhere('kategori', 'like', '%' . $search . '%')
+                    ->orWhere('deskripsi', 'like', '%' . $search . '%');
             });
         }
 
@@ -103,21 +132,22 @@ class EventController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                $path = $file->store('event', 'public');
+                // Menggunakan fungsi pembuat watermark
+                $path = $this->simpanDenganWatermark($file);
 
                 Galeri::create([
                     'sumber_id' => $event->id,
                     'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
                     'kategori' => 'event',
-                    'is_watermark' => false,
+                    'is_watermark' => true, // Menandai bahwa foto ini memiliki watermark (opsional: bisa disesuaikan dengan kebutuhan database)
                 ]);
             }
         }
 
         LogAktivitas::create([
             'user_id' => Auth::id(),
-            'aktivitas' => 'Menambahkan event baru: '.$request->nama,
+            'aktivitas' => 'Menambahkan event baru: ' . $request->nama,
             'waktu' => now(),
         ]);
 
@@ -200,6 +230,13 @@ class EventController extends Controller
                     if (Storage::disk('public')->exists($fotoLama->path)) {
                         Storage::disk('public')->delete($fotoLama->path);
                     }
+                    
+                    // Opsional: Hapus juga file aslinya jika ingin menghemat ruang server
+                    // $pathAsli = str_replace('watermark', 'asli', $fotoLama->path);
+                    // if (Storage::disk('public')->exists($pathAsli)) {
+                    //     Storage::disk('public')->delete($pathAsli);
+                    // }
+
                     $fotoLama->delete();
                 }
             }
@@ -207,21 +244,22 @@ class EventController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                $path = $file->store('event', 'public');
+                // Menggunakan fungsi pembuat watermark
+                $path = $this->simpanDenganWatermark($file);
 
                 Galeri::create([
                     'sumber_id' => $event->id,
                     'path' => $path,
-                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
                     'kategori' => 'event',
-                    'is_watermark' => false,
+                    'is_watermark' => true,
                 ]);
             }
         }
 
         LogAktivitas::create([
             'user_id' => Auth::id(),
-            'aktivitas' => 'Memperbarui data event: '.$event->nama,
+            'aktivitas' => 'Memperbarui data event: ' . $event->nama,
             'waktu' => now(),
         ]);
 
@@ -248,6 +286,13 @@ class EventController extends Controller
             if (Storage::disk('public')->exists($foto->path)) {
                 Storage::disk('public')->delete($foto->path);
             }
+            
+            // Opsional: Hapus file asli saat event dihapus
+            // $pathAsli = str_replace('watermark', 'asli', $foto->path);
+            // if (Storage::disk('public')->exists($pathAsli)) {
+            //     Storage::disk('public')->delete($pathAsli);
+            // }
+
             $foto->delete();
         }
 
@@ -255,7 +300,7 @@ class EventController extends Controller
 
         LogAktivitas::create([
             'user_id' => Auth::id(),
-            'aktivitas' => 'Menghapus event: '.$namaEvent,
+            'aktivitas' => 'Menghapus event: ' . $namaEvent,
             'waktu' => now(),
         ]);
 
