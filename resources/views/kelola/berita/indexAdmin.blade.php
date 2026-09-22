@@ -550,7 +550,7 @@
                         </div>
                     </td>
                     <td><strong>{{ $berita->judul }}</strong><br>
-                        <span style="font-size:0.7rem; color:#888;">{{ \Illuminate\Support\Str::limit($berita->isi_berita, 60) }}</span>
+                       <span style="font-size:0.7rem; color:#888;">{{ \Illuminate\Support\Str::limit(strip_tags($berita->isi_berita), 60) }}</span>
                     </td>
                     <td>{{ $berita->user->name ?? 'Admin' }}</td>
                     <td>{{ $berita->created_at ? $berita->created_at->format('d/m/Y H:i') : '-' }}</td>
