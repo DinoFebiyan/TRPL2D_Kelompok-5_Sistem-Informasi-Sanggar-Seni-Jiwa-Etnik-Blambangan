@@ -22,8 +22,8 @@ class SanitizeHelper
             );
 
             // Matikan resource eksternal agar lebih aman
-            $config->set('URI.DisableExternalResources', true);
-            $config->set('URI.DisableResources', true);
+            $config->set('URI.DisableExternalResources', false);
+            $config->set('URI.DisableResources', false);
 
             self::$purifier = new HTMLPurifier($config);
         }

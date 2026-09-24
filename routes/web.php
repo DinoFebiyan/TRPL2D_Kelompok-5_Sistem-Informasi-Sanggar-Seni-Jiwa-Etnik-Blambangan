@@ -97,6 +97,7 @@ Route::prefix('admin')->middleware(['admin.auth'])->group(function () {
     // Kelola Berita
     Route::get('/kelola-berita', [BeritaController::class, 'index'])->name('admin.kelola-berita');
     Route::get('/kelola-berita/tambah-berita', [BeritaController::class, 'create'])->name('admin.tambah-berita');
+    Route::post('/kelola-berita/upload-gambar', [BeritaController::class, 'uploadGambar'])->name('admin.berita.upload-gambar');
     Route::post('/kelola-berita/store', [BeritaController::class, 'store'])->name('admin.store-berita');
     Route::get('/berita/edit/{id}', [BeritaController::class, 'edit'])->name('admin.edit-berita');
     Route::put('/berita/update/{id}', [BeritaController::class, 'update'])->name('admin.update-berita');
@@ -173,6 +174,7 @@ Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () 
     // Kelola Berita
     Route::get('/kelola-berita', [BeritaController::class, 'index'])->name('superadmin.kelola-berita');
     Route::get('/kelola-berita/tambah-berita', [BeritaController::class, 'create'])->name('superadmin.tambah-berita');
+    Route::post('/kelola-berita/upload-gambar', [BeritaController::class, 'uploadGambar'])->name('superadmin.berita.upload-gambar');
     Route::post('/kelola-berita/store', [BeritaController::class, 'store'])->name('superadmin.store-berita');
     Route::get('/berita/edit/{id}', [BeritaController::class, 'edit'])->name('superadmin.edit-berita');
     Route::put('/berita/update/{id}', [BeritaController::class, 'update'])->name('superadmin.update-berita');
@@ -217,10 +219,10 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/upload-gambar-berita', [BeritaController::class, 'uploadGambar'])->name('berita.upload-gambar');
     Route::post('/generate-ai-berita', [BeritaController::class, 'generateAiBerita'])->name('generate.ai.berita');
     Route::get('/cek-gemini-model', function () {
-    $apiKey = config('services.gemini.key');
-    $response = \Illuminate\Support\Facades\Http::get("https://generativelanguage.googleapis.com/v1beta/models?key={$apiKey}");
-    return $response->json();
-});
+        $apiKey = config('services.gemini.key');
+        $response = \Illuminate\Support\Facades\Http::get("https://generativelanguage.googleapis.com/v1beta/models?key={$apiKey}");
+        return $response->json();
+    });
 });
 
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

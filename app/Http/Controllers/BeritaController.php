@@ -45,7 +45,7 @@ class BeritaController extends Controller
             'center'
         );
 
-        Storage::disk('public')->makeDirectory('berita/watermark');
+        Storage::disk('public')->makeDirectory('berita');
 
 
         // Simpan hasil watermark

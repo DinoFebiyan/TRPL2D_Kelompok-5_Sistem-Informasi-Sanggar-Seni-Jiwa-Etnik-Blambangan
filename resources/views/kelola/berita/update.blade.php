@@ -4,7 +4,9 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap"
+        rel="stylesheet">
     <style>
         .page-container {
             max-width: 1000px;
@@ -13,7 +15,7 @@
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .form-header {
@@ -184,9 +186,10 @@
             justify-content: center;
             font-size: 0.75rem;
             cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
             transition: 0.2s;
         }
+
         .btn-hapus-foto-lama:hover {
             background: #dc2626;
             transform: scale(1.1);
@@ -194,22 +197,31 @@
     </style>
     {{-- Popup Server Error: muncul otomatis jika validasi gagal --}}
     @if ($errors->any())
-        <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
-            <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
-                <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
-                <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
+        <div id="popup-server-inline"
+            style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
+            <div
+                style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
+                <div
+                    style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">
+                    ✕</div>
+                <p
+                    style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">
+                    Server Error</p>
                 <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
-                <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
+                <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda
+                    masukkan:</p>
                 <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
                     @foreach ($errors->all() as $error)
                         <li style="margin-bottom:4px;">{{ $error }}</li>
                     @endforeach
                 </ul>
-                <button onclick="document.getElementById('popup-server-inline').style.display='none';" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
+                <button onclick="document.getElementById('popup-server-inline').style.display='none';"
+                    style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba
+                    Lagi</button>
             </div>
         </div>
         <script>
-            window.addEventListener('load', function() {
+            window.addEventListener('load', function () {
                 document.getElementById('popup-server-inline').style.display = 'flex';
             });
         </script>
@@ -225,7 +237,8 @@
             </div>
             <div class="header-actions">
                 @if(auth()->user()->peran === 'superadmin')
-                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-berita') }}'); return false;" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-berita') }}'); return false;"
+                        class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
@@ -233,23 +246,28 @@
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
-                <button type="button" onclick="showPopupSimpan('formEditBerita')" form="formEditBerita" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="showPopupSimpan('formEditBerita')" form="formEditBerita"
+                    class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>
 
         <div class="form-body">
-            <form id="formEditBerita" action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.update-berita', $berita->id) : route('admin.update-berita', $berita->id) }}" method="POST" enctype="multipart/form-data">
+            <form id="formEditBerita"
+                action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.update-berita', $berita->id) : route('admin.update-berita', $berita->id) }}"
+                method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
                 @if(session('success'))
-                    <div style="background:#dcfce7; color:#16a34a; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #16a34a;">
+                    <div
+                        style="background:#dcfce7; color:#16a34a; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #16a34a;">
                         <i class="fas fa-check-circle"></i> {{ session('success') }}
                     </div>
                 @endif
 
                 @if($errors->any())
-                    <div style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
+                    <div
+                        style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
                         <i class="fas fa-exclamation-circle"></i> Harap perbaiki kesalahan pada form.
                         <ul style="margin: 5px 0 0 0; padding-left: 20px; color: #dc2626;">
                             @foreach($errors->all() as $error)
@@ -261,19 +279,21 @@
 
                 {{-- Menampilkan Gambar Header Berita Saat Ini dari Database --}}
                 @if($berita->galeri && $berita->galeri->isNotEmpty())
-                <div class="form-group">
-                    <label>Gambar Header Berita Saat Ini (Klik tombol merah untuk menghapus)</label>
-                    <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
-                        @foreach($berita->galeri as $foto)
-                            <div id="foto-lama-box-{{ $foto->id }}" style="position: relative; display: inline-block;">
-                                <img src="{{ asset('storage/' . $foto->path) }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #c0c0c0;">
-                                <button type="button" class="btn-hapus-foto-lama" onclick="tandaiHapusFoto({{ $foto->id }})" title="Hapus gambar ini">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            </div>
-                        @endforeach
+                    <div class="form-group">
+                        <label>Gambar Header Berita Saat Ini (Klik tombol merah untuk menghapus)</label>
+                        <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-top: 10px;">
+                            @foreach($berita->galeri as $foto)
+                                <div id="foto-lama-box-{{ $foto->id }}" style="position: relative; display: inline-block;">
+                                    <img src="{{ asset('storage/' . $foto->path) }}"
+                                        style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px; border: 1px solid #c0c0c0;">
+                                    <button type="button" class="btn-hapus-foto-lama" onclick="tandaiHapusFoto({{ $foto->id }})"
+                                        title="Hapus gambar ini">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
                     </div>
-                </div>
                 @endif
 
                 <div id="wadahInputHapusFoto"></div>
@@ -283,121 +303,129 @@
                     <label>Unggah Gambar Tambahan Baru (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
-                        <span class="file-name-display" id="fileNameDisplay">Kosongkan jika tidak ingin menambah gambar...</span>
-                        <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
+                        <span class="file-name-display" id="fileNameDisplay">Kosongkan jika tidak ingin menambah
+                            gambar...</span>
+                        <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg"
+                            style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
                     </div>
                     <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
-                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
+                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+                    </div>
                 </div>
 
                 {{-- Judul Berita --}}
                 <div class="form-group">
                     <label>Judul Berita</label>
-                    <input type="text" name="judul" value="{{ old('judul', $berita->judul) }}" placeholder="Masukkan judul berita..." required>
+                    <input type="text" name="judul" value="{{ old('judul', $berita->judul) }}"
+                        placeholder="Masukkan judul berita..." required>
                 </div>
 
                 {{-- Isi Berita --}}
+                <!-- TEMPAT: Di dalam tag <form id="formEditBerita"> -->
                 <div class="form-group">
                     <label>Isi Berita</label>
-                    <textarea name="isi" rows="6" placeholder="Masukkan isi berita..." required>{{ old('isi', $berita->isi_berita) }}</textarea>
+                    <textarea id="isi_berita_editor" name="isi" rows="6" placeholder="Masukkan isi berita..." required>{{ old('isi', $berita->isi_berita) }}
+                    </textarea>
                 </div>
 
-                {{-- Jenis Berita --}}
-                <div class="form-group">
-                    <label>Jenis Berita</label>
-                    <select name="jenis_berita" id="jenis_berita" class="select-status" required>
-                        <option value="Pengumuman" {{ old('jenis_berita', $berita->jenis_berita) == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
-                        <option value="Prestasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
-                        <option value="Kolaborasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
-                        <option value="Event" {{ old('jenis_berita', $berita->jenis_berita) == 'Event' ? 'selected' : '' }}>Event</option>
-                        <option value="Lainnya" {{ old('jenis_berita', $berita->jenis_berita) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
-                    </select>
-                </div>
+                    {{-- Jenis Berita --}}
+                    <div class="form-group">
+                        <label>Jenis Berita</label>
+                        <select name="jenis_berita" id="jenis_berita" class="select-status" required>
+                            <option value="Pengumuman" {{ old('jenis_berita', $berita->jenis_berita) == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
+                            <option value="Prestasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
+                            <option value="Kolaborasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
+                            <option value="Event" {{ old('jenis_berita', $berita->jenis_berita) == 'Event' ? 'selected' : '' }}>
+                                Event</option>
+                            <option value="Lainnya" {{ old('jenis_berita', $berita->jenis_berita) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                        </select>
+                    </div>
 
-                {{-- Status Tayang --}}
-                <div class="form-group">
-                    <label>Status</label>
-                    <select name="status" required class="select-status">
-                        <option value="tayang" {{ old('status', $berita->status) == 'tayang' ? 'selected' : '' }}>Tayang</option>
-                        <option value="tidak ditayangkan" {{ old('status', $berita->status) == 'tidak ditayangkan' ? 'selected' : '' }}>Tidak Ditayangkan</option>
-                    </select>
-                </div>
-            </form>
+                    {{-- Status Tayang --}}
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select name="status" required class="select-status">
+                            <option value="tayang" {{ old('status', $berita->status) == 'tayang' ? 'selected' : '' }}>Tayang
+                            </option>
+                            <option value="tidak ditayangkan" {{ old('status', $berita->status) == 'tidak ditayangkan' ? 'selected' : '' }}>Tidak Ditayangkan</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <script>
-        // FUNGSI BARU: Memasukkan ID foto ke input hidden dan menyembunyikannya dari UI
-        function tandaiHapusFoto(idFoto) {
-            if(confirm('Apakah Anda yakin ingin menghapus gambar ini dari berita?')) {
-                const wadah = document.getElementById('wadahInputHapusFoto');
-                
-                // Buat elemen input hidden baru
-                const inputHidden = document.createElement('input');
-                inputHidden.type = 'hidden';
-                inputHidden.name = 'hapus_foto[]';
-                inputHidden.value = idFoto;
-                wadah.appendChild(inputHidden);
+        <script>
+            // FUNGSI BARU: Memasukkan ID foto ke input hidden dan menyembunyikannya dari UI
+            function tandaiHapusFoto(idFoto) {
+                if (confirm('Apakah Anda yakin ingin menghapus gambar ini dari berita?')) {
+                    const wadah = document.getElementById('wadahInputHapusFoto');
 
-                // Hilangkan box foto dari tampilan layar
-                const boxFoto = document.getElementById('foto-lama-box-' + idFoto);
-                if(boxFoto) {
-                    boxFoto.remove();
+                    // Buat elemen input hidden baru
+                    const inputHidden = document.createElement('input');
+                    inputHidden.type = 'hidden';
+                    inputHidden.name = 'hapus_foto[]';
+                    inputHidden.value = idFoto;
+                    wadah.appendChild(inputHidden);
+
+                    // Hilangkan box foto dari tampilan layar
+                    const boxFoto = document.getElementById('foto-lama-box-' + idFoto);
+                    if (boxFoto) {
+                        boxFoto.remove();
+                    }
                 }
             }
-        }
 
-        // Penanganan Akumulasi Gambar Baru
-        let kumpulanFileBerita = [];
+            // Penanganan Akumulasi Gambar Baru
+            let kumpulanFileBerita = [];
 
-        function updateFileNameAndPreview(input) {
-            const display = document.getElementById('fileNameDisplay');
-            const container = document.getElementById('imagePreviewContainer');
-            
-            if (input.files && input.files.length > 0) {
-                for (let i = 0; i < input.files.length; i++) {
-                    kumpulanFileBerita.push(input.files[i]);
+            function updateFileNameAndPreview(input) {
+                const display = document.getElementById('fileNameDisplay');
+                const container = document.getElementById('imagePreviewContainer');
+
+                if (input.files && input.files.length > 0) {
+                    for (let i = 0; i < input.files.length; i++) {
+                        kumpulanFileBerita.push(input.files[i]);
+                    }
+
+                    container.innerHTML = '';
+                    const dataTransferObat = new DataTransfer();
+
+                    kumpulanFileBerita.forEach((file) => {
+                        dataTransferObat.items.add(file);
+
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const wrapper = document.createElement('div');
+                            wrapper.style.position = 'relative';
+                            wrapper.style.display = 'inline-block';
+
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.width = '100px';
+                            img.style.height = '100px';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '6px';
+                            img.style.border = '1px dashed #A87C7C';
+
+                            wrapper.appendChild(img);
+                            container.appendChild(wrapper);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+
+                    input.files = dataTransferObat.files;
+                    display.textContent = kumpulanFileBerita.length + " file baru dipilih (terakumulasi)";
+                    display.style.color = "#333";
                 }
-
-                container.innerHTML = '';
-                const dataTransferObat = new DataTransfer();
-                
-                kumpulanFileBerita.forEach((file) => {
-                    dataTransferObat.items.add(file);
-
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const wrapper = document.createElement('div');
-                        wrapper.style.position = 'relative';
-                        wrapper.style.display = 'inline-block';
-
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.width = '100px';
-                        img.style.height = '100px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '6px';
-                        img.style.border = '1px dashed #A87C7C';
-
-                        wrapper.appendChild(img);
-                        container.appendChild(wrapper);
-                    };
-                    reader.readAsDataURL(file);
-                });
-
-                input.files = dataTransferObat.files;
-                display.textContent = kumpulanFileBerita.length + " file baru dipilih (terakumulasi)";
-                display.style.color = "#333";
             }
-        }
-    </script>
-    {{-- Memuat Library Resmi TinyMCE dari CDN Cloud --}}
-    <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
-        referrerpolicy="origin"></script>
+        </script>
+        {{-- Memuat Library Resmi TinyMCE dari CDN Cloud --}}
+        <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
+            referrerpolicy="origin"></script>
 
         <script>
             tinymce.init({
-                selector: '#isi_berita_editor',
+                selector: '#isi',
 
                 height: 600,
 
@@ -460,7 +488,7 @@
 @include('popup.batal')
 @include('popup.simpan')
 @push('scripts')
-<script>
-    document.body.classList.add('page-form');
-</script>
+    <script>
+        document.body.classList.add('page-form');
+    </script>
 @endpush
