@@ -173,7 +173,6 @@
             color: #b0b0b0;
         }
 
-       
         .btn-generate-ai {
             background: #FEF9E7;
             border: 1px dashed #D4A017;
@@ -273,7 +272,6 @@
         : route('admin.store-berita') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                
                 <div class="form-group">
                     <label>Foto Header (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper">
@@ -328,10 +326,6 @@
                         placeholder="Masukkan isi berita...">{{ old('isi_berita') }}</textarea>
                 </div>
 
-                
-                
-
-                
                 <div class="form-group">
                     <label>Status</label>
                     <select name="status" required class="select-status">
@@ -344,6 +338,11 @@
             </form>
         </div>
     </div>
+
+    {{-- Popup --}}
+    @include('popup.validasi')
+    @include('popup.batal')
+    @include('popup.simpan')
 @endsection
 
 @push('scripts')
@@ -420,12 +419,11 @@
                 '| fullscreen preview'
             ].join(' '),
 
-        // TAMBAHKAN DUA BARIS INI:
-    setup: function (editor) {
-        editor.on('change keyup NodeChange', function () {
-            editor.save(); // Menyinkronkan konten TinyMCE ke textarea asli
-        });
-    },
+            setup: function (editor) {
+                editor.on('change keyup NodeChange', function () {
+                    editor.save(); // Menyinkronkan konten TinyMCE ke textarea asli
+                });
+            },
 
             automatic_uploads: true,
             image_title: true,
@@ -496,72 +494,73 @@ document.addEventListener('DOMContentLoaded', function () {
     
     if (!btnGenerate) return;
 
-            const API_URL = '{{ route("generate.ai.berita") }}';
+    const API_URL = '{{ route("generate.ai.berita") }}';
 
-            btnGenerate.addEventListener('click', async function () {
-                const judul = document.getElementById('judul_berita').value.trim();
-                const jenis = document.getElementById('jenis_berita').value || '';
-                const promptText = promptInput ? promptInput.value.trim() : '';
+    btnGenerate.addEventListener('click', async function () {
+        const judul = document.getElementById('judul_berita').value.trim();
+        const jenis = document.getElementById('jenis_berita').value || '';
+        const promptText = promptInput ? promptInput.value.trim() : '';
 
-                // 1. Siapkan FormData untuk request ke Laravel
-                const formData = new FormData();
-                formData.append('judul', judul);
-                formData.append('jenis_berita', jenis);
-                formData.append('prompt', promptText);
+        // 1. Siapkan FormData untuk request ke Laravel
+        const formData = new FormData();
+        formData.append('judul', judul);
+        formData.append('jenis_berita', jenis);
+        formData.append('prompt', promptText);
 
-                if (fileInput && fileInput.files.length > 0) {
-                    for (let i = 0; i < fileInput.files.length; i++) {
-                        formData.append('foto[]', fileInput.files[i]);
-                    }
-                }
+        if (fileInput && fileInput.files.length > 0) {
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('foto[]', fileInput.files[i]);
+            }
+        }
 
-                // 2. Tampilan Loading State
-                btnGenerate.disabled = true;
-                const originalText = btnText ? btnText.innerText : btnGenerate.innerHTML;
-                if (btnText) {
-                    btnText.innerText = 'Memproses...';
-                } else {
-                    btnGenerate.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-                }
+        // 2. Tampilan Loading State
+        btnGenerate.disabled = true;
+        const originalText = btnText ? btnText.innerText : btnGenerate.innerHTML;
+        if (btnText) {
+            btnText.innerText = 'Memproses...';
+        } else {
+            btnGenerate.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+        }
 
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                },
+                body: formData
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                let errorMessage = `Server Error (${response.status})`;
                 try {
-                    const response = await fetch(API_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                        },
-                        body: formData
-                    });
+                    const errorJson = JSON.parse(errorText);
+                    errorMessage = errorJson.message || errorMessage;
+                } catch (e) {
+                    console.error("HTML Error Response:", errorText);
+                }
+                throw new Error(errorMessage);
+            }
 
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        let errorMessage = `Server Error (${response.status})`;
-                        try {
-                            const errorJson = JSON.parse(errorText);
-                            errorMessage = errorJson.message || errorMessage;
-                        } catch (e) {
-                            console.error("HTML Error Response:", errorText);
-                        }
-                        throw new Error(errorMessage);
-                    }
+            const data = await response.json();
 
-                    const data = await response.json();
-
-                    if (!data.success || !data.content) {
-                        throw new Error(data.message || 'Gagal generate dari server.');
-                    }
+            if (!data.success || !data.content) {
+                throw new Error(data.message || 'Gagal generate dari server.');
+            }
 
             // 3. Masukkan Hasil ke TinyMCE / Textarea
             if (window.tinymce && tinymce.get('isi_berita_editor')) {
                 tinymce.get('isi_berita_editor').setContent(data.content);
+                tinymce.get('isi_berita_editor').save(); // Sinkronkan konten AI ke textarea
             } else {
                 document.getElementById('isi_berita_editor').value = data.content;
             }
 
-            // 4. MUNCULKAN FORM PROMPT TAMBAHAN & UBAH TEKS TOMBOL
+            
             if (promptContainer) {
-                promptContainer.style.display = 'block'; // Tampilkan container prompt tambahan
+                promptContainer.style.display = 'block';
             }
             if (promptInput) {
                 promptInput.style.display = 'block';
@@ -577,12 +576,82 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (err) {
             console.error(err);
             alert('Terjadi kesalahan: ' + err.message);
-            // Kembalikan teks jika gagal
             if (btnText) btnText.innerText = originalText;
         } finally {
             btnGenerate.disabled = false;
         }
     });
 });
+</script>
+
+
+<script>
+function validateFormBerita() {
+    const errors = [];
+
+    // 1. Foto Header (multiple)
+    const fotoInput = document.getElementById('foto');
+    if (!fotoInput.files || fotoInput.files.length === 0) {
+        errors.push('Foto header berita belum dipilih');
+    }
+
+    // 2. Judul
+    const judul = document.getElementById('judul_berita');
+    if (!judul.value.trim()) {
+        errors.push('Judul berita belum diisi');
+    } else if (judul.value.trim().length < 5) {
+        errors.push('Judul berita minimal 5 karakter');
+    }
+
+    // 3. Jenis Berita
+    const jenis = document.getElementById('jenis_berita');
+    if (!jenis.value) {
+        errors.push('Jenis berita belum dipilih');
+    }
+
+    // 4. Isi Berita (TinyMCE)
+    let isiContent = '';
+    if (window.tinymce && tinymce.get('isi_berita_editor')) {
+        isiContent = tinymce.get('isi_berita_editor').getContent({ format: 'text' }).trim();
+    } else {
+        isiContent = document.getElementById('isi_berita_editor').value.trim();
+    }
+    if (!isiContent) {
+        errors.push('Isi berita belum diisi');
+    }
+
+    // 5. Status
+    const status = document.querySelector('select[name="status"]');
+    if (!status.value) {
+        errors.push('Status berita belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanBerita(formId) {
+    const errors = validateFormBerita();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+
+<script>
+    window._urlBatalBerita = '{{ auth()->user()->peran === "superadmin"
+        ? route("superadmin.kelola-berita")
+        : route("admin.kelola-berita") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalBerita;
+    };
 </script>
 @endpush
