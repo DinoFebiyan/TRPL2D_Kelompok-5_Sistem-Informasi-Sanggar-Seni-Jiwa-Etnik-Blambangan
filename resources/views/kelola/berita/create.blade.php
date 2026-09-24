@@ -173,7 +173,6 @@
             color: #b0b0b0;
         }
 
-       
         .btn-generate-ai {
             background: #FEF9E7;
             border: 1px dashed #D4A017;
@@ -247,18 +246,18 @@
             </div>
             <div class="header-actions">
                 @if(auth()->user()->peran === 'superadmin')
-                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-berita') }}'); return false;"
-                        class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
-                    <a href="#" onclick="showPopupBatal('{{ route('admin.kelola-berita') }}'); return false;" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
 
-                <button type="button" onclick="showPopupSimpan('formTambahBerita')" form="formTambahBerita"
-                    class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="handleSimpanBerita('formTambahBerita')" class="btn-simpan">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
             </div>
         </div>
 
@@ -271,7 +270,6 @@
                 enctype="multipart/form-data">
                 @csrf
 
-                
                 <div class="form-group">
                     <label>Foto Header (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper">
@@ -304,10 +302,8 @@
                 </div>
 
                 <div class="form-group">
-                    
                     <label>Isi Berita</label>
                     <div class="ai-generate-wrapper">
-        
                         <input type="text" id="prompt-ai" class="prompt-input" 
                                placeholder="Ketik instruksi/prompt untuk AI di sini..." 
                                style="display: none;">
@@ -324,10 +320,6 @@
                         placeholder="Masukkan isi berita..." required>{{ old('isi_berita') }}</textarea>
                 </div>
 
-                
-                
-
-                
                 <div class="form-group">
                     <label>Status</label>
                     <select name="status" required class="select-status">
@@ -339,6 +331,11 @@
             </form>
         </div>
     </div>
+
+    {{-- Popup --}}
+    @include('popup.validasi')
+    @include('popup.batal')
+    @include('popup.simpan')
 @endsection
 
 @push('scripts')
@@ -415,12 +412,11 @@
             '| fullscreen preview'
         ].join(' '),
 
-        // TAMBAHKAN DUA BARIS INI:
-    setup: function (editor) {
-        editor.on('change keyup NodeChange', function () {
-            editor.save(); // Menyinkronkan konten TinyMCE ke textarea asli
-        });
-    },
+        setup: function (editor) {
+            editor.on('change keyup NodeChange', function () {
+                editor.save(); // Menyinkronkan konten TinyMCE ke textarea asli
+            });
+        },
 
         images_upload_url: '/upload-gambar-berita',
         automatic_uploads: true,
@@ -461,9 +457,9 @@
 document.addEventListener('DOMContentLoaded', function () {
     const btnGenerate   = document.getElementById('btn-generate-ai');
     const promptInput   = document.getElementById('prompt-ai');
-    const promptContainer = document.getElementById('prompt-extra-container'); // Container form prompt tambahan
+    const promptContainer = document.getElementById('prompt-extra-container');
     const fileInput     = document.getElementById('foto');
-    const btnText       = document.getElementById('btn-text'); // Span/teks di dalam tombol
+    const btnText       = document.getElementById('btn-text');
     
     if (!btnGenerate) return;
 
@@ -526,19 +522,19 @@ document.addEventListener('DOMContentLoaded', function () {
             // 3. Masukkan Hasil ke TinyMCE / Textarea
             if (window.tinymce && tinymce.get('isi_berita_editor')) {
                 tinymce.get('isi_berita_editor').setContent(data.content);
+                tinymce.get('isi_berita_editor').save();
             } else {
                 document.getElementById('isi_berita_editor').value = data.content;
             }
 
-            // 4. MUNCULKAN FORM PROMPT TAMBAHAN & UBAH TEKS TOMBOL
+            // 4. Munculkan form prompt tambahan & ubah teks tombol
             if (promptContainer) {
-                promptContainer.style.display = 'block'; // Tampilkan container prompt tambahan
+                promptContainer.style.display = 'block';
             }
             if (promptInput) {
                 promptInput.style.display = 'block';
             }
             
-            // Ubah teks tombol menjadi Re-generate Berita
             if (btnText) {
                 btnText.innerText = 'Re-generate Berita';
             } else {
@@ -548,12 +544,84 @@ document.addEventListener('DOMContentLoaded', function () {
         } catch (err) {
             console.error(err);
             alert('Terjadi kesalahan: ' + err.message);
-            // Kembalikan teks jika gagal
             if (btnText) btnText.innerText = originalText;
         } finally {
             btnGenerate.disabled = false;
         }
     });
 });
+</script>
+
+
+<script>
+function validateFormBerita() {
+    const errors = [];
+
+    // 1. Foto Header (multiple)
+    const fotoInput = document.getElementById('foto');
+    if (!fotoInput.files || fotoInput.files.length === 0) {
+        errors.push('Foto header berita belum dipilih');
+    }
+
+    // 2. Judul
+    const judul = document.getElementById('judul_berita');
+    if (!judul.value.trim()) {
+        errors.push('Judul berita belum diisi');
+    } else if (judul.value.trim().length < 5) {
+        errors.push('Judul berita minimal 5 karakter');
+    }
+
+    // 3. Jenis Berita
+    const jenis = document.getElementById('jenis_berita');
+    if (!jenis.value) {
+        errors.push('Jenis berita belum dipilih');
+    }
+
+    // 4. Isi Berita (TinyMCE)
+    let isiContent = '';
+    if (window.tinymce && tinymce.get('isi_berita_editor')) {
+        isiContent = tinymce.get('isi_berita_editor').getContent({ format: 'text' }).trim();
+    } else {
+        isiContent = document.getElementById('isi_berita_editor').value.trim();
+    }
+    if (!isiContent) {
+        errors.push('Isi berita belum diisi');
+    }
+
+    // 5. Status
+    const status = document.querySelector('select[name="status"]');
+    if (!status.value) {
+        errors.push('Status berita belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanBerita(formId) {
+    const errors = validateFormBerita();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+
+<script>
+    
+    window._urlBatalBerita = '{{ auth()->user()->peran === "superadmin"
+        ? route("superadmin.kelola-berita")
+        : route("admin.kelola-berita") }}';
+
+    
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalBerita;
+    };
 </script>
 @endpush

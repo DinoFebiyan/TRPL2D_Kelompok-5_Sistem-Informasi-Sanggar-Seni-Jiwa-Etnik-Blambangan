@@ -12,7 +12,7 @@
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .form-header {
@@ -151,7 +151,7 @@
         select {
             appearance: none;
             -webkit-appearance: none;
-            -webkit-appearance: none;
+            -moz-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238A4B4B' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: calc(100% - 20px) center;
@@ -237,16 +237,18 @@
                 <p>Kelola Event</p>
             </div>
             <div class="header-actions">
-                   @if(auth()->user()->peran === 'superadmin')
-                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-event') }}'); return false;" class="btn-batal">
+                @if(auth()->user()->peran === 'superadmin')
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
-                    <a href="#" onclick="showPopupBatal('{{ route('admin.kelola-event') }}'); return false;" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
-                <button type="button" onclick="showPopupSimpan('formTambahEvent')" form="formTambahEvent" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="handleSimpanEvent('formTambahEvent')" class="btn-simpan">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
             </div>
         </div>
         <div class="form-body">
@@ -264,7 +266,7 @@
                     </div>
                 @endif
 
-                {{-- PERBAIKAN MULTIPLE PHOTO: Menggunakan nama array foto[] dan multiple picker --}}
+                {{-- FOTO --}}
                 <div class="form-group">
                     <label>Foto Event (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper">
@@ -278,17 +280,17 @@
                 
                 <div class="form-group">
                     <label>Nama Event</label>
-                    <input type="text" name="nama" value="{{ old('nama') }}" placeholder="Masukkan nama event..." required>
+                    <input type="text" name="nama" id="nama_event" value="{{ old('nama') }}" placeholder="Masukkan nama event..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>Deskripsi Event</label>
-                    <textarea name="deskripsi" placeholder="Masukkan deskripsi event..." required>{{ old('deskripsi') }}</textarea>
+                    <textarea name="deskripsi" id="deskripsi_event" placeholder="Masukkan deskripsi event..." required>{{ old('deskripsi') }}</textarea>
                 </div>
 
                 <div class="form-group">
                     <label>Kategori Event</label>
-                    <select name="kategori" required>
+                    <select name="kategori" id="kategori_event" required>
                         <option value="" disabled selected hidden>Pilih Kategori Event</option>
                         <option value="Pertunjukan" {{ old('kategori') == 'Pertunjukan' ? 'selected' : '' }}>Pertunjukan</option>
                         <option value="Latihan" {{ old('kategori') == 'Latihan' ? 'selected' : '' }}>Latihan</option>
@@ -300,25 +302,25 @@
                 <div class="form-group">
                     <label>Tanggal</label>
                     <div class="date-input-wrapper">
-                        <input type="date" id="tanggal" name="tanggal" value="{{ old('tanggal') }}" required>
+                        <input type="date" id="tanggal_event" name="tanggal" value="{{ old('tanggal') }}" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Jam Pelaksanaan</label>
                     <div class="time-input-wrapper">
-                        <input type="time" name="jam" value="{{ old('jam') }}" required>
+                        <input type="time" id="jam_event" name="jam" value="{{ old('jam') }}" required>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label>Lokasi Event</label>
-                    <input type="text" name="lokasi" value="{{ old('lokasi') }}" placeholder="Masukkan lokasi Event ..." required>
+                    <input type="text" id="lokasi_event" name="lokasi" value="{{ old('lokasi') }}" placeholder="Masukkan lokasi Event ..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>Status</label>
-                    <select name="status" required>
+                    <select name="status" id="status_event" required>
                         <option value="" disabled selected hidden>Pilih status event ...</option> 
                         <option value="belum selesai" {{ old('status') == 'belum selesai' ? 'selected' : '' }}>Belum Selesai</option>
                         <option value="selesai" {{ old('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
@@ -374,6 +376,97 @@
         }
     </script>
 
+{{-- Popup --}}
+@include('popup.validasi')
+@include('popup.batal')
+@include('popup.simpan')
+
+{{-- =========================================================
+     VALIDASI FORM SEBELUM SIMPAN (Event)
+     ========================================================= --}}
+<script>
+function validateFormEvent() {
+    const errors = [];
+
+    // 1. Foto Event (multiple)
+    const fotoInput = document.getElementById('foto');
+    if (!fotoInput.files || fotoInput.files.length === 0) {
+        errors.push('Foto event belum dipilih');
+    }
+
+    // 2. Nama Event
+    const nama = document.getElementById('nama_event');
+    if (!nama.value.trim()) {
+        errors.push('Nama event belum diisi');
+    }
+
+    // 3. Deskripsi
+    const deskripsi = document.getElementById('deskripsi_event');
+    if (!deskripsi.value.trim()) {
+        errors.push('Deskripsi event belum diisi');
+    }
+
+    // 4. Kategori
+    const kategori = document.getElementById('kategori_event');
+    if (!kategori.value) {
+        errors.push('Kategori event belum dipilih');
+    }
+
+    // 5. Tanggal
+    const tanggal = document.getElementById('tanggal_event');
+    if (!tanggal.value) {
+        errors.push('Tanggal event belum diisi');
+    }
+
+    // 6. Jam
+    const jam = document.getElementById('jam_event');
+    if (!jam.value) {
+        errors.push('Jam pelaksanaan belum diisi');
+    }
+
+    // 7. Lokasi
+    const lokasi = document.getElementById('lokasi_event');
+    if (!lokasi.value.trim()) {
+        errors.push('Lokasi event belum diisi');
+    }
+
+    // 8. Status
+    const status = document.getElementById('status_event');
+    if (!status.value) {
+        errors.push('Status event belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanEvent(formId) {
+    const errors = validateFormEvent();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+{{-- =========================================================
+     OVERRIDE TOMBOL BATAL (redirect ke halaman kelola-event)
+     ========================================================= --}}
+<script>
+    window._urlBatalEvent = '{{ auth()->user()->peran === "superadmin"
+        ? route("superadmin.kelola-event")
+        : route("admin.kelola-event") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalEvent;
+    };
+</script>
+
 @if ($errors->any())
 <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
     <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
@@ -396,10 +489,6 @@
 </script>
 @endif
 @endsection
-
-{{-- Popup Batal & Simpan --}}
-@include('popup.batal')
-@include('popup.simpan')
 
 @push('scripts')
 <script>

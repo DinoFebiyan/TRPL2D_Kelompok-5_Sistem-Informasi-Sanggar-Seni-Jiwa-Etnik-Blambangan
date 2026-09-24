@@ -6,9 +6,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* ==========================================
-       1. GEMBOK UTAMA (ANTI-BLOWOUT HORIZONTAL)
-       ========================================== */
+    
     html, body {
         max-width: 100vw;
         overflow-x: hidden;
@@ -566,7 +564,7 @@
                         </td>
                         <td class="news-actions">
                             <a href="{{ route('superadmin.edit-berita', $berita->id) }}" class="btn-edit-news">Edit</a>
-                            <button class="btn-hapus-news" onclick="confirmDelete({{ $berita->id }})">Hapus</button>
+                           <button class="btn-hapus-news" onclick="showPopupHapus('delete-form-{{ $berita->id }}')">Hapus</button>
                             <form id="delete-form-{{ $berita->id }}" action="{{ route('superadmin.hapus-berita', $berita->id) }}" method="POST" style="display:none;">
                                 @csrf @method('DELETE')
                             </form>
@@ -606,12 +604,6 @@
 </div>
 
 <script>
-    function confirmDelete(id) {
-        if(confirm('Yakin ingin menghapus berita ini?')) {
-            document.getElementById('delete-form-'+id).submit();
-        }
-    }
-
     function openFilterModal() {
         document.getElementById('filterModal').style.display = 'flex';
     }
@@ -662,4 +654,5 @@
         });
     });
 </script>
+@include('popup.hapus')
 @endsection

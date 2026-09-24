@@ -6,9 +6,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* ==========================================
-       1. GEMBOK UTAMA (ANTI-BLOWOUT HORIZONTAL)
-       ========================================== */
+    
     .main, .content {
         min-width: 0 !important;
         max-width: 100vw !important;
@@ -24,9 +22,7 @@
         color: #333;
     }
     
-    /* ==========================================
-       2. RESPONSIF STATS GRID
-       ========================================== */
+   
     .katalog-stats-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -102,9 +98,7 @@
         background: #d4aeae;
     }
 
-    /* ==========================================
-       3. SEARCH & FILTER ROW (DIPAKSA 1 BARIS)
-       ========================================== */
+   
     .katalog-search-row {
         display: flex;
         flex-direction: row !important; 
@@ -159,9 +153,7 @@
         white-space: nowrap;
     }
 
-    /* ==========================================
-       4. TABEL RESPONSIF (ANTI BOCOR)
-       ========================================== */
+    
     .katalog-table-card {
         background: #ffffff;
         border-radius: 12px;
@@ -273,9 +265,7 @@
     .btn-edit-katalog { background: #eff6ff; color: #3b82f6; }
     .btn-hapus-katalog { background: #fef2f2; color: #ef4444; }
 
-    /* ==========================================
-       5. PAGINATION
-       ========================================== */
+    
     .katalog-pagination {
         display: flex;
         justify-content: space-between;
@@ -327,7 +317,7 @@
         background: #fdfdfd;
     }
 
-    /* MODAL POPUP COMPONENT STYLE */
+   
     .custom-modal-overlay {
         position: fixed;
         top: 0; left: 0; width: 100%; height: 100%;
@@ -368,9 +358,7 @@
     .btn-modal-terapkan { background: #EF4444; color: white; }
     .btn-modal-terapkan:hover { background: #DC2626; }
 
-    /* ==========================================
-       6. MEDIA QUERIES (MOBILE)
-       ========================================== */
+    
     @media (max-width: 640px) {
         
         .katalog-stats-grid {
@@ -404,7 +392,7 @@
             width: 100% !important;
         }
 
-        /* MEMAKSA SEARCH DAN FILTER 1 BARIS DI HP */
+        
         .katalog-search-row {
             gap: 8px !important;
             width: 100% !important;
@@ -412,24 +400,24 @@
         .katalog-search-box input {
             padding: 10px 30px 10px 12px !important;
             font-size: 0.8rem !important;
-            height: 42px !important; /* Disamakan tingginya dengan tombol filter */
+            height: 42px !important; 
         }
         .katalog-search-box .fa-search {
             right: 10px !important;
             font-size: 0.9rem !important;
         }
         
-        /* TOMBOL FILTER DIKUNCI JADI KOTAK PRESISI DI HP */
+        
         .katalog-btn-filter {
-            flex: 0 0 42px !important; /* Lebar mutlak 42px */
-            height: 42px !important; /* Tinggi mutlak 42px */
-            padding: 0 !important; /* Hapus padding agar tidak gepeng */
+            flex: 0 0 42px !important; 
+            height: 42px !important; 
+            padding: 0 !important; 
             font-size: 1rem !important;
             justify-content: center !important;
         }
         .katalog-btn-filter span { display: none !important; } 
 
-        /* PERBAIKAN TABEL CARD DI HP */
+        
         .katalog-table-card {
             padding: 15px 10px !important; 
             width: 100% !important;
@@ -448,7 +436,6 @@
 </style>
 
 <div class="katalog-wrapper">
-    <!-- Grid Statistik diubah strukturnya agar rapi di HP -->
     <div class="katalog-stats-grid">
         <div class="katalog-stat-card">
             <div class="katalog-icon-box katalog-icon-blue"><i class="fas fa-box"></i></div>
@@ -490,7 +477,7 @@
             </button>
         </div>
 
-        {{-- POPUP MODAL --}}
+        
         <div id="filterModal" class="custom-modal-overlay">
             <div class="custom-modal-content">
                 <div class="custom-modal-header">
@@ -588,7 +575,7 @@
                         </td>
                         <td class="katalog-actions">
                             <a href="{{ route('superadmin.edit-katalog', $katalog->id) }}" class="btn-edit-katalog">Edit</a>
-                            <button class="btn-hapus-katalog" onclick="confirmDelete({{ $katalog->id }})">Hapus</button>
+                            <button class="btn-hapus-katalog" onclick="showPopupHapus('delete-form-{{ $katalog->id }}')">Hapus</button>
                             <form id="delete-form-{{ $katalog->id }}" action="{{ route('superadmin.hapus-katalog', $katalog->id) }}" method="POST" style="display:none;">
                                 @csrf @method('DELETE')
                             </form>
@@ -628,11 +615,7 @@
 </div>
 
 <script>
-    function confirmDelete(id) {
-        if(confirm('Yakin ingin menghapus katalog ini?')) {
-            document.getElementById('delete-form-'+id).submit();
-        }
-    }
+    
 
     function openFilterModal() {
         document.getElementById('filterModal').style.display = 'flex';
@@ -684,4 +667,7 @@
         });
     });
 </script>
+
+
+@include('popup.hapus')
 @endsection

@@ -585,7 +585,7 @@
                         </td>
                         <td class="event-actions">
                             <a href="{{ route('superadmin.edit-event', $event->id) }}" class="btn-edit-event">Edit</a>
-                            <button class="btn-hapus-event" onclick="confirmDelete({{ $event->id }})">Hapus</button>
+                            <button class="btn-hapus-event" onclick="showPopupHapus('delete-form-{{ $event->id }}')">Hapus</button>
                             <form id="delete-form-{{ $event->id }}" action="{{ route('superadmin.hapus-event', $event->id) }}" method="POST" style="display:none;">
                                 @csrf @method('DELETE')
                             </form>
@@ -625,11 +625,7 @@
 </div>
 
 <script>
-    function confirmDelete(id) {
-        if(confirm('Yakin ingin menghapus event ini?')) {
-            document.getElementById('delete-form-'+id).submit();
-        }
-    }
+    // ⚠️ confirmDelete() DIHAPUS — diganti popup custom showPopupHapus()
     
     function openFilterModal() {
         document.getElementById('filterModal').style.display = 'flex';
@@ -682,4 +678,7 @@
         });
     });
 </script>
+
+{{-- Popup Konfirmasi Hapus --}}
+@include('popup.hapus')
 @endsection

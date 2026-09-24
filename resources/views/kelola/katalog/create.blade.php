@@ -12,7 +12,7 @@
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         .form-header {
@@ -177,8 +177,12 @@
                 <p>Kelola Katalog</p>
             </div>
             <div class="header-actions">
-                <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-katalog') }}'); return false;" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
-                <button type="button" onclick="showPopupSimpan('formTambahKatalog')" form="formTambahKatalog" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
+                    <i class="fas fa-times"></i> Batal
+                </a>
+                <button type="button" onclick="handleSimpanKatalog('formTambahKatalog')" class="btn-simpan">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
             </div>
         </div>
 
@@ -197,13 +201,12 @@
                     </div>
                 @endif
 
-                {{-- Foto Produk Katalog (Mendukung Multi-Upload seperti Berita) --}}
+                {{-- Foto Produk Katalog (Multi-Upload) --}}
                 <div class="form-group">
                     <label>Foto Katalog (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
                         <span class="file-name-display" id="fileNameDisplay">Masukkan foto produk...</span>
-                        
                         <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg" style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
                     </div>
                     <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
@@ -213,13 +216,13 @@
                 {{-- Nama Katalog --}}
                 <div class="form-group">
                     <label>Nama Katalog (Tari)</label>
-                    <input type="text" name="nama_katalog" value="{{ old('nama_katalog') }}" placeholder="Masukkan nama tari/kostum..." required>
+                    <input type="text" name="nama_katalog" id="nama_katalog" value="{{ old('nama_katalog') }}" placeholder="Masukkan nama tari/kostum..." required>
                 </div>
     
                 {{-- Kategori Dropdown --}}
                 <div class="form-group">
                     <label>Kategori</label>
-                    <select name="kategori" class="select-status" required>
+                    <select name="kategori" id="kategori_katalog" class="select-status" required>
                         <option value="" disabled selected hidden>Pilih kategori katalog...</option>
                         <option value="Kostum" {{ old('kategori') == 'Kostum' ? 'selected' : '' }}>Kostum</option>
                         <option value="Properti" {{ old('kategori') == 'Properti' ? 'selected' : '' }}>Properti</option>
@@ -230,19 +233,19 @@
                 {{-- Deskripsi --}}
                 <div class="form-group">
                     <label>Deskripsi</label>
-                    <textarea name="deskripsi" rows="6" placeholder="Masukkan deskripsi lengkap mengenai katalog ini..." required>{{ old('deskripsi') }}</textarea>
+                    <textarea name="deskripsi" id="deskripsi_katalog" rows="6" placeholder="Masukkan deskripsi lengkap mengenai katalog ini..." required>{{ old('deskripsi') }}</textarea>
                 </div>
 
                 {{-- Jumlah Stok --}}
                 <div class="form-group">
                     <label>Stok</label>
-                    <input type="number" name="stok" value="{{ old('stok') }}" placeholder="Masukkan jumlah stok tersedia..." required>
+                    <input type="number" name="stok" id="stok_katalog" value="{{ old('stok') }}" placeholder="Masukkan jumlah stok tersedia..." required min="0">
                 </div>
 
                 {{-- Status --}}
                 <div class="form-group">
                     <label>Status Ketersediaan</label>
-                    <select name="status" class="select-status" required>
+                    <select name="status" id="status_katalog" class="select-status" required>
                         <option value="" disabled selected hidden>Masukkan status ketersediaan...</option>
                         <option value="tersedia" {{ old('status') == 'tersedia' ? 'selected' : '' }}>Tersedia</option>
                         <option value="tidak tersedia" {{ old('status') == 'tidak tersedia' ? 'selected' : '' }}>Tidak Tersedia</option>
@@ -297,6 +300,81 @@
         }
     </script>
 
+
+@include('popup.validasi')
+@include('popup.batal')
+@include('popup.simpan')
+
+
+<script>
+function validateFormKatalog() {
+    const errors = [];
+
+    // 1. Foto Katalog (multiple)
+    const fotoInput = document.getElementById('foto');
+    if (!fotoInput.files || fotoInput.files.length === 0) {
+        errors.push('Foto katalog belum dipilih');
+    }
+
+    // 2. Nama Katalog
+    const nama = document.getElementById('nama_katalog');
+    if (!nama.value.trim()) {
+        errors.push('Nama katalog belum diisi');
+    }
+
+    // 3. Kategori
+    const kategori = document.getElementById('kategori_katalog');
+    if (!kategori.value) {
+        errors.push('Kategori katalog belum dipilih');
+    }
+
+    // 4. Deskripsi
+    const deskripsi = document.getElementById('deskripsi_katalog');
+    if (!deskripsi.value.trim()) {
+        errors.push('Deskripsi katalog belum diisi');
+    }
+
+    // 5. Stok
+    const stok = document.getElementById('stok_katalog');
+    if (stok.value === '' || stok.value === null) {
+        errors.push('Stok katalog belum diisi');
+    } else if (parseInt(stok.value) < 0) {
+        errors.push('Stok katalog tidak boleh negatif');
+    }
+
+    // 6. Status
+    const status = document.getElementById('status_katalog');
+    if (!status.value) {
+        errors.push('Status ketersediaan belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanKatalog(formId) {
+    const errors = validateFormKatalog();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+
+<script>
+    window._urlBatalKatalog = '{{ route("superadmin.kelola-katalog") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalKatalog;
+    };
+</script>
+
 @if ($errors->any())
 <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
     <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
@@ -319,10 +397,6 @@
 </script>
 @endif
 @endsection
-
-{{-- Popup Batal & Simpan --}}
-@include('popup.batal')
-@include('popup.simpan')
 
 @push('scripts')
 <script>
