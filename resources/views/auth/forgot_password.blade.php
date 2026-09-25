@@ -305,18 +305,28 @@
                 <p class="title-desc">Masukkan email yang sudah terdaftar dan kami akan mengirimkan Verifikasi Password.
                 </p>
 
-                <label class="field-label">Alamat Email</label>
-                <div class="input-wrap">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                        <circle cx="12" cy="7" r="4"></circle>
-                    </svg>
-                    <input type="email" placeholder="Masukkan Email" required />
-                </div>
+                @if ($errors->any())
+                    <div class="error-msg" style="color:#C0272D;font-size:.85rem;text-align:center;margin-bottom:1rem;">
+                        {{ $errors->first() }}
+                    </div>
+                @endif
 
-                <button class="btn-kirim" onclick="window.location.href='{{ route('verifikasi.otp') }}'">
-                    KIRIM
-                </button>
+                <form method="POST" action="{{ route('otp.send') }}">
+                    @csrf
+
+                    <label class="field-label">Alamat Email</label>
+                    <div class="input-wrap">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="Masukkan Email" required />
+                    </div>
+
+                    <button type="submit" class="btn-kirim">
+                        KIRIM
+                    </button>
+                </form>
             </div>
         </div>
     </div>

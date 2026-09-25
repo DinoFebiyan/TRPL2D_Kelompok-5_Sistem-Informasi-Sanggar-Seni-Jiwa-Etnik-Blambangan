@@ -242,27 +242,37 @@
                 <div class="title-big">Reset <em>Password</em></div>
                 <p class="title-desc">Buatlah password yang mudah diingat namun tetap aman.</p>
 
-                <label class="field-label">Password Baru</label>
-                <div class="input-wrap">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" />
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                    <input type="password" placeholder="********" required />
-                </div>
+                @if ($errors->any())
+                    <div class="error-msg" style="color:#C0272D;font-size:.85rem;text-align:center;margin-bottom:1rem;">
+                        {{ $errors->first() }}
+                    </div>
+                @endif
 
-                <label class="field-label">Konfirmasi Password</label>
-                <div class="input-wrap" style="margin-bottom: 2.5rem;">
-                    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="11" width="18" height="11" rx="2" />
-                        <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                    <input type="password" placeholder="********" required />
-                </div>
+                <form method="POST" action="{{ route('otp.reset') }}">
+                    @csrf
 
-                <button class="btn-reset" onclick="window.location.href='{{ route('login') }}'">
-                    LOGIN
-                </button>
+                    <label class="field-label">Password Baru</label>
+                    <div class="input-wrap">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        <input type="password" name="password" placeholder="********" required minlength="8" />
+                    </div>
+
+                    <label class="field-label">Konfirmasi Password</label>
+                    <div class="input-wrap" style="margin-bottom: 2.5rem;">
+                        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="11" width="18" height="11" rx="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                        <input type="password" name="password_confirmation" placeholder="********" required minlength="8" />
+                    </div>
+
+                    <button type="submit" class="btn-reset">
+                        SIMPAN & LOGIN
+                    </button>
+                </form>
             </div>
         </div>
     </div>
