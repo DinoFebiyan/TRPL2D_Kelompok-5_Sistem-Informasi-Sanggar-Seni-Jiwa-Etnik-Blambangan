@@ -194,6 +194,15 @@
             background: #dc2626;
             transform: scale(1.1);
         }
+
+        /* Memastikan dialog TinyMCE selalu di atas elemen lain */
+        .tox-tinymce-aux {
+            z-index: 99999 !important;
+        }
+
+        .tox .tox-dialog-wrap {
+            z-index: 99999 !important;
+        }
     </style>
     {{-- Popup Server Error: muncul otomatis jika validasi gagal --}}
     @if ($errors->any())
@@ -325,168 +334,204 @@
                 <div class="form-group">
                     <label>Isi Berita</label>
                     <textarea id="isi_berita_editor" name="isi" rows="6" placeholder="Masukkan isi berita..." required>{{ old('isi', $berita->isi_berita) }}
-                    </textarea>
+                                                    </textarea>
                 </div>
 
-                    {{-- Jenis Berita --}}
-                    <div class="form-group">
-                        <label>Jenis Berita</label>
-                        <select name="jenis_berita" id="jenis_berita" class="select-status" required>
-                            <option value="Pengumuman" {{ old('jenis_berita', $berita->jenis_berita) == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
-                            <option value="Prestasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
-                            <option value="Kolaborasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
-                            <option value="Event" {{ old('jenis_berita', $berita->jenis_berita) == 'Event' ? 'selected' : '' }}>
-                                Event</option>
-                            <option value="Lainnya" {{ old('jenis_berita', $berita->jenis_berita) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
-                        </select>
-                    </div>
+                {{-- Jenis Berita --}}
+                <div class="form-group">
+                    <label>Jenis Berita</label>
+                    <select name="jenis_berita" id="jenis_berita" class="select-status" required>
+                        <option value="Pengumuman" {{ old('jenis_berita', $berita->jenis_berita) == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
+                        <option value="Prestasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
+                        <option value="Kolaborasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
+                        <option value="Event" {{ old('jenis_berita', $berita->jenis_berita) == 'Event' ? 'selected' : '' }}>
+                            Event</option>
+                        <option value="Lainnya" {{ old('jenis_berita', $berita->jenis_berita) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
+                    </select>
+                </div>
 
-                    {{-- Status Tayang --}}
-                    <div class="form-group">
-                        <label>Status</label>
-                        <select name="status" required class="select-status">
-                            <option value="tayang" {{ old('status', $berita->status) == 'tayang' ? 'selected' : '' }}>Tayang
-                            </option>
-                            <option value="tidak ditayangkan" {{ old('status', $berita->status) == 'tidak ditayangkan' ? 'selected' : '' }}>Tidak Ditayangkan</option>
-                        </select>
-                    </div>
-                </form>
-            </div>
+                {{-- Status Tayang --}}
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" required class="select-status">
+                        <option value="tayang" {{ old('status', $berita->status) == 'tayang' ? 'selected' : '' }}>Tayang
+                        </option>
+                        <option value="tidak ditayangkan" {{ old('status', $berita->status) == 'tidak ditayangkan' ? 'selected' : '' }}>Tidak Ditayangkan</option>
+                    </select>
+                </div>
+            </form>
         </div>
+    </div>
 
-        <script>
-            // FUNGSI BARU: Memasukkan ID foto ke input hidden dan menyembunyikannya dari UI
-            function tandaiHapusFoto(idFoto) {
-                if (confirm('Apakah Anda yakin ingin menghapus gambar ini dari berita?')) {
-                    const wadah = document.getElementById('wadahInputHapusFoto');
+    {{-- Popup Batal & Simpan --}}
+    @include('popup.batal')
+    @include('popup.simpan')
 
-                    // Buat elemen input hidden baru
-                    const inputHidden = document.createElement('input');
-                    inputHidden.type = 'hidden';
-                    inputHidden.name = 'hapus_foto[]';
-                    inputHidden.value = idFoto;
-                    wadah.appendChild(inputHidden);
+    <script>
+        // FUNGSI BARU: Memasukkan ID foto ke input hidden dan menyembunyikannya dari UI
+        function tandaiHapusFoto(idFoto) {
+            if (confirm('Apakah Anda yakin ingin menghapus gambar ini dari berita?')) {
+                const wadah = document.getElementById('wadahInputHapusFoto');
 
-                    // Hilangkan box foto dari tampilan layar
-                    const boxFoto = document.getElementById('foto-lama-box-' + idFoto);
-                    if (boxFoto) {
-                        boxFoto.remove();
-                    }
+                // Buat elemen input hidden baru
+                const inputHidden = document.createElement('input');
+                inputHidden.type = 'hidden';
+                inputHidden.name = 'hapus_foto[]';
+                inputHidden.value = idFoto;
+                wadah.appendChild(inputHidden);
+
+                // Hilangkan box foto dari tampilan layar
+                const boxFoto = document.getElementById('foto-lama-box-' + idFoto);
+                if (boxFoto) {
+                    boxFoto.remove();
                 }
             }
+        }
 
-            // Penanganan Akumulasi Gambar Baru
-            let kumpulanFileBerita = [];
+        // Penanganan Akumulasi Gambar Baru
+        let kumpulanFileBerita = [];
 
-            function updateFileNameAndPreview(input) {
-                const display = document.getElementById('fileNameDisplay');
-                const container = document.getElementById('imagePreviewContainer');
+        function updateFileNameAndPreview(input) {
+            const display = document.getElementById('fileNameDisplay');
+            const container = document.getElementById('imagePreviewContainer');
 
-                if (input.files && input.files.length > 0) {
-                    for (let i = 0; i < input.files.length; i++) {
-                        kumpulanFileBerita.push(input.files[i]);
-                    }
-
-                    container.innerHTML = '';
-                    const dataTransferObat = new DataTransfer();
-
-                    kumpulanFileBerita.forEach((file) => {
-                        dataTransferObat.items.add(file);
-
-                        const reader = new FileReader();
-                        reader.onload = function (e) {
-                            const wrapper = document.createElement('div');
-                            wrapper.style.position = 'relative';
-                            wrapper.style.display = 'inline-block';
-
-                            const img = document.createElement('img');
-                            img.src = e.target.result;
-                            img.style.width = '100px';
-                            img.style.height = '100px';
-                            img.style.objectFit = 'cover';
-                            img.style.borderRadius = '6px';
-                            img.style.border = '1px dashed #A87C7C';
-
-                            wrapper.appendChild(img);
-                            container.appendChild(wrapper);
-                        };
-                        reader.readAsDataURL(file);
-                    });
-
-                    input.files = dataTransferObat.files;
-                    display.textContent = kumpulanFileBerita.length + " file baru dipilih (terakumulasi)";
-                    display.style.color = "#333";
+            if (input.files && input.files.length > 0) {
+                for (let i = 0; i < input.files.length; i++) {
+                    kumpulanFileBerita.push(input.files[i]);
                 }
+
+                container.innerHTML = '';
+                const dataTransferObat = new DataTransfer();
+
+                kumpulanFileBerita.forEach((file) => {
+                    dataTransferObat.items.add(file);
+
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const wrapper = document.createElement('div');
+                        wrapper.style.position = 'relative';
+                        wrapper.style.display = 'inline-block';
+
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.width = '100px';
+                        img.style.height = '100px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '6px';
+                        img.style.border = '1px dashed #A87C7C';
+
+                        wrapper.appendChild(img);
+                        container.appendChild(wrapper);
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                input.files = dataTransferObat.files;
+                display.textContent = kumpulanFileBerita.length + " file baru dipilih (terakumulasi)";
+                display.style.color = "#333";
             }
-        </script>
-        {{-- Memuat Library Resmi TinyMCE dari CDN Cloud --}}
-        <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
-            referrerpolicy="origin"></script>
+        }
+    </script>
+    {{-- Memuat Library Resmi TinyMCE dari CDN Cloud --}}
+    <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
+        referrerpolicy="origin"></script>
 
-        <script>
-            tinymce.init({
-                selector: '#isi',
+    <script>
+        tinymce.init({
+            selector: '#isi_berita_editor',
+            ui_container: 'body', // Hanya perlu di update.blade.php, tapi aman ditaruh di keduanya
+            height: 600,
+            menubar: 'file edit view insert format table tools',
+            plugins: [
+                'advlist', 'autolink', 'lists', 'link', 'image', 'media', 'table', 'charmap', 'preview',
+                'searchreplace', 'visualblocks', 'fullscreen', 'insertdatetime', 'wordcount'
+            ],
+            toolbar: [
+                'undo redo | blocks fontfamily fontsize',
+                '| bold italic underline strikethrough',
+                '| forecolor backcolor',
+                '| alignleft aligncenter alignright alignjustify',
+                '| bullist numlist',
+                '| outdent indent',
+                '| link image media',
+                '| table',
+                '| charmap',
+                '| removeformat',
+                '| fullscreen preview'
+            ].join(' '),
 
-                height: 600,
+            setup: function (editor) {
+                editor.on('change keyup NodeChange', function () {
+                    editor.save(); // Menyinkronkan konten TinyMCE ke textarea asli
+                });
+            },
 
-                menubar: 'file edit view insert format table tools',
+            automatic_uploads: true,
+            image_title: true,
 
-                plugins: [
-                    'advlist',
-                    'autolink',
-                    'lists',
-                    'link',
-                    'image',
-                    'media',
-                    'table',
-                    'charmap',
-                    'preview',
-                    'searchreplace',
-                    'visualblocks',
-                    'fullscreen',
-                    'insertdatetime',
-                    'wordcount'
-                ],
+            // HANDLER UPLOAD GAMBAR
+            images_upload_handler: (blobInfo) => new Promise((resolve, reject) => {
+                let xhr = new XMLHttpRequest();
+                let targetUrl = '{{ auth()->user()->peran === "superadmin" ? route("superadmin.berita.upload-gambar") : route("admin.berita.upload-gambar") }}';
+                xhr.open('POST', targetUrl);
 
-                toolbar: [
-                    'undo redo | blocks fontfamily fontsize',
-                    '| bold italic underline strikethrough',
-                    '| forecolor backcolor',
-                    '| alignleft aligncenter alignright alignjustify',
-                    '| bullist numlist',
-                    '| outdent indent',
-                    '| link image media',
-                    '| table',
-                    '| charmap',
-                    '| removeformat',
-                    '| fullscreen preview'
-                ].join(' '),
+                let metaToken = document.querySelector('meta[name="csrf-token"]');
+                if (metaToken) {
+                    xhr.setRequestHeader('X-CSRF-TOKEN', metaToken.content);
+                } else {
+                    return reject('Meta tag CSRF token tidak ditemukan!');
+                }
 
-                font_family_formats:
-                    'Arial=arial,helvetica,sans-serif;' +
-                    'Calibri=calibri,sans-serif;' +
-                    'Cambria=cambria,serif;' +
-                    'Times New Roman=times new roman,times;' +
-                    'Georgia=georgia,serif;' +
-                    'Poppins=Poppins,sans-serif',
+                xhr.onload = function () {
+                    if (xhr.status < 200 || xhr.status >= 300) {
+                        return reject('HTTP Error: ' + xhr.status);
+                    }
+                    try {
+                        let json = JSON.parse(xhr.responseText);
+                        if (!json || typeof json.location !== 'string') {
+                            return reject('Response JSON tidak valid');
+                        }
+                        resolve(json.location);
+                    } catch (e) {
+                        reject('Gagal menguraikan JSON dari server');
+                    }
+                };
 
-                fontsize_formats:
-                    '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt 72pt',
+                xhr.onerror = function () {
+                    reject('Gagal mengunggah gambar karena kesalahan koneksi.');
+                };
 
-                toolbar_mode: 'sliding',
+                let formData = new FormData();
+                formData.append('file', blobInfo.blob(), blobInfo.filename());
+                xhr.send(formData);
+            }),
 
-                branding: false,
+            font_family_formats:
+                'Arial=arial,helvetica,sans-serif;' +
+                'Calibri=calibri,sans-serif;' +
+                'Cambria=cambria,serif;' +
+                'Times New Roman=times new roman,times;' +
+                'Georgia=georgia,serif;' +
+                'Poppins=Poppins,sans-serif',
+            fontsize_formats:
+                '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt 72pt',
+            toolbar_mode: 'sliding',
+            branding: false,
 
-                content_style:
-                    "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }"
-            });
-        </script>
+            // --- PERBAIKAN: Koma sudah ditambahkan di sini ---
+            content_style: "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }",
+
+            // --- KONFIGURASI TAMBAHAN AGAR GAMBAR FLEKSIBEL ---
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: false,
+            valid_elements: '*[*]',
+            extended_valid_elements: 'img[class|src|border=0|alt|title|width|height|style|data-mce-src|data-mce-json]',
+            image_advtab: true
+        });
+    </script>
 
 @endsection
-
-{{-- Popup Batal & Simpan --}}
-@include('popup.batal')
-@include('popup.simpan')
 @push('scripts')
     <script>
         document.body.classList.add('page-form');

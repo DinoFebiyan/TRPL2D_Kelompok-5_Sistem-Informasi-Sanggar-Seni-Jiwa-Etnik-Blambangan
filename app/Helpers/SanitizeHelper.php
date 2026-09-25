@@ -18,7 +18,7 @@ class SanitizeHelper
             // Tentukan tag dan atribut yang diizinkan
             $config->set(
                 'HTML.Allowed',
-                'p,b,i,u,strong,em,a[href],ul,ol,li,br,span,img[src|alt],h1,h2,h3,h4,blockquote,pre,code'
+                'p,b,i,u,strong,em,a[href],ul,ol,li,br,span,img[src|alt|width|height|style|class],h1,h2,h3,h4,blockquote,pre,code'
             );
 
             // Matikan resource eksternal agar lebih aman

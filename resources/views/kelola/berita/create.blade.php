@@ -307,14 +307,13 @@
                 </div>
 
                 <div class="form-group">
-                    
+
                     <label>Isi Berita</label>
                     <div class="ai-generate-wrapper">
-        
-                        <input type="text" id="prompt-ai" class="prompt-input" 
-                               placeholder="Ketik instruksi/prompt untuk AI di sini..." 
-                               style="display: none;">
-                        
+
+                        <input type="text" id="prompt-ai" class="prompt-input"
+                            placeholder="Ketik instruksi/prompt untuk AI di sini..." style="display: none;">
+
                         <button type="button" id="btn-generate-ai" class="btn-generate-ai">
                             <img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg"
                                 alt="Gemini" style="width: 16px; height: 16px; object-fit: contain;">
@@ -399,6 +398,7 @@
     <script>
         tinymce.init({
             selector: '#isi_berita_editor',
+            ui_container: 'body', // Hanya perlu di update.blade.php, tapi aman ditaruh di keduanya
             height: 600,
             menubar: 'file edit view insert format table tools',
             plugins: [
@@ -428,13 +428,10 @@
             automatic_uploads: true,
             image_title: true,
 
-            // HANDLER UPLOAD DENGAN ROUTE DINAMIS & CSRF
+            // HANDLER UPLOAD GAMBAR
             images_upload_handler: (blobInfo) => new Promise((resolve, reject) => {
                 let xhr = new XMLHttpRequest();
-
-                // Panggil route Laravel berdasarkan role user yang sedang aktif
                 let targetUrl = '{{ auth()->user()->peran === "superadmin" ? route("superadmin.berita.upload-gambar") : route("admin.berita.upload-gambar") }}';
-
                 xhr.open('POST', targetUrl);
 
                 let metaToken = document.querySelector('meta[name="csrf-token"]');
@@ -448,7 +445,6 @@
                     if (xhr.status < 200 || xhr.status >= 300) {
                         return reject('HTTP Error: ' + xhr.status);
                     }
-
                     try {
                         let json = JSON.parse(xhr.responseText);
                         if (!json || typeof json.location !== 'string') {
@@ -480,178 +476,188 @@
                 '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt 72pt',
             toolbar_mode: 'sliding',
             branding: false,
-            content_style: "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }"
+
+            // --- PERBAIKAN: Koma sudah ditambahkan di sini ---
+            content_style: "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }",
+
+            // --- KONFIGURASI TAMBAHAN AGAR GAMBAR FLEKSIBEL ---
+            relative_urls: false,
+            remove_script_host: false,
+            convert_urls: false,
+            valid_elements: '*[*]',
+            extended_valid_elements: 'img[class|src|border=0|alt|title|width|height|style|data-mce-src|data-mce-json]',
+            image_advtab: true
         });
     </script>
 
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const btnGenerate   = document.getElementById('btn-generate-ai');
-    const promptInput   = document.getElementById('prompt-ai');
-    const promptContainer = document.getElementById('prompt-extra-container'); // Container form prompt tambahan
-    const fileInput     = document.getElementById('foto');
-    const btnText       = document.getElementById('btn-text'); // Span/teks di dalam tombol
-    
-    if (!btnGenerate) return;
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const btnGenerate = document.getElementById('btn-generate-ai');
+            const promptInput = document.getElementById('prompt-ai');
+            const promptContainer = document.getElementById('prompt-extra-container'); // Container form prompt tambahan
+            const fileInput = document.getElementById('foto');
+            const btnText = document.getElementById('btn-text'); // Span/teks di dalam tombol
 
-    const API_URL = '{{ route("generate.ai.berita") }}';
+            if (!btnGenerate) return;
 
-    btnGenerate.addEventListener('click', async function () {
-        const judul = document.getElementById('judul_berita').value.trim();
-        const jenis = document.getElementById('jenis_berita').value || '';
-        const promptText = promptInput ? promptInput.value.trim() : '';
+            const API_URL = '{{ route("generate.ai.berita") }}';
 
-        // 1. Siapkan FormData untuk request ke Laravel
-        const formData = new FormData();
-        formData.append('judul', judul);
-        formData.append('jenis_berita', jenis);
-        formData.append('prompt', promptText);
+            btnGenerate.addEventListener('click', async function () {
+                const judul = document.getElementById('judul_berita').value.trim();
+                const jenis = document.getElementById('jenis_berita').value || '';
+                const promptText = promptInput ? promptInput.value.trim() : '';
 
-        if (fileInput && fileInput.files.length > 0) {
-            for (let i = 0; i < fileInput.files.length; i++) {
-                formData.append('foto[]', fileInput.files[i]);
-            }
-        }
+                // 1. Siapkan FormData untuk request ke Laravel
+                const formData = new FormData();
+                formData.append('judul', judul);
+                formData.append('jenis_berita', jenis);
+                formData.append('prompt', promptText);
 
-        // 2. Tampilan Loading State
-        btnGenerate.disabled = true;
-        const originalText = btnText ? btnText.innerText : btnGenerate.innerHTML;
-        if (btnText) {
-            btnText.innerText = 'Memproses...';
-        } else {
-            btnGenerate.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
-        }
-
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: formData
-            });
-
-            if (!response.ok) {
-                const errorText = await response.text();
-                let errorMessage = `Server Error (${response.status})`;
-                try {
-                    const errorJson = JSON.parse(errorText);
-                    errorMessage = errorJson.message || errorMessage;
-                } catch (e) {
-                    console.error("HTML Error Response:", errorText);
+                if (fileInput && fileInput.files.length > 0) {
+                    for (let i = 0; i < fileInput.files.length; i++) {
+                        formData.append('foto[]', fileInput.files[i]);
+                    }
                 }
-                throw new Error(errorMessage);
+
+                // 2. Tampilan Loading State
+                btnGenerate.disabled = true;
+                const originalText = btnText ? btnText.innerText : btnGenerate.innerHTML;
+                if (btnText) {
+                    btnText.innerText = 'Memproses...';
+                } else {
+                    btnGenerate.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Memproses...';
+                }
+
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        },
+                        body: formData
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        let errorMessage = `Server Error (${response.status})`;
+                        try {
+                            const errorJson = JSON.parse(errorText);
+                            errorMessage = errorJson.message || errorMessage;
+                        } catch (e) {
+                            console.error("HTML Error Response:", errorText);
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                    const data = await response.json();
+
+                    if (!data.success || !data.content) {
+                        throw new Error(data.message || 'Gagal generate dari server.');
+                    }
+
+                    // 3. Masukkan Hasil ke TinyMCE / Textarea
+                    if (window.tinymce && tinymce.get('isi_berita_editor')) {
+                        tinymce.get('isi_berita_editor').setContent(data.content);
+                        tinymce.get('isi_berita_editor').save(); // Sinkronkan konten AI ke textarea
+                    } else {
+                        document.getElementById('isi_berita_editor').value = data.content;
+                    }
+
+
+                    if (promptContainer) {
+                        promptContainer.style.display = 'block';
+                    }
+                    if (promptInput) {
+                        promptInput.style.display = 'block';
+                    }
+
+                    // Ubah teks tombol menjadi Re-generate Berita
+                    if (btnText) {
+                        btnText.innerText = 'Re-generate Berita';
+                    } else {
+                        btnGenerate.innerHTML = '<i class="fas fa-sync-alt"></i> Re-generate Berita';
+                    }
+
+                } catch (err) {
+                    console.error(err);
+                    alert('Terjadi kesalahan: ' + err.message);
+                    if (btnText) btnText.innerText = originalText;
+                } finally {
+                    btnGenerate.disabled = false;
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        function validateFormBerita() {
+            const errors = [];
+
+            // 1. Foto Header (multiple)
+            const fotoInput = document.getElementById('foto');
+            if (!fotoInput.files || fotoInput.files.length === 0) {
+                errors.push('Foto header berita belum dipilih');
             }
 
-            const data = await response.json();
-
-            if (!data.success || !data.content) {
-                throw new Error(data.message || 'Gagal generate dari server.');
+            // 2. Judul
+            const judul = document.getElementById('judul_berita');
+            if (!judul.value.trim()) {
+                errors.push('Judul berita belum diisi');
+            } else if (judul.value.trim().length < 5) {
+                errors.push('Judul berita minimal 5 karakter');
             }
 
-            // 3. Masukkan Hasil ke TinyMCE / Textarea
+            // 3. Jenis Berita
+            const jenis = document.getElementById('jenis_berita');
+            if (!jenis.value) {
+                errors.push('Jenis berita belum dipilih');
+            }
+
+            // 4. Isi Berita (TinyMCE)
+            let isiContent = '';
             if (window.tinymce && tinymce.get('isi_berita_editor')) {
-                tinymce.get('isi_berita_editor').setContent(data.content);
-                tinymce.get('isi_berita_editor').save(); // Sinkronkan konten AI ke textarea
+                isiContent = tinymce.get('isi_berita_editor').getContent({ format: 'text' }).trim();
             } else {
-                document.getElementById('isi_berita_editor').value = data.content;
+                isiContent = document.getElementById('isi_berita_editor').value.trim();
+            }
+            if (!isiContent) {
+                errors.push('Isi berita belum diisi');
             }
 
-            
-            if (promptContainer) {
-                promptContainer.style.display = 'block';
-            }
-            if (promptInput) {
-                promptInput.style.display = 'block';
-            }
-            
-            // Ubah teks tombol menjadi Re-generate Berita
-            if (btnText) {
-                btnText.innerText = 'Re-generate Berita';
-            } else {
-                btnGenerate.innerHTML = '<i class="fas fa-sync-alt"></i> Re-generate Berita';
+            // 5. Status
+            const status = document.querySelector('select[name="status"]');
+            if (!status.value) {
+                errors.push('Status berita belum dipilih');
             }
 
-        } catch (err) {
-            console.error(err);
-            alert('Terjadi kesalahan: ' + err.message);
-            if (btnText) btnText.innerText = originalText;
-        } finally {
-            btnGenerate.disabled = false;
+            return errors;
         }
-    });
-});
-</script>
+
+        function handleSimpanBerita(formId) {
+            const errors = validateFormBerita();
+
+            if (errors.length > 0) {
+                showPopupValidasi(errors);
+                return;
+            }
+
+            showPopupSimpan(formId);
+        }
+    </script>
 
 
-<script>
-function validateFormBerita() {
-    const errors = [];
-
-    // 1. Foto Header (multiple)
-    const fotoInput = document.getElementById('foto');
-    if (!fotoInput.files || fotoInput.files.length === 0) {
-        errors.push('Foto header berita belum dipilih');
-    }
-
-    // 2. Judul
-    const judul = document.getElementById('judul_berita');
-    if (!judul.value.trim()) {
-        errors.push('Judul berita belum diisi');
-    } else if (judul.value.trim().length < 5) {
-        errors.push('Judul berita minimal 5 karakter');
-    }
-
-    // 3. Jenis Berita
-    const jenis = document.getElementById('jenis_berita');
-    if (!jenis.value) {
-        errors.push('Jenis berita belum dipilih');
-    }
-
-    // 4. Isi Berita (TinyMCE)
-    let isiContent = '';
-    if (window.tinymce && tinymce.get('isi_berita_editor')) {
-        isiContent = tinymce.get('isi_berita_editor').getContent({ format: 'text' }).trim();
-    } else {
-        isiContent = document.getElementById('isi_berita_editor').value.trim();
-    }
-    if (!isiContent) {
-        errors.push('Isi berita belum diisi');
-    }
-
-    // 5. Status
-    const status = document.querySelector('select[name="status"]');
-    if (!status.value) {
-        errors.push('Status berita belum dipilih');
-    }
-
-    return errors;
-}
-
-function handleSimpanBerita(formId) {
-    const errors = validateFormBerita();
-
-    if (errors.length > 0) {
-        showPopupValidasi(errors);
-        return;
-    }
-
-    showPopupSimpan(formId);
-}
-</script>
-
-
-<script>
-    window._urlBatalBerita = '{{ auth()->user()->peran === "superadmin"
+    <script>
+        window._urlBatalBerita = '{{ auth()->user()->peran === "superadmin"
         ? route("superadmin.kelola-berita")
         : route("admin.kelola-berita") }}';
 
-    window.batalkanForm = function () {
-        if (typeof hidePopupBatal === 'function') {
-            hidePopupBatal();
-        }
-        window.location.href = window._urlBatalBerita;
-    };
-</script>
+        window.batalkanForm = function () {
+            if (typeof hidePopupBatal === 'function') {
+                hidePopupBatal();
+            }
+            window.location.href = window._urlBatalBerita;
+        };
+    </script>
 @endpush

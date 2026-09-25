@@ -15,7 +15,7 @@
     .news-detail-hero {
       position: relative;
       width: 100%;
-      height: 480px; 
+      height: 480px;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -28,7 +28,10 @@
     .news-detail-hero::before {
       content: '';
       position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       background: linear-gradient(rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.85));
       z-index: 1;
     }
@@ -100,11 +103,11 @@
     }
 
     .article-body img {
-    display: block !important;
-    max-width: 100% !important;
-    height: auto !important;
-    margin: 20px auto !important;
-  }
+      /* display: block !important; */
+      max-width: 100% !important;
+      height: auto !important;
+      /* margin: 20px auto !important; */
+    }
 
     /* Drop Cap: Huruf pertama di paragraf pertama otomatis membesar ala majalah seni */
     .article-body p:first-of-type::first-letter {
@@ -117,15 +120,21 @@
       color: #3d0c0c;
     }
 
-    .article-body h2, .article-body h3 {
+    .article-body h2,
+    .article-body h3 {
       font-family: 'Playfair Display', serif;
       color: #3d0c0c;
       font-weight: 700;
       margin: 3rem 0 1.2rem 0;
     }
-    
-    .article-body h2 { font-size: 1.8rem; }
-    .article-body h3 { font-size: 1.5rem; }
+
+    .article-body h2 {
+      font-size: 1.8rem;
+    }
+
+    .article-body h3 {
+      font-size: 1.5rem;
+    }
 
     /* ══ 3. SECTION BERITA LAIN (BAWAH) ══ */
     .berita-lain-section {
@@ -151,7 +160,7 @@
       background: #ffffff;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
       text-decoration: none;
       color: inherit;
       display: flex;
@@ -161,7 +170,7 @@
 
     .lain-card:hover {
       transform: translateY(-6px);
-      box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
     }
 
     /* MODIFIKASI: Ditambahkan sistem posisi relative & ganti background */
@@ -178,7 +187,8 @@
       height: 100%;
       object-fit: cover;
       position: absolute;
-      top: 0; left: 0;
+      top: 0;
+      left: 0;
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
       z-index: 1;
@@ -186,12 +196,14 @@
 
     .lain-img-wrapper img.active {
       opacity: 1;
-      position: relative; /* Menjaga kestabilan aspek rasio grid layout box */
+      position: relative;
+      /* Menjaga kestabilan aspek rasio grid layout box */
     }
 
     .lain-tag {
       position: absolute;
-      top: 12px; left: 12px;
+      top: 12px;
+      left: 12px;
       background-color: #3d0c0c;
       color: #ffffff;
       font-size: 0.65rem;
@@ -200,7 +212,8 @@
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      z-index: 10; /* Berada di atas tumpukan gambar */
+      z-index: 10;
+      /* Berada di atas tumpukan gambar */
     }
 
     .lain-content {
@@ -247,20 +260,48 @@
 
     /* Fallback sistem jika semua gambar eror */
     .inline-error-fallback {
-      width: 100%; height: 100%; display: none; flex-direction: column;
-      align-items: center; justify-content: center; background: #e5e7eb; color: #9ca3af;
-      position: absolute; top: 0; left: 0; z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: #e5e7eb;
+      color: #9ca3af;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 2;
     }
-    .inline-error-fallback.active { display: flex; }
+
+    .inline-error-fallback.active {
+      display: flex;
+    }
 
     @media (max-width: 1200px) {
-      .berita-lain-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+      .berita-lain-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem;
+      }
     }
+
     @media (max-width: 768px) {
-      .news-detail-hero { height: 380px; }
-      .news-detail-hero h1 { font-size: 2rem; }
-      .news-meta-bar { gap: 0.8rem; flex-direction: column; }
-      .berita-lain-grid { grid-template-columns: 1fr; }
+      .news-detail-hero {
+        height: 380px;
+      }
+
+      .news-detail-hero h1 {
+        font-size: 2rem;
+      }
+
+      .news-meta-bar {
+        gap: 0.8rem;
+        flex-direction: column;
+      }
+
+      .berita-lain-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 @endpush
@@ -269,14 +310,14 @@
 
   @php
     // Logika pengamanan gambar utama berita (Hero Atas)
-    $urlGambarUtama = asset('img/images-landing-page/banner_berita.jpeg'); 
-    
+    $urlGambarUtama = asset('img/images-landing-page/banner_berita.jpeg');
+
     if ($berita->galeri) {
-        if ($berita->galeri instanceof \Illuminate\Support\Collection && $berita->galeri->isNotEmpty()) {
-            $urlGambarUtama = asset('storage/' . $berita->galeri->first()->path);
-        } elseif (!($berita->galeri instanceof \Illuminate\Support\Collection) && isset($berita->galeri->path)) {
-            $urlGambarUtama = asset('storage/' . $berita->galeri->path);
-        }
+      if ($berita->galeri instanceof \Illuminate\Support\Collection && $berita->galeri->isNotEmpty()) {
+        $urlGambarUtama = asset('storage/' . $berita->galeri->first()->path);
+      } elseif (!($berita->galeri instanceof \Illuminate\Support\Collection) && isset($berita->galeri->path)) {
+        $urlGambarUtama = asset('storage/' . $berita->galeri->path);
+      }
     }
   @endphp
 
@@ -284,7 +325,7 @@
     <div class="hero-content-wrap">
       <span class="badge-news">{{ $berita->jenis_berita ?? 'Berita' }}</span>
       <h1>{{ $berita->judul }}</h1>
-      
+
       <div class="news-meta-bar">
         <span>📅 {{ \Carbon\Carbon::parse($berita->tgl_terbit)->translatedFormat('d F Y') }}</span>
         <span>👤 Oleh: {{ $berita->user->name ?? 'Admin JEB' }}</span>
@@ -300,24 +341,23 @@
 
   <section class="berita-lain-section">
     <h3 class="berita-lain-header">Berita Lain</h3>
-    
+
     <div class="berita-lain-grid">
       @forelse($beritaLainnya as $lain)
         <a href="{{ route('umum.berita-detail', $lain->id) }}" class="lain-card">
-          
+
           {{-- MODIFIKASI: Container diganti/ditambahkan class .slideshow-container --}}
           <div class="lain-img-wrapper slideshow-container">
             <span class="lain-tag">{{ $lain->jenis_berita ?? 'Kegiatan' }}</span>
-            
+
             @if($lain->galeri && $lain->galeri->isNotEmpty())
               {{-- MODIFIKASI: Looping mengeluarkan seluruh gambar dari database relasi galeri berita terkait --}}
               @foreach($lain->galeri as $index => $foto)
-                <img src="{{ asset('storage/' . $foto->path) }}" 
-                     alt="{{ $lain->judul }}" 
-                     class="{{ $index === 0 ? 'active' : '' }}"
-                     onerror="this.style.display='none'; document.getElementById('lain-fallback-{{ $lain->id }}').classList.add('active');">
+                <img src="{{ asset('storage/' . $foto->path) }}" alt="{{ $lain->judul }}"
+                  class="{{ $index === 0 ? 'active' : '' }}"
+                  onerror="this.style.display='none'; document.getElementById('lain-fallback-{{ $lain->id }}').classList.add('active');">
               @endforeach
-              
+
               <div id="lain-fallback-{{ $lain->id }}" class="inline-error-fallback">
                 <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 5px;"></i>
               </div>
@@ -343,21 +383,21 @@
 
   {{-- SCRIPT JAVASCRIPT SLIDESHOW --}}
   <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // AUTOMATIC SLIDESHOW BERITA LAIN (Berganti setiap 5 detik)
-        const containers = document.querySelectorAll('.slideshow-container');
-        containers.forEach(container => {
-            const images = container.querySelectorAll('img');
-            // Hanya aktifkan interval jika gambar di dalam card lebih dari 1
-            if (images.length > 1) {
-                let currentIndex = 0;
-                setInterval(() => {
-                    images[currentIndex].classList.remove('active');
-                    currentIndex = (currentIndex + 1) % images.length;
-                    images[currentIndex].classList.add('active');
-                }, 5000); 
-            }
-        });
+    document.addEventListener("DOMContentLoaded", function () {
+      // AUTOMATIC SLIDESHOW BERITA LAIN (Berganti setiap 5 detik)
+      const containers = document.querySelectorAll('.slideshow-container');
+      containers.forEach(container => {
+        const images = container.querySelectorAll('img');
+        // Hanya aktifkan interval jika gambar di dalam card lebih dari 1
+        if (images.length > 1) {
+          let currentIndex = 0;
+          setInterval(() => {
+            images[currentIndex].classList.remove('active');
+            currentIndex = (currentIndex + 1) % images.length;
+            images[currentIndex].classList.add('active');
+          }, 5000);
+        }
+      });
     });
   </script>
 @endsection
