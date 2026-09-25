@@ -140,30 +140,143 @@
 
     .inline-error-fallback.active { display: flex; }
 
+    /* ══ SEARCH & FILTER BAR ══ */
     .search-filter-wrapper {
-        background: transparent; 
-        padding: 20px 0; 
-        display: flex; gap: 15px; align-items: center;
+        background: transparent;
+        padding: 20px 0;
+        display: flex;
+        gap: 15px;
+        align-items: stretch;
+        position: relative;
+        width: 100%;
+        max-width: 100%;
+    }
+    .search-box-container { 
+        flex: 1; 
+        position: relative; 
+        min-width: 0;
     }
 
-    .search-box-container { flex: 1; position: relative; }
-    .search-input {
-        width: 100%; padding: 15px 50px 15px 20px;
-        border-radius: 10px; border: 1px solid #ddd;
-        background: white; font-family: 'Poppins', sans-serif; font-size: 0.95rem; outline: none;
-    }
+    /* Icon search di KIRI */
     .search-box-container .fa-search {
-        position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
-        color: #C0392B; cursor: pointer; font-size: 1.1rem;
+        position: absolute; 
+        left: 20px; 
+        top: 50%; 
+        transform: translateY(-50%);
+        color: #C0392B; 
+        cursor: pointer; 
+        font-size: 1.1rem;
+        z-index: 2;
+    }
+
+    /* Tinggi seragam untuk search input & tombol filter */
+    .search-input,
+    .btn-trigger-filter {
+        height: 52px;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+
+    .search-input {
+        width: 100%; 
+        padding: 0 20px 0 50px;
+        border: 1px solid #ddd;
+        background: white; 
+        outline: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        line-height: 50px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+        border-color: #C0392B;
+        box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1);
+    }
+
+    .search-input::placeholder {
+        color: #999;
+        font-size: 0.95rem;
     }
 
     .btn-trigger-filter {
-        padding: 15px 35px; background: #C0392B; color: white; border: none; border-radius: 10px;
-        cursor: pointer; font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 0.95rem;
-        display: flex; align-items: center; gap: 10px; transition: background 0.2s; white-space: nowrap;
+        padding: 0 25px; 
+        background: #C0392B; 
+        color: white; 
+        border: none; 
+        cursor: pointer; 
+        font-weight: 600;
+        display: inline-flex; 
+        align-items: center; 
+        justify-content: center;
+        gap: 10px; 
+        transition: background 0.2s; 
+        white-space: nowrap;
+        flex-shrink: 0;
         box-shadow: 0 2px 10px rgba(192, 57, 43, 0.2);
     }
     .btn-trigger-filter:hover { background: #A93226; }
+
+    /* ══ RESPONSIVE SEARCH & FILTER ══ */
+    @media (max-width: 768px) {
+        .search-filter-wrapper {
+            flex-direction: column;
+            gap: 10px;
+            max-width: 100%;
+        }
+
+        .search-input,
+        .btn-trigger-filter {
+            height: 48px;
+            font-size: 0.88rem;
+        }
+
+        .search-input {
+            line-height: 46px;
+            padding: 0 16px 0 45px;
+        }
+
+        .search-input::placeholder {
+            font-size: 0.88rem;
+        }
+
+        .search-box-container .fa-search {
+            left: 16px;
+            font-size: 1rem;
+        }
+
+        .btn-trigger-filter {
+            width: 100%;
+            padding: 0 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .search-input,
+        .btn-trigger-filter {
+            height: 44px;
+            font-size: 0.82rem;
+        }
+
+        .search-input {
+            line-height: 42px;
+            padding: 0 14px 0 42px;
+        }
+
+        .search-input::placeholder {
+            font-size: 0.82rem;
+        }
+
+        .search-box-container .fa-search {
+            left: 14px;
+            font-size: 0.95rem;
+        }
+
+        .btn-trigger-filter {
+            padding: 0 14px;
+        }
+    }
 
     .status-tersedia { color: #2ecc71; }
     .status-kosong { color: #e74c3c; }
@@ -171,11 +284,13 @@
     /* POPUP MODAL FILTER STYLE */
     .custom-modal-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; z-index: 9999;
+        background: rgba(0, 0, 0, 0.5); display: none; justify-content: center; align-items: center; 
+        z-index: 9999; padding: 16px;
     }
     .custom-modal-content {
         background: #fff; width: 100%; max-width: 480px; border-radius: 20px; padding: 30px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15); animation: popupSlightIn 0.3s ease-out;
+        max-height: 90vh; overflow-y: auto;
     }
     .custom-modal-header h3 { margin: 0; font-size: 1.3rem; font-weight: 700; color: #2D1A1A; }
     .custom-modal-header p { margin: 4px 0 0 0; font-size: 0.85rem; color: #888; }
@@ -204,7 +319,8 @@
     .btn-modal-terapkan { background: #C0392B; color: white; }
     .btn-modal-terapkan:hover { background: #A93226; }
 
-    .news-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; }
+    /* ══ PAGINATION ══ */
+    .news-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; flex-wrap: wrap; gap: 15px; }
     .news-pagination p { font-size: 0.85rem; color: #555; margin: 0; font-weight: 500; }
     .news-page-controls { display: flex; gap: 8px; }
     .news-page-controls a, .news-page-controls span {
@@ -215,6 +331,25 @@
     .news-page-controls a:hover { background: #FFF5F5; border-color: #C0392B; color: #C0392B; }
     .news-page-controls span.active { background: #C0392B; color: #fff; border-color: #C0392B; font-weight: 700; }
     .news-page-controls span.disabled { color: #ccc; cursor: not-allowed; background: #fdfdfd; }
+
+    /* ══ RESPONSIVE TAMBAHAN ══ */
+    @media (max-width: 768px) {
+        .berita-banner-container { height: 280px; }
+        .berita-banner-content h1 { font-size: 2rem !important; }
+        .berita-banner-content p { font-size: 0.95rem !important; }
+        .katalog-wrapper { width: 95%; margin: 24px auto; }
+        .katalog-grid { grid-template-columns: 1fr; gap: 20px; }
+        .news-pagination { flex-direction: column; align-items: center; }
+    }
+
+    @media (max-width: 480px) {
+        .berita-banner-container { height: 240px; }
+        .berita-banner-content h1 { font-size: 1.6rem !important; }
+        .berita-banner-content p { font-size: 0.85rem !important; }
+        .badge-theme { font-size: 0.75rem; padding: 5px 12px; }
+        .checkbox-grid { grid-template-columns: 1fr; }
+        .custom-modal-content { padding: 22px; }
+    }
 
     @keyframes popupSlightIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>
@@ -254,8 +389,8 @@
         <form action="{{ route('umum.katalog') }}" method="GET" id="formPublicKatalog">
             <div class="search-filter-wrapper">
                 <div class="search-box-container">
-                    <input type="text" name="search" id="searchPublicKatalog" class="search-input" placeholder="Cari nama tari, deskripsi baju, atau perlengkapan kostum..." value="{{ request('search') }}">
                     <i class="fas fa-search" onclick="submitPublicForm()"></i>
+                    <input type="text" name="search" id="searchPublicKatalog" class="search-input" placeholder="Cari kostum..." value="{{ request('search') }}">
                 </div>
                 <button type="button" class="btn-trigger-filter" onclick="openFilterModal()">
                     <i class="fas fa-filter"></i> Filter Kategori
@@ -333,7 +468,7 @@
                     </div>
                 </a>
             @empty
-                <div style="grid-column: span 4; text-align: center; color: #7f8c8d; padding: 60px 0;">
+                <div style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 60px 0;">
                     <i class="fas fa-tshirt" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 15px; display: block;"></i>
                     Tidak ada koleksi katalog yang ditemukan sesuai dengan kriteria pencarian saat ini.
                 </div>
@@ -363,12 +498,24 @@
 </div>
 
 <script>
-    function openFilterModal() { document.getElementById('filterModal').style.display = 'flex'; }
-    function closeFilterModal() { document.getElementById('filterModal').style.display = 'none'; }
+    function openFilterModal() { 
+        document.getElementById('filterModal').style.display = 'flex'; 
+        document.body.style.overflow = 'hidden';
+    }
+    function closeFilterModal() { 
+        document.getElementById('filterModal').style.display = 'none'; 
+        document.body.style.overflow = '';
+    }
     window.onclick = function(event) { if (event.target == document.getElementById('filterModal')) closeFilterModal(); }
     function syncCardVisual(c) { let p = c.closest('.filter-checkbox-card'); if (c.checked) p.classList.add('selected-box'); else p.classList.remove('selected-box'); }
     function submitPublicForm() { document.getElementById('formPublicKatalog').submit(); }
-    document.getElementById('searchPublicKatalog').addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); submitPublicForm(); } });
+
+    const searchKatalogInput = document.getElementById('searchPublicKatalog');
+    if (searchKatalogInput) {
+        searchKatalogInput.addEventListener('keypress', function(e) { 
+            if (e.key === 'Enter') { e.preventDefault(); submitPublicForm(); } 
+        });
+    }
 
     document.addEventListener("DOMContentLoaded", function() {
         const headerContainer = document.querySelector('.header-slideshow-container');

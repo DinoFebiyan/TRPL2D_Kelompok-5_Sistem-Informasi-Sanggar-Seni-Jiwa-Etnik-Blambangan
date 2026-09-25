@@ -177,55 +177,140 @@
     /* ══ SEARCH & FILTER BAR ══ */
     .search-filter-wrapper {
         background: transparent;
-        padding-bottom: 25px;
+        padding: 20px 0;
         display: flex;
         gap: 15px;
-        align-items: center;
+        align-items: stretch;
+        position: relative;
+        width: 100%;
+        max-width: 100%;
     }
 
     .search-box-container {
         flex: 1;
         position: relative;
+        min-width: 0;
     }
 
-    .search-input {
-        width: 100%;
-        padding: 15px 50px 15px 20px;
-        border-radius: 10px;
-        border: 1px solid #ddd;
-        background: white;
-        font-family: 'Poppins', sans-serif;
-        font-size: 0.95rem;
-        outline: none;
-    }
-
+    /* Icon search di KIRI */
     .search-box-container .fa-search {
         position: absolute;
-        right: 20px;
+        left: 20px;
         top: 50%;
         transform: translateY(-50%);
         color: #C0392B;
         cursor: pointer;
+        font-size: 1.1rem;
+        z-index: 2;
+    }
+
+    /* Tinggi seragam untuk search input & tombol filter */
+    .search-input,
+    .btn-trigger-filter {
+        height: 52px;
+        box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
+        font-size: 0.95rem;
+        border-radius: 10px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0 20px 0 50px;
+        border: 1px solid #ddd;
+        background: white;
+        outline: none;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+        line-height: 50px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .search-input:focus {
+        border-color: #C0392B;
+        box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1);
+    }
+
+    .search-input::placeholder {
+        color: #999;
+        font-size: 0.95rem;
     }
 
     .btn-trigger-filter {
-        padding: 15px 35px;
+        padding: 0 25px;
         background: #C0392B;
         color: white;
         border: none;
-        border-radius: 10px;
         cursor: pointer;
-        font-family: 'Poppins', sans-serif;
         font-weight: 600;
-        font-size: 0.95rem;
-        display: flex;
+        display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 10px;
         transition: background 0.2s;
         white-space: nowrap;
+        flex-shrink: 0;
         box-shadow: 0 2px 10px rgba(192, 57, 43, 0.2);
     }
     .btn-trigger-filter:hover { background: #A93226; }
+
+    /* ══ RESPONSIVE SEARCH & FILTER ══ */
+    @media (max-width: 768px) {
+        .search-filter-wrapper {
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .search-input,
+        .btn-trigger-filter {
+            height: 48px;
+            font-size: 0.88rem;
+        }
+
+        .search-input {
+            line-height: 46px;
+            padding: 0 16px 0 45px;
+        }
+
+        .search-input::placeholder {
+            font-size: 0.88rem;
+        }
+
+        .search-box-container .fa-search {
+            left: 16px;
+            font-size: 1rem;
+        }
+
+        .btn-trigger-filter {
+            width: 100%;
+            padding: 0 16px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .search-input,
+        .btn-trigger-filter {
+            height: 44px;
+            font-size: 0.82rem;
+        }
+
+        .search-input {
+            line-height: 42px;
+            padding: 0 14px 0 42px;
+        }
+
+        .search-input::placeholder {
+            font-size: 0.82rem;
+        }
+
+        .search-box-container .fa-search {
+            left: 14px;
+            font-size: 0.95rem;
+        }
+
+        .btn-trigger-filter {
+            padding: 0 14px;
+        }
+    }
 
     /* ══ FILTER POPUP MODAL STYLES ══ */
     .custom-modal-overlay {
@@ -236,6 +321,7 @@
         justify-content: center;
         align-items: center;
         z-index: 9999;
+        padding: 16px;
     }
 
     .custom-modal-content {
@@ -246,6 +332,8 @@
         padding: 30px;
         box-shadow: 0 10px 30px rgba(0,0,0,0.15);
         animation: popupSlightIn 0.3s ease-out;
+        max-height: 90vh;
+        overflow-y: auto;
     }
 
     .custom-modal-header h3 { margin: 0; font-size: 1.3rem; font-weight: 700; color: #2D1A1A; }
@@ -371,12 +459,12 @@
     .legend-item { display: flex; align-items: center; gap: 6px; color: #555; }
 
     /* INDIKATOR HEADER FILTER TANGGAL AKTIF */
-    #header-filter-tanggal { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+    #header-filter-tanggal { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 8px; }
     #header-filter-tanggal h3 { font-size: 1.1rem; margin: 0; color: #6b1414; font-weight: 600; }
     #btn-reset-filter { font-size: 0.85rem; color: #C0392B; text-decoration: underline; background: none; border: none; cursor: pointer; }
 
     /* ══ PAGINATION BAR ══ */
-    .news-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; }
+    .news-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 35px; flex-wrap: wrap; gap: 15px; }
     .news-pagination p { font-size: 0.85rem; color: #555; margin: 0; font-weight: 500; }
     .news-page-controls { display: flex; gap: 8px; }
     .news-page-controls a, .news-page-controls span {
@@ -394,11 +482,33 @@
     }
     .inline-error-fallback.active { display: flex; }
 
+    /* ══ RESPONSIVE TAMBAHAN ══ */
     @media (max-width: 992px) { 
         .event-split-layout { grid-template-columns: 1fr; gap: 40px; } 
         .event-item-card { flex-direction: column; }
-        .event-slideshow-box { width: 100%; height: 200px; }
+        .event-slideshow-box { width: 100%; height: 200px; min-width: unset; }
     }
+
+    @media (max-width: 768px) {
+        .berita-banner-container { height: 280px; }
+        .berita-banner-content h1 { font-size: 2rem !important; }
+        .berita-banner-content p { font-size: 0.95rem !important; }
+        .event-wrapper { width: 95%; margin: 24px auto; }
+        .calendar-card { padding: 18px; }
+        .news-pagination { flex-direction: column; align-items: center; }
+    }
+
+    @media (max-width: 480px) {
+        .berita-banner-container { height: 240px; }
+        .berita-banner-content h1 { font-size: 1.6rem !important; }
+        .berita-banner-content p { font-size: 0.85rem !important; }
+        .badge-theme { font-size: 0.75rem; padding: 5px 12px; }
+        .checkbox-grid { grid-template-columns: 1fr; }
+        .custom-modal-content { padding: 22px; }
+        .event-details-box { padding: 18px; }
+        .event-details-box h4 { font-size: 1.1rem; }
+    }
+
     @keyframes popupSlightIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 </style>
 
@@ -450,8 +560,8 @@
                 <form action="{{ route('umum.event') }}" method="GET" id="formPublicEvent">
                     <div class="search-filter-wrapper">
                         <div class="search-box-container">
-                            <input type="text" name="search" id="searchPublicEvent" class="search-input" placeholder="Cari nama event, lokasi agenda kegiatan..." value="{{ request('search') }}">
                             <i class="fas fa-search" onclick="submitPublicForm()"></i>
+                            <input type="text" name="search" id="searchPublicEvent" class="search-input" placeholder="Cari event..." value="{{ request('search') }}">
                         </div>
                         <button type="button" class="btn-trigger-filter" onclick="openFilterModal()">
                             <i class="fas fa-filter"></i> Status Event
@@ -559,8 +669,14 @@
 </div>
 
 <script>
-    function openFilterModal() { document.getElementById('filterModal').style.display = 'flex'; }
-    function closeFilterModal() { document.getElementById('filterModal').style.display = 'none'; }
+    function openFilterModal() { 
+        document.getElementById('filterModal').style.display = 'flex'; 
+        document.body.style.overflow = 'hidden';
+    }
+    function closeFilterModal() { 
+        document.getElementById('filterModal').style.display = 'none'; 
+        document.body.style.overflow = '';
+    }
     
     window.onclick = function(e) { 
         if (e.target == document.getElementById('filterModal')) closeFilterModal(); 
@@ -573,9 +689,12 @@
 
     function submitPublicForm() { document.getElementById('formPublicEvent').submit(); }
     
-    document.getElementById('searchPublicEvent').addEventListener('keypress', function(e) { 
-        if (e.key === 'Enter') { e.preventDefault(); submitPublicForm(); } 
-    });
+    const searchEventInput = document.getElementById('searchPublicEvent');
+    if (searchEventInput) {
+        searchEventInput.addEventListener('keypress', function(e) { 
+            if (e.key === 'Enter') { e.preventDefault(); submitPublicForm(); } 
+        });
+    }
 
     const todayStr = new Date().toISOString().split('T')[0];
 

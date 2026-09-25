@@ -24,7 +24,7 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* GEMBOK ANTI-BOCOR HALAMAN UTAMA */
+       
         html, body {
             max-width: 100vw;
             overflow-x: hidden;
@@ -109,11 +109,11 @@
             text-transform: uppercase;
         }
 
-        /* BAGIAN MENU SCROLLABLE */
+       
         .sidebar-nav {
             padding: 12px 0;
             flex: 1;
-            overflow-y: auto; /* Mengizinkan menu di-scroll jika kepanjangan */
+            overflow-y: auto; 
         }
         
         .sidebar-nav::-webkit-scrollbar { width: 4px; }
@@ -167,17 +167,18 @@
             border-radius: 10px;
         }
 
-        /* BAGIAN PROFIL SELALU DI BAWAH */
+       
         .sidebar-footer {
             padding: 16px;
             border-top: 1px solid rgba(255,255,255,0.08);
-            margin-top: auto; /* Ini kunci agar profil nempel di bawah */
+            margin-top: auto; 
         }
 
         .user-card {
             display: flex;
             align-items: center;
             gap: 10px;
+            min-width: 0;             
         }
 
         .avatar {
@@ -188,7 +189,23 @@
             font-weight: 700;
             font-size: 0.85rem;
             color: var(--merah-gelap);
-            flex-shrink: 0;
+            flex-shrink: 0;            
+        }
+
+        
+        .user-info {
+            min-width: 0;             
+            overflow: hidden;
+            flex: 1;
+        }
+
+        .user-info p,
+        .user-info span {
+            white-space: nowrap;       
+            overflow: hidden;
+            text-overflow: ellipsis;  
+            display: block;
+            margin: 0;
         }
 
         .user-info p {
@@ -202,6 +219,7 @@
             font-size: 0.7rem;
         }
 
+        
         .logout-btn {
             margin-left: auto;
             background: none;
@@ -210,8 +228,25 @@
             cursor: pointer;
             padding: 4px;
             transition: color 0.2s;
+            flex-shrink: 0;            
+            display: inline-flex;     
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;          
+            line-height: 1;
+            min-width: 28px;           
+            min-height: 28px;
         }
         .logout-btn:hover { color: #fff; }
+
+        
+        .logout-btn i,
+        .logout-btn svg {
+            flex-shrink: 0;
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
 
         .main {
             margin-left: var(--sidebar-w);
@@ -288,7 +323,7 @@
             flex: 1;
         }
 
-        /* TABS & PANELS & CARDS EXISTING CODE... */
+        
         .settings-layout { display:flex; gap:20px; }
         .settings-sidebar { width:220px; flex-shrink:0; }
         .settings-main { flex:1; }
@@ -411,11 +446,7 @@
         .btn-batal { background: #fff; border: 1px solid #ddd; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 600; }
         .btn-simpan { background: var(--merah); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-weight: 700; }
         
-        /* ==========================================================
-           RESPONSIVE MOBILE STYLES (FITUR SIDEBAR HIDE)
-           ========================================================== */
-        
-        /* Overlay Gelap di belakang Sidebar pas kebuka di HP */
+       
         .sidebar-overlay-mobile {
             display: none;
             position: fixed;
@@ -428,7 +459,7 @@
             display: block;
         }
 
-        /* Tombol Menu Melayang (Floating Hamburger Button) */
+       
         .mobile-menu-btn {
             display: none;
             position: fixed;
@@ -445,7 +476,7 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        mobile-menu-btn:hover {
+        .mobile-menu-btn:hover {
             background: var(--merah-gelap);
         }
 
@@ -463,10 +494,9 @@
                 width: 100%;
             }
             .mobile-menu-btn {
-                display: block; /* Munculkan tombol di HP */
+                display: block; 
             }
             .topbar {
-                /* Geser tulisan Dashboard Admin ke kanan agar tidak tertabrak tombol */
                 padding: 15px 20px 15px 75px; 
             }
             .content {
@@ -481,11 +511,11 @@
                 padding: 15px 15px 15px 65px; 
             }
         }
-        </style>
+    </style>
 </head>
 <body>
 
-    <!-- OVERLAY DAN TOMBOL HAMBURGER MOBILE -->
+    
     <div class="sidebar-overlay-mobile" id="sidebarOverlayMobile"></div>
     <button class="mobile-menu-btn" id="mobileMenuBtn">
         <i class="fas fa-bars"></i>
@@ -501,7 +531,7 @@
         </div>
     </main>
 
-    <!-- Modal Logout -->
+    
     @include('popup.logout')
 
     {{-- Popup Batal Form (untuk halaman tambah/edit) --}}
@@ -512,19 +542,17 @@
     </form>
 
     <script>
-        // SCRIPT UNTUK SIDEBAR MOBILE
         document.addEventListener('DOMContentLoaded', function() {
             const menuBtn = document.getElementById('mobileMenuBtn');
             const sidebar = document.querySelector('.sidebar');
             const overlay = document.getElementById('sidebarOverlayMobile');
 
             if(menuBtn && sidebar && overlay) {
-                // Saat tombol melayang diklik
                 menuBtn.addEventListener('click', function() {
                     sidebar.classList.toggle('active');
                     overlay.classList.toggle('active');
                     
-                    // Ganti icon Menu ke X
+                   
                     if(sidebar.classList.contains('active')) {
                         menuBtn.innerHTML = '<i class="fas fa-times"></i>';
                     } else {
@@ -532,7 +560,7 @@
                     }
                 });
 
-                // Saat area gelap di luar sidebar diklik (tutup sidebar)
+               
                 overlay.addEventListener('click', function() {
                     sidebar.classList.remove('active');
                     overlay.classList.remove('active');
@@ -541,7 +569,7 @@
             }
         });
 
-        // SCRIPT LOGOUT - diarahkan ke popup.logout
+        
         function openLogoutModal() { showPopupLogout(); }
         function closeLogoutModal() { hidePopupLogout(); }
         function executeLogout() {
@@ -549,11 +577,11 @@
         }
 
         window.onclick = function(event) {
-            // popup.logout sudah handle klik overlay sendiri
+            
         }
     </script>
     <script>
-        // ── Back Button Handler ──
+       
         window.addEventListener('load', function () {
             var isFormPage = document.body.classList.contains('page-form');
             setTimeout(function () {

@@ -8,7 +8,7 @@
         .page-container {
             max-width: 1000px;
             margin: 2rem auto;
-            background: #EAEAEA; /* Warna abu-abu muda sesuai desain */
+            background: #EAEAEA;
             border-radius: 14px;
             border: 1px solid #dcdcdc;
             overflow: hidden;
@@ -91,8 +91,8 @@
         .form-group select {
             width: 100%;
             padding: 12px 20px;
-            border: 1px solid #A87C7C; /* Warna garis merah kecoklatan */
-            border-radius: 30px; /* Membuat bentuk kapsul */
+            border: 1px solid #A87C7C;
+            border-radius: 30px;
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             background: #fff;
@@ -140,7 +140,6 @@
             margin-left: 10px;
         }
 
-        /* Penyesuaian icon panah pada dropdown agar terlihat lebih rapi */
         select {
             appearance: none;
             -webkit-appearance: none;
@@ -150,24 +149,57 @@
             background-position: calc(100% - 20px) center;
         }
         .select-status {
-    width: 100%;
-    padding: 12px 16px;
-    border-radius: 10px;
-    border: 1px solid #e8dede;
-    font-family: 'Poppins', sans-serif;
-    font-size: 0.95rem;
-    background: #fff;
-    color: #333; /* warna default untuk pilihan normal */
-}
+            width: 100%;
+            padding: 12px 16px;
+            border-radius: 10px;
+            border: 1px solid #e8dede;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.95rem;
+            background: #fff;
+            color: #333;
+        }
 
-/* Placeholder option */
+        .select-status:invalid {
+            color: #999;
+        }
 
-.select-status:invalid {
-    color: #999;       /* abu-abu buram */
-}
+        /* ==========================================
+           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
+           ========================================== */
+        @media (max-width: 640px) {
+            .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+                padding: 1.2rem 1.5rem !important;
+            }
+            
+            .form-header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-header p {
+                font-size: 0.78rem !important;
+            }
+            
+            .header-actions {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            
+            .btn-batal,
+            .btn-simpan {
+                flex: 1 !important;
+                justify-content: center !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
+            }
 
-
-
+            .form-body {
+                padding: 1.5rem !important;
+            }
+        }
     </style>
 @endsection
 
@@ -179,8 +211,8 @@
                 <p>Kelola Admin</p>
             </div>
             <div class="header-actions">
-                <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-admin') }}'); return false;" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
-                <button type="button" onclick="showPopupSimpan('formTambahAdmin')" form="formTambahAdmin" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
+                <button type="button" onclick="handleSimpanAdmin('formTambahAdmin')" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
             </div>
         </div>
         <div class="form-body">
@@ -210,33 +242,33 @@
                 
                 <div class="form-group">
                     <label>Nama Lengkap</label>
-                    <input type="text" name="name" value="{{ old('name') }}" placeholder="Masukkan nama lengkap admin..." required>
+                    <input type="text" name="name" id="nama_admin" value="{{ old('name') }}" placeholder="Masukkan nama lengkap admin..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" name="email" value="{{ old('email') }}" placeholder="Masukkan email admin..." required>
+                    <input type="email" name="email" id="email_admin" value="{{ old('email') }}" placeholder="Masukkan email admin..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>Password</label>
-                    <input type="password" name="password" placeholder="Masukkan password yang akan digunakan admin untuk masuk..." required>
+                    <input type="password" name="password" id="password_admin" placeholder="Masukkan password yang akan digunakan admin untuk masuk..." required>
                     <div class="form-helper">Format password: Min 8 karakter tanpa simbol</div>
                 </div>
 
                 <div class="form-group">
                     <label>Ulangi Password</label>
-                    <input type="password" name="password_confirmation" placeholder="Konfirmasi password yang akan digunakan admin untuk masuk..." required>
+                    <input type="password" name="password_confirmation" id="password_confirm_admin" placeholder="Konfirmasi password yang akan digunakan admin untuk masuk..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>No Handphone</label>
-                    <input type="text" name="no_handphone" value="{{ old('no_handphone') }}" placeholder="Masukkan no handphone admin..." required>
+                    <input type="text" name="no_handphone" id="hp_admin" value="{{ old('no_handphone') }}" placeholder="Masukkan no handphone admin..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>Status</label>
-                    <select name="status" required class="select-status">
+                    <select name="status" id="status_admin" required class="select-status">
                         <option value="" disabled selected hidden>Masukkan status admin...</option>
                         <option value="aktif" {{ old('status') == 'aktif' ? 'selected' : '' }}>Aktif</option>
                         <option value="nonaktif" {{ old('status') == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
@@ -260,6 +292,103 @@
         }
     </script>
 
+{{-- Popup --}}
+@include('popup.validasi')
+@include('popup.batal')
+@include('popup.simpan')
+
+
+<script>
+function validateFormAdmin() {
+    const errors = [];
+
+    // 1. Foto (opsional — hanya cek kalau ada file yang dipilih, formatnya)
+    const fotoInput = document.getElementById('foto');
+    if (fotoInput.files.length > 0) {
+        const file = fotoInput.files[0];
+        const allowed = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowed.includes(file.type)) {
+            errors.push('Format foto harus JPG atau PNG');
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            errors.push('Ukuran foto maksimal 2MB');
+        }
+    }
+
+    // 2. Nama
+    const nama = document.getElementById('nama_admin');
+    if (!nama.value.trim()) {
+        errors.push('Nama lengkap belum diisi');
+    } else if (nama.value.trim().length < 3) {
+        errors.push('Nama lengkap minimal 3 karakter');
+    }
+
+    // 3. Email
+    const email = document.getElementById('email_admin');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.value.trim()) {
+        errors.push('Email belum diisi');
+    } else if (!emailRegex.test(email.value.trim())) {
+        errors.push('Format email tidak valid');
+    }
+
+    // 4. Password
+    const password = document.getElementById('password_admin');
+    if (!password.value) {
+        errors.push('Password belum diisi');
+    } else if (password.value.length < 8) {
+        errors.push('Password minimal 8 karakter');
+    }
+
+    // 5. Konfirmasi Password
+    const confirm = document.getElementById('password_confirm_admin');
+    if (!confirm.value) {
+        errors.push('Konfirmasi password belum diisi');
+    } else if (password.value && confirm.value !== password.value) {
+        errors.push('Konfirmasi password tidak cocok');
+    }
+
+    // 6. No Handphone
+    const hp = document.getElementById('hp_admin');
+    if (!hp.value.trim()) {
+        errors.push('No handphone belum diisi');
+    } else if (!/^[0-9+\-\s]{8,15}$/.test(hp.value.trim())) {
+        errors.push('No handphone tidak valid (8-15 digit angka)');
+    }
+
+    // 7. Status
+    const status = document.getElementById('status_admin');
+    if (!status.value) {
+        errors.push('Status admin belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanAdmin(formId) {
+    const errors = validateFormAdmin();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+
+<script>
+    window._urlBatalAdmin = '{{ route("superadmin.kelola-admin") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalAdmin;
+    };
+</script>
+
 @if ($errors->any())
 <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
     <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
@@ -282,10 +411,6 @@
 </script>
 @endif
 @endsection
-
-{{-- Popup Batal & Simpan --}}
-@include('popup.batal')
-@include('popup.simpan')
 
 @push('scripts')
 <script>

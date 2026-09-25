@@ -166,8 +166,8 @@
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
         border: 1px solid #f0f0f0;
         width: 100%;
-        min-width: 0; /* GEMBOK UTAMA TABEL */
-        overflow: hidden; /* Mencegah tabel memperbesar kotak card */
+        min-width: 0;
+        overflow: hidden;
         box-sizing: border-box;
     }
     .adm-table-card h3 {
@@ -177,7 +177,7 @@
     }
     
     .table-responsive-wrapper {
-        display: block; /* Wajib block agar bisa horizontal scroll */
+        display: block;
         width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -187,7 +187,7 @@
     .adm-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 750px; /* Tabel dipaksa lebar agar kolomnya rapi */
+        min-width: 750px;
     }
     .adm-table thead {
         background-color: #F5EBEB;
@@ -352,29 +352,52 @@
     @media (max-width: 640px) {
         
         .adm-stats-grid {
-            grid-template-columns: repeat(2, 1fr) !important; /* 2 Kolom terkunci */
+            grid-template-columns: repeat(2, 1fr) !important;
             gap: 10px !important;
             width: 100% !important;
         }
+        
+        /* ✅ FIX: icon & text side by side */
         .adm-stat-card {
-            padding: 12px 10px !important;
-            flex-direction: column !important;
-            text-align: center !important;
+            padding: 10px 12px !important;
+            flex-direction: row !important;
             align-items: center !important;
-            justify-content: center !important;
-            gap: 5px !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            gap: 10px !important;
             min-width: 0 !important;
             width: 100% !important;
             box-sizing: border-box !important;
         }
+        
         .adm-icon-box {
-            width: 35px !important; height: 35px !important; font-size: 1rem !important;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.9rem !important;
+            flex-shrink: 0 !important;
         }
+        
         .adm-stat-text {
-            width: 100% !important;
+            text-align: left !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+            width: auto !important;
         }
-        .adm-stat-text h2 { font-size: 1.25rem !important; }
-        .adm-stat-text h4 { font-size: 0.65rem !important; }
+        
+        .adm-stat-text h4 {
+            font-size: 0.6rem !important;
+            letter-spacing: 0.2px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        
+        .adm-stat-text h2 {
+            font-size: 1.2rem !important;
+            margin: 2px 0 0 0 !important;
+            line-height: 1.1 !important;
+        }
         
         .adm-btn-tambah {
             grid-column: span 2 !important; 
@@ -393,7 +416,7 @@
             width: 100% !important;
         }
         .adm-search-box {
-            flex: 1 1 0% !important; /* Rahasia anti-blowout flexbox */
+            flex: 1 1 0% !important;
         }
         .adm-search-box input {
             padding: 10px 30px 10px 12px !important;
@@ -411,7 +434,7 @@
             font-size: 0.8rem !important;
             gap: 5px !important;
         }
-        .adm-btn-filter span { display: none !important; } /* Sembunyikan teks filter di HP */
+        .adm-btn-filter span { display: none !important; }
 
         /* PERBAIKAN TABEL CARD DI HP */
         .adm-table-card {
@@ -503,7 +526,7 @@
     <div class="adm-table-card">
         <h3>Daftar Admin</h3>
         
-        {{-- WRAPPER TABEL SCROLL HORIZONTAL (GEMBOK UKURAN LEBAR) --}}
+        {{-- WRAPPER TABEL SCROLL HORIZONTAL --}}
         <div class="table-responsive-wrapper">
             <table class="adm-table">
                 <thead>
@@ -540,7 +563,7 @@
                         </td>
                         <td class="adm-action-btns">
                             <a href="{{ route('superadmin.edit-admin', $admin->id) }}" class="adm-btn-edit">Edit</a>
-                            <button class="adm-btn-hapus" onclick="confirmDelete({{ $admin->id }})">Hapus</button>
+                            <button class="adm-btn-hapus" onclick="showPopupHapus('delete-form-{{ $admin->id }}')">Hapus</button>
                             <form id="delete-form-{{ $admin->id }}" action="{{ route('superadmin.hapus-admin', $admin->id) }}" method="POST" style="display: none;">
                                 @csrf @method('DELETE')
                             </form>
@@ -579,11 +602,6 @@
 </div>
 
 <script>
-    function confirmDelete(id) {
-        if(confirm('Yakin ingin menghapus admin ini?')) {
-            document.getElementById('delete-form-'+id).submit();
-        }
-    }
     function openFilterModal() {
         document.getElementById('filterModal').style.display = 'flex';
     }
@@ -609,4 +627,7 @@
         }
     });
 </script>
+
+{{-- Popup Konfirmasi Hapus --}}
+@include('popup.hapus')
 @endsection

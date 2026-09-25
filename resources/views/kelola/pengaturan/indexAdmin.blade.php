@@ -80,6 +80,7 @@
         flex-direction: column;
         gap: 6px;
         flex-grow: 1;
+        min-width: 0;
     }
 
     .avatar-input-wrapper label {
@@ -134,7 +135,9 @@
         grid-column: span 2;
     }
 
-    /* ══ STYLING FILE UPLOAD KAPSUL ══ */
+    /* ==========================================
+       ✅ STYLING FILE UPLOAD KAPSUL — FIXED
+       ========================================== */
     .custom-file-wrapper {
         display: flex;
         align-items: stretch;
@@ -142,29 +145,48 @@
         border-radius: 8px;
         background: #ffffff;
         overflow: hidden;
+        width: 100%;
         max-width: 450px;
+        min-height: 44px;
+        box-sizing: border-box;
     }
 
-    .btn-pilih-file {
-        background-color: #e2c0c0;
+    /* ✅ Tombol pilih berkas — lebih panjang & center vertikal */
+    .custom-file-wrapper .btn-pilih-file,
+    .form-group .btn-pilih-file {
+        background-color: #e2c0c0 !important;
         color: #5a1a1a !important;
-        padding: 10px 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
+        padding: 0 40px !important;
+        font-size: 0.8rem !important;
+        font-weight: 600 !important;
         cursor: pointer;
-        margin: 0;
-        display: flex;
-        align-items: center;
+        margin: 0 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        align-self: stretch !important;
         border-right: 1px solid #e8dede;
+        white-space: nowrap !important;
+        flex-shrink: 0;
+        line-height: 1 !important;
+        text-align: center;
+        box-sizing: border-box;
+        min-height: 42px;
+        border-radius: 0;
     }
 
-    .file-name-display {
-        padding: 0 15px;
+    /* ✅ File name display */
+    .custom-file-wrapper .file-name-display {
+        padding: 10px 15px;
         color: #BDBDBD;
         font-size: 0.85rem;
         display: flex;
         align-items: center;
         flex-grow: 1;
+        min-width: 0;
+        line-height: 1.3;
+        word-break: break-word;
+        box-sizing: border-box;
     }
 
     /* ══ DESIGN BUTTONS SIMPAN ══ */
@@ -183,17 +205,76 @@
         font-family: 'Poppins', sans-serif;
         transition: 0.2s;
         text-decoration: none;
+        white-space: nowrap;
     }
     
     .btn-save-settings:hover {
         background: #d4aeae;
     }
 
+    /* ==========================================
+       ✅ RESPONSIVE — Mobile & Tablet
+       (Disamakan dengan versi superadmin)
+       ========================================== */
     @media (max-width: 768px) {
-        .form-grid { grid-template-columns: 1fr; }
-        .full-width { grid-column: span 1; }
-        .avatar-row { flex-direction: column; align-items: flex-start; }
-        .settings-card .card-header-flex { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .form-grid { 
+            grid-template-columns: 1fr !important; 
+        }
+        .full-width { 
+            grid-column: span 1 !important; 
+        }
+        .avatar-row { 
+            flex-direction: column !important; 
+            align-items: flex-start !important; 
+            padding: 15px !important;
+        }
+
+        /* ✅ Header card: title di atas, tombol di bawah rata kiri */
+        .settings-card .card-header-flex { 
+            flex-direction: column !important; 
+            align-items: flex-start !important; 
+            gap: 10px !important; 
+        }
+
+        .settings-card {
+            padding: 18px 15px !important;
+        }
+
+        /* ✅ File picker — full width di mobile, tombol lebih compact */
+        .custom-file-wrapper {
+            max-width: 100% !important;
+            width: 100% !important;
+        }
+        .custom-file-wrapper .btn-pilih-file,
+        .form-group .btn-pilih-file {
+            padding: 0 24px !important;
+            font-size: 0.75rem !important;
+        }
+        .custom-file-wrapper .file-name-display {
+            font-size: 0.78rem !important;
+            padding: 10px 12px !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .settings-card {
+            padding: 15px 12px !important;
+        }
+        .avatar-preview-frame {
+            width: 55px !important;
+            height: 55px !important;
+        }
+        .avatar-row {
+            padding: 12px !important;
+        }
+        .custom-file-wrapper .btn-pilih-file,
+        .form-group .btn-pilih-file {
+            padding: 0 20px !important;
+            font-size: 0.72rem !important;
+        }
+        .custom-file-wrapper .file-name-display {
+            font-size: 0.75rem !important;
+        }
     }
 </style>
 
@@ -224,7 +305,7 @@
             @method('PUT')
             
             <div class="card-header-flex">
-                <h3><i class="fas fa-user-cog"></i> Profil Akun Super Admin</h3>
+                <h3><i class="fas fa-user-cog"></i> Profil Akun Admin</h3>
                 <button type="submit" class="btn-save-settings">
                     <i class="fas fa-save"></i> Simpan Perubahan
                 </button>

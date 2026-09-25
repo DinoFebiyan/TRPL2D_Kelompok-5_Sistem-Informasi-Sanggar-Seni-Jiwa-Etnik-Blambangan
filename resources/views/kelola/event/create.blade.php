@@ -112,33 +112,54 @@
             color: #b0b0b0;
         }
 
+        /* ==========================================
+           ✅ CUSTOM FILE WRAPPER
+           ========================================== */
         .custom-file-wrapper {
             display: flex;
             border: 1px solid #A87C7C;
             border-radius: 30px;
             overflow: hidden;
             background: #fff;
-            align-items: center;
+            align-items: stretch;
+            min-height: 48px;
         }
 
-        .btn-pilih-file {
-            background: #531919;
+        /* ==========================================
+           ✅ TOMBOL PILIH FILE — specificity tinggi
+           ========================================== */
+        .form-group .btn-pilih-file {
+            background: #531919 !important;
             color: white !important;
-            padding: 12px 25px;
+            padding: 0 25px !important;
             cursor: pointer;
             border-right: 1px solid #A87C7C;
-            margin-bottom: 0 !important;
+            margin: 0 !important;
             font-weight: 500;
             font-size: 0.9rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            align-self: stretch !important;
+            line-height: 1 !important;
+            text-align: center;
+            box-sizing: border-box;
+            min-height: 46px;
+            border-radius: 0;
         }
 
         .file-name-display {
-            padding: 0 15px;
+            padding: 12px 15px;
             display: flex;
             align-items: center;
             color: #b0b0b0;
             flex-grow: 1;
             font-size: 0.9rem;
+            min-width: 0;
+            line-height: 1.3;
+            word-break: break-word;
         }
 
         .form-helper {
@@ -202,6 +223,54 @@
             color: #000;
             pointer-events: none;
             font-size: 1.1rem;
+        }
+
+        /* ==========================================
+           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
+           ========================================== */
+        @media (max-width: 640px) {
+            .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+                padding: 1.2rem 1.5rem !important;
+            }
+            
+            .form-header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-header p {
+                font-size: 0.78rem !important;
+            }
+            
+            .header-actions {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            
+            .btn-batal,
+            .btn-simpan {
+                flex: 1 !important;
+                justify-content: center !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .form-body {
+                padding: 1.5rem !important;
+            }
+
+            .form-group .btn-pilih-file {
+                padding: 0 16px !important;
+                font-size: 0.8rem !important;
+            }
+            .file-name-display {
+                font-size: 0.8rem !important;
+                padding: 10px 12px !important;
+                line-height: 1.3 !important;
+            }
         }
     </style>
 

@@ -112,33 +112,54 @@
             color: #b0b0b0;
         }
 
+        /* ==========================================
+           ✅ CUSTOM FILE WRAPPER
+           ========================================== */
         .custom-file-wrapper {
             display: flex;
             border: 1px solid #A87C7C;
             border-radius: 30px;
             overflow: hidden;
             background: #fff;
-            align-items: center;
+            align-items: stretch;
+            min-height: 48px;
         }
 
-        .btn-pilih-file {
-            background: #531919;
+        /* ==========================================
+           ✅ TOMBOL PILIH FILE — specificity tinggi
+           ========================================== */
+        .form-group .btn-pilih-file {
+            background: #531919 !important;
             color: white !important;
-            padding: 12px 25px;
+            padding: 0 25px !important;
             cursor: pointer;
             border-right: 1px solid #A87C7C;
-            margin-bottom: 0 !important;
+            margin: 0 !important;
             font-weight: 500;
             font-size: 0.9rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            align-self: stretch !important;
+            line-height: 1 !important;
+            text-align: center;
+            box-sizing: border-box;
+            min-height: 46px;
+            border-radius: 0;
         }
 
         .file-name-display {
-            padding: 0 15px;
+            padding: 12px 15px;
             display: flex;
             align-items: center;
             color: #b0b0b0;
             flex-grow: 1;
             font-size: 0.9rem;
+            min-width: 0;
+            line-height: 1.3;
+            word-break: break-word;
         }
 
         .form-helper {
@@ -226,6 +247,54 @@
             background: #dc2626;
             transform: scale(1.1);
         }
+
+        /* ==========================================
+           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
+           ========================================== */
+        @media (max-width: 640px) {
+            .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+                padding: 1.2rem 1.5rem !important;
+            }
+            
+            .form-header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-header p {
+                font-size: 0.78rem !important;
+            }
+            
+            .header-actions {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            
+            .btn-batal,
+            .btn-simpan {
+                flex: 1 !important;
+                justify-content: center !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .form-body {
+                padding: 1.5rem !important;
+            }
+
+            .form-group .btn-pilih-file {
+                padding: 0 16px !important;
+                font-size: 0.8rem !important;
+            }
+            .file-name-display {
+                font-size: 0.8rem !important;
+                padding: 10px 12px !important;
+                line-height: 1.3 !important;
+            }
+        }
     </style>
 @endsection
 
@@ -238,15 +307,17 @@
             </div>
             <div class="header-actions">
                 @if(auth()->user()->peran === 'superadmin')
-                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-event') }}'); return false;" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
-                    <a href="#" onclick="showPopupBatal('{{ route('admin.kelola-event') }}'); return false;" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
-                <button type="button" onclick="showPopupSimpan('formEditEvent')" form="formEditEvent" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="handleSimpanEditEvent('formEditEvent')" class="btn-simpan">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
             </div>
         </div>
 
@@ -299,17 +370,17 @@
 
                 <div class="form-group">
                     <label>Nama Event</label>
-                    <input type="text" name="nama" value="{{ old('nama', $event->nama) }}" placeholder="Masukkan nama event..." required>
+                    <input type="text" name="nama" id="edit_nama_event" value="{{ old('nama', $event->nama) }}" placeholder="Masukkan nama event..." required>
                 </div>
 
                 <div class="form-group">
                     <label>Deskripsi Event</label>
-                    <textarea name="deskripsi" rows="6" placeholder="Masukkan deskripsi event..." required>{{ old('deskripsi', $event->deskripsi) }}</textarea>
+                    <textarea name="deskripsi" id="edit_deskripsi_event" rows="6" placeholder="Masukkan deskripsi event..." required>{{ old('deskripsi', $event->deskripsi) }}</textarea>
                 </div>
 
                 <div class="form-group">
                     <label>Kategori Event</label>
-                    <select name="kategori" required>
+                    <select name="kategori" id="edit_kategori_event" required>
                         <option value="Pertunjukan" {{ old('kategori', $event->kategori) == 'Pertunjukan' ? 'selected' : '' }}>Pertunjukan</option>
                         <option value="Latihan" {{ old('kategori', $event->kategori) == 'Latihan' ? 'selected' : '' }}>Latihan</option>
                         <option value="Pelatihan" {{ old('kategori', $event->kategori) == 'Pelatihan' ? 'selected' : '' }}>Pelatihan</option>
@@ -320,25 +391,25 @@
                 <div class="form-group">
                     <label>Tanggal</label>
                     <div class="date-input-wrapper">
-                        <input type="date" id="tanggal" name="tanggal" value="{{ old('tanggal', $event->tanggal ? $event->tanggal->format('Y-m-d') : '') }}" required>
+                        <input type="date" id="edit_tanggal_event" name="tanggal" value="{{ old('tanggal', $event->tanggal ? $event->tanggal->format('Y-m-d') : '') }}" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Jam Pelaksanaan</label>
                     <div class="time-input-wrapper">
-                        <input type="time" name="jam" value="{{ old('jam', $event->jam) }}" required>
+                        <input type="time" id="edit_jam_event" name="jam" value="{{ old('jam', $event->jam) }}" required>
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Lokasi</label>
-                    <input type="text" name="lokasi" value="{{ old('lokasi', $event->lokasi) }}" placeholder="Masukkan lokasi Event ..." required>
+                    <input type="text" id="edit_lokasi_event" name="lokasi" value="{{ old('lokasi', $event->lokasi) }}" placeholder="Masukkan lokasi Event ..." required>
                 </div>
 
                 <div class="form-group">
                     <label>Status</label>
-                    <select name="status" required>
+                    <select name="status" id="edit_status_event" required>
                         <option value="belum selesai" {{ old('status', strtolower($event->status)) == 'belum selesai' ? 'selected' : '' }}>Belum Selesai</option>
                         <option value="selesai" {{ old('status', strtolower($event->status)) == 'selesai' ? 'selected' : '' }}>Selesai</option>
                     </select>
@@ -411,6 +482,110 @@
         }
     </script>
 
+{{-- Popup --}}
+@include('popup.validasi')
+@include('popup.batal')
+@include('popup.simpan')
+
+{{-- =========================================================
+     VALIDASI FORM SEBELUM SIMPAN (Edit Event)
+     ========================================================= --}}
+<script>
+function validateFormEditEvent() {
+    const errors = [];
+
+    // 1. Foto (opsional — hanya cek kalau ada file baru dipilih)
+    const fotoInput = document.getElementById('foto');
+    if (fotoInput.files.length > 0) {
+        for (let i = 0; i < fotoInput.files.length; i++) {
+            const file = fotoInput.files[i];
+            const allowed = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowed.includes(file.type)) {
+                errors.push('Format foto harus JPG atau PNG');
+                break;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                errors.push('Ukuran foto maksimal 2MB');
+                break;
+            }
+        }
+    }
+
+    // 2. Nama Event
+    const nama = document.getElementById('edit_nama_event');
+    if (!nama.value.trim()) {
+        errors.push('Nama event belum diisi');
+    } else if (nama.value.trim().length < 3) {
+        errors.push('Nama event minimal 3 karakter');
+    }
+
+    // 3. Deskripsi
+    const deskripsi = document.getElementById('edit_deskripsi_event');
+    if (!deskripsi.value.trim()) {
+        errors.push('Deskripsi event belum diisi');
+    }
+
+    // 4. Kategori
+    const kategori = document.getElementById('edit_kategori_event');
+    if (!kategori.value) {
+        errors.push('Kategori event belum dipilih');
+    }
+
+    // 5. Tanggal
+    const tanggal = document.getElementById('edit_tanggal_event');
+    if (!tanggal.value) {
+        errors.push('Tanggal event belum diisi');
+    }
+
+    // 6. Jam
+    const jam = document.getElementById('edit_jam_event');
+    if (!jam.value) {
+        errors.push('Jam pelaksanaan belum diisi');
+    }
+
+    // 7. Lokasi
+    const lokasi = document.getElementById('edit_lokasi_event');
+    if (!lokasi.value.trim()) {
+        errors.push('Lokasi event belum diisi');
+    }
+
+    // 8. Status
+    const status = document.getElementById('edit_status_event');
+    if (!status.value) {
+        errors.push('Status event belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanEditEvent(formId) {
+    const errors = validateFormEditEvent();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+{{-- =========================================================
+     OVERRIDE TOMBOL BATAL (redirect ke halaman kelola-event)
+     ========================================================= --}}
+<script>
+    window._urlBatalEditEvent = '{{ auth()->user()->peran === "superadmin"
+        ? route("superadmin.kelola-event")
+        : route("admin.kelola-event") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalEditEvent;
+    };
+</script>
+
 @if ($errors->any())
 <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
     <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
@@ -433,10 +608,6 @@
 </script>
 @endif
 @endsection
-
-{{-- Popup Batal & Simpan --}}
-@include('popup.batal')
-@include('popup.simpan')
 
 @push('scripts')
 <script>

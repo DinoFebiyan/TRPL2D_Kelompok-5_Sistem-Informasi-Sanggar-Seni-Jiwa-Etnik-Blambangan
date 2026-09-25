@@ -6,9 +6,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* ==========================================
-       1. GEMBOK UTAMA (ANTI-BLOWOUT HORIZONTAL)
-       ========================================== */
+    
     html, body {
         max-width: 100vw;
         overflow-x: hidden;
@@ -29,9 +27,8 @@
         color: #333;
     }
     
-    /* ==========================================
-       2. RESPONSIF STATS GRID
-       ========================================== */
+   
+      
     .event-stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -106,9 +103,7 @@
         background: #d4aeae;
     }
 
-    /* ==========================================
-       3. SEARCH & FILTER ROW (DIPAKSA 1 BARIS)
-       ========================================== */
+    
     .event-search-row {
         display: flex;
         flex-direction: row !important;
@@ -161,9 +156,7 @@
         white-space: nowrap;
     }
 
-    /* ==========================================
-       4. TABEL RESPONSIF (ANTI BOCOR)
-       ========================================== */
+    
     .event-table-card {
         background: #fff;
         border-radius: 12px;
@@ -188,13 +181,13 @@
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
         margin-bottom: 10px;
-        padding-bottom: 15px; /* Ruang lega agar scrollbar tidak numpuk */
+        padding-bottom: 15px;
     }
     
     .event-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 1100px; /* Event butuh space besar untuk 8 kolom */
+        min-width: 1100px;
     }
     .event-table thead {
         background-color: #F5EBEB; 
@@ -276,14 +269,12 @@
     .btn-edit-event { background: #eff6ff; color: #3b82f6; }
     .btn-hapus-event { background: #fef2f2; color: #ef4444; }
     
-    /* ==========================================
-       5. PAGINATION (LEBIH LEGA)
-       ========================================== */
+    
     .event-pagination {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 35px; /* Jarak aman dari scrollbar tabel */
+        margin-top: 35px;
         padding: 10px 5px 0 5px;
         flex-wrap: wrap;
         gap: 15px;
@@ -371,9 +362,7 @@
     .btn-modal-terapkan { background: #EF4444; color: white; }
     .btn-modal-terapkan:hover { background: #DC2626; }
 
-    /* ==========================================
-       6. MEDIA QUERIES UNTUK HP (MOBILE)
-       ========================================== */
+   
     @media (max-width: 640px) {
         /* GRID STATISTIK 2x2 */
         .event-stats-grid {
@@ -381,23 +370,48 @@
             gap: 10px !important;
             width: 100% !important;
         }
+        
+        /* ✅ FIX: Icon & Text side by side */
         .event-stat-card {
-            padding: 12px 10px !important;
-            flex-direction: column !important;
-            text-align: center !important;
+            padding: 10px 12px !important;
+            flex-direction: row !important;
             align-items: center !important;
-            justify-content: center !important;
-            gap: 5px !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            gap: 10px !important;
             min-width: 0 !important;
             width: 100% !important;
             box-sizing: border-box !important;
         }
+        
         .event-icon-box {
-            width: 35px !important; height: 35px !important; font-size: 1rem !important;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.9rem !important;
+            flex-shrink: 0 !important;
         }
-        .event-stat-text { width: 100% !important; }
-        .event-stat-text h2 { font-size: 1.25rem !important; }
-        .event-stat-text h4 { font-size: 0.65rem !important; }
+        
+        .event-stat-text {
+            text-align: left !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+            width: auto !important;
+        }
+        
+        .event-stat-text h4 {
+            font-size: 0.6rem !important;
+            letter-spacing: 0.2px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        
+        .event-stat-text h2 {
+            font-size: 1.2rem !important;
+            margin: 2px 0 0 0 !important;
+            line-height: 1.1 !important;
+        }
         
         .event-btn-tambah {
             grid-column: span 2 !important; 
@@ -430,11 +444,11 @@
             font-size: 0.9rem !important;
         }
         
-        /* TOMBOL FILTER DIKUNCI JADI KOTAK PRESISI DI HP */
+       
         .event-btn-filter {
-            flex: 0 0 42px !important; /* Lebar mutlak 42px */
-            height: 42px !important; /* Tinggi mutlak 42px */
-            padding: 0 !important; /* Hapus padding agar tidak gepeng */
+            flex: 0 0 42px !important; 
+            height: 42px !important;
+            padding: 0 !important; 
             font-size: 1rem !important;
             justify-content: center !important;
         }
@@ -585,7 +599,7 @@
                         </td>
                         <td class="event-actions">
                             <a href="{{ route('admin.edit-event', $event->id) }}" class="btn-edit-event">Edit</a>
-                            <button class="btn-hapus-event" onclick="confirmDelete({{ $event->id }})">Hapus</button>
+                            <button class="btn-hapus-event" onclick="showPopupHapus('delete-form-{{ $event->id }}')">Hapus</button>
                             <form id="delete-form-{{ $event->id }}" action="{{ route('admin.hapus-event', $event->id) }}" method="POST" style="display:none;">
                                 @csrf @method('DELETE')
                             </form>
@@ -625,11 +639,7 @@
 </div>
 
 <script>
-    function confirmDelete(id) {
-        if(confirm('Yakin ingin menghapus event ini?')) {
-            document.getElementById('delete-form-'+id).submit();
-        }
-    }
+    
     
     function openFilterModal() {
         document.getElementById('filterModal').style.display = 'flex';
@@ -666,7 +676,7 @@
         }
     });
 
-    // AUTOMATIC SLIDESHOW MULTI-FOTO EVENT (5 DETIK)
+    
     document.addEventListener("DOMContentLoaded", function() {
         const containers = document.querySelectorAll('.slideshow-container');
         containers.forEach(container => {
@@ -682,4 +692,7 @@
         });
     });
 </script>
+
+{{-- Popup Konfirmasi Hapus --}}
+@include('popup.hapus')
 @endsection

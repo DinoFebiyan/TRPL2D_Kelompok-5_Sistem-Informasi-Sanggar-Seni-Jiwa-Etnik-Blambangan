@@ -29,6 +29,11 @@
         gap: 15px;
         border: 1px solid #f0f0f0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        min-width: 0;
+    }
+    .stat-info {
+        min-width: 0;
+        flex: 1;
     }
     .stat-info p {
         margin: 0;
@@ -37,6 +42,9 @@
         text-transform: uppercase;
         font-weight: 600;
         letter-spacing: 0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .stat-info h2 {
         margin: 5px 0;
@@ -58,6 +66,7 @@
         align-items: center;
         justify-content: center;
         font-size: 1.2rem;
+        flex-shrink: 0;
     }
     .stat-icon.merah { background: #fef2f2; color: #ef4444; }
     .stat-icon.emas  { background: #fefce8; color: #eab308; }
@@ -203,12 +212,11 @@
     .action-btn:first-child { background: #eff6ff; color: #3b82f6; }
     .action-btn:last-child { background: #fef2f2; color: #ef4444; }
 
-    /* ========== AKTIVITAS LIST - TIDAK KELUAR & LEGA ========== */
+    /* ========== AKTIVITAS LIST ========== */
     .activity-list {
         display: flex;
         flex-direction: column;
         gap: 0;
-        /* Penting: beri padding kiri agar titik tidak menempel ke tepi card */
         padding-left: 20px;
         padding-right: 20px;
     }
@@ -217,7 +225,7 @@
         display: flex;
         gap: 14px;
         align-items: flex-start;
-        margin-bottom: 24px;  /* jarak antar item lega */
+        margin-bottom: 24px;
     }
 
     .activity-item:last-child {
@@ -230,7 +238,7 @@
         border-radius: 50%;
         background: #EF4444;
         flex-shrink: 0;
-        margin-top: 5px;  /* sejajar dengan teks baris pertama */
+        margin-top: 5px;
     }
 
     .act-content {
@@ -256,14 +264,13 @@
         margin-top: 4px;
     }
 
-    /* RESPONSIF */
+    /* ==========================================
+       RESPONSIF
+       ========================================== */
     @media (max-width: 768px) {
         .grid-2 {
             grid-template-columns: 1fr;
             gap: 20px;
-        }
-        .stats-grid {
-            grid-template-columns: 1fr;
         }
         .quick-grid {
             grid-template-columns: 1fr;
@@ -275,22 +282,59 @@
         .admin-table th, .admin-table td {
             padding: 10px 12px;
         }
-        .stat-info h2 {
-            font-size: 1.4rem;
-        }
         .activity-list {
             padding-left: 16px;
             padding-right: 16px;
         }
     }
 
-    @media (max-width: 480px) {
+    /* ✅ MOBILE: 2×2 GRID, ICON & ANGKA SAMPINGAN */
+    @media (max-width: 640px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 10px !important;
+        }
         .stat-card {
-            flex-direction: column;
-            align-items: flex-start;
+            padding: 12px 14px !important;
+            flex-direction: row !important;      /* ✅ icon & angka sampingan */
+            align-items: center !important;
+            justify-content: space-between !important;
+            text-align: left !important;
+            gap: 10px !important;
+        }
+        .stat-info {
+            width: auto !important;
+            text-align: left !important;
+            flex: 1 !important;
+        }
+        .stat-info p {
+            font-size: 0.62rem !important;
+            letter-spacing: 0.2px !important;
+        }
+        .stat-info h2 {
+            font-size: 1.3rem !important;
+            margin: 3px 0 0 0 !important;
         }
         .stat-icon {
-            align-self: flex-end;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.9rem !important;
+            flex-shrink: 0 !important;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .stat-card {
+            padding: 10px 12px !important;
+            gap: 8px !important;
+        }
+        .stat-info h2 {
+            font-size: 1.15rem !important;
+        }
+        .stat-icon {
+            width: 28px !important;
+            height: 28px !important;
+            font-size: 0.8rem !important;
         }
     }
 </style>

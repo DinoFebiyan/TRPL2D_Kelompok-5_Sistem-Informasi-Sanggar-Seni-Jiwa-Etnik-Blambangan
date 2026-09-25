@@ -34,6 +34,11 @@
         gap: 15px;
         border: 1px solid #f0f0f0;
         box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        min-width: 0;
+    }
+    .stat-info {
+        min-width: 0;
+        flex: 1;
     }
     .stat-info p {
         margin: 0;
@@ -42,6 +47,9 @@
         text-transform: uppercase;
         font-weight: 600;
         letter-spacing: 0.5px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
     .stat-info h2 {
         margin: 5px 0;
@@ -94,6 +102,7 @@
     }
     .quick-icon {
         width: 40px; height: 40px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; margin-bottom: 12px; background: #fdf6f6;
+        flex-shrink: 0;
     }
     .quick-card p { margin: 0; font-weight: 600; font-size: 0.9rem; color: #2D1A1A; }
     .quick-card span { font-size: 0.75rem; color: #888; margin-top: 4px; }
@@ -165,37 +174,109 @@
             gap: 15px !important;
         }
 
-        /* Menu Cepat ditumpuk memanjang ke bawah */
+        /* ✅ FIX: Quick card jadi horizontal — icon kiri, text kanan */
         .quick-grid {
             grid-template-columns: 1fr !important;
             gap: 10px !important;
         }
+        .quick-card {
+            flex-direction: row !important;
+            align-items: center !important;
+            padding: 14px 16px !important;
+            gap: 14px !important;
+        }
+        .quick-icon {
+            width: 44px !important;
+            height: 44px !important;
+            font-size: 1.15rem !important;
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+        }
+        .quick-card p {
+            margin: 0 !important;
+            font-size: 0.92rem !important;
+        }
+        .quick-card span {
+            font-size: 0.72rem !important;
+            margin-top: 2px !important;
+            display: block;
+        }
 
-        /* Statistik Grid jadi 2 kotak kiri-kanan */
+        /* ✅ FIX: Statistik Grid 2x2 dengan icon & text sejajar horizontal */
         .stats-grid {
             grid-template-columns: 1fr 1fr !important;
             gap: 10px !important;
         }
         .stat-card {
-            flex-direction: column !important;
-            text-align: center !important;
-            justify-content: center !important;
-            padding: 15px 10px !important;
-            gap: 8px !important;
+            flex-direction: row !important;
+            text-align: left !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            padding: 12px 14px !important;
+            gap: 10px !important;
+        }
+        .stat-info {
+            text-align: left !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+        }
+        .stat-info p {
+            font-size: 0.6rem !important;
+            letter-spacing: 0.2px !important;
+        }
+        .stat-info h2 {
+            font-size: 1.3rem !important;
+            margin: 3px 0 !important;
+        }
+        .stat-change {
+            font-size: 0.65rem !important;
         }
         .stat-icon {
-            width: 40px !important; 
-            height: 40px !important; 
-            font-size: 1.1rem !important;
-            margin: 0 auto !important;
+            width: 34px !important;
+            height: 34px !important;
+            font-size: 0.95rem !important;
+            flex-shrink: 0 !important;
+            margin: 0 !important;
         }
-        .stat-info h2 { font-size: 1.4rem !important; margin: 5px 0 !important; }
 
         .card-header {
             padding: 0 15px 15px 15px !important;
         }
         .table-wrap {
             padding: 0 15px !important;
+        }
+    }
+
+    /* Extra small — layar sangat sempit */
+    @media (max-width: 480px) {
+        .stat-card {
+            padding: 10px 12px !important;
+            gap: 8px !important;
+        }
+        .stat-info h2 {
+            font-size: 1.15rem !important;
+        }
+        .stat-icon {
+            width: 30px !important;
+            height: 30px !important;
+            font-size: 0.85rem !important;
+        }
+
+        /* Quick card lebih compact */
+        .quick-card {
+            padding: 12px 14px !important;
+            gap: 12px !important;
+        }
+        .quick-icon {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 1.05rem !important;
+        }
+        .quick-card p {
+            font-size: 0.88rem !important;
+        }
+        .quick-card span {
+            font-size: 0.68rem !important;
         }
     }
 </style>
@@ -230,20 +311,26 @@
     <div class="quick-grid">
         <a class="quick-card" href="{{ url('/admin/kelola-event') }}">
             <div class="quick-icon"><i class="fas fa-calendar-plus" style="color: #16a34a;"></i></div>
-            <p>Buat Event</p>
-            <span>Jadwalkan kegiatan baru</span>
+            <div>
+                <p>Buat Event</p>
+                <span>Jadwalkan kegiatan baru</span>
+            </div>
         </a>
 
         <a class="quick-card" href="{{ url('/admin/kelola-berita') }}">
             <div class="quick-icon"><i class="fas fa-newspaper" style="color: #ef4444;"></i></div>
-            <p>Kelola Berita</p>
-            <span>Buat berita & artikel baru</span>
+            <div>
+                <p>Kelola Berita</p>
+                <span>Buat berita & artikel baru</span>
+            </div>
         </a>
 
         <a class="quick-card" href="{{ url('/admin/kelola-profil') }}">
             <div class="quick-icon"><i class="fas fa-id-card" style="color: #eab308;"></i></div>
-            <p>Kelola Profil</p>
-            <span>Perbarui informasi sanggar</span>
+            <div>
+                <p>Kelola Profil</p>
+                <span>Perbarui informasi sanggar</span>
+            </div>
         </a>
     </div>
 
@@ -303,7 +390,7 @@
                         </div>
                         <div class="timeline-content">
                             <p><strong>{{ $event->nama ?? 'Event Baru' }}</strong> - Berlokasi di {{ $event->lokasi ?? '-' }}</p>
-                            <span><i class="far fa-calendar-alt"></i> {{ isset($event->tanggal) ? \Carbon\Carbon::parse($event->tanggal)->translatedFormat('d F Y') : '-' }}</span>
+                            <span><i class="far fa-calendar-alt"></i> {{ isset($event->tanggal) ? \Carbon\Carbon::parse($event->tanggal)->format('d F Y') : '-' }}</span>
                         </div>
                     </div>
                     @endforeach

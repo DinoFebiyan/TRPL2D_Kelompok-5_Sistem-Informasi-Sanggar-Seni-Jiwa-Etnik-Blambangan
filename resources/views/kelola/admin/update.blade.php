@@ -172,6 +172,44 @@
             background: #dc2626;
             transform: scale(1.1);
         }
+
+        /* ==========================================
+           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
+           ========================================== */
+        @media (max-width: 640px) {
+            .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+                padding: 1.2rem 1.5rem !important;
+            }
+            
+            .form-header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-header p {
+                font-size: 0.78rem !important;
+            }
+            
+            .header-actions {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            
+            .btn-batal,
+            .btn-simpan {
+                flex: 1 !important;
+                justify-content: center !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .form-body {
+                padding: 1.5rem !important;
+            }
+        }
     </style>
 @endsection
 
@@ -183,8 +221,12 @@
                 <p>Kelola Admin</p>
             </div>
             <div class="header-actions">
-                <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-admin') }}'); return false;" class="btn-batal"><i class="fas fa-times"></i> Batal</a>
-                <button type="button" onclick="showPopupSimpan('formEditAdmin')" form="formEditAdmin" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
+                    <i class="fas fa-times"></i> Batal
+                </a>
+                <button type="button" onclick="handleSimpanEditAdmin('formEditAdmin')" class="btn-simpan">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
             </div>
         </div>
         <div class="form-body">
@@ -231,33 +273,33 @@
                 
                 <div class="form-group">
                     <label>Nama Lengkap</label>
-                    <input type="text" name="name" value="{{ old('name', $admin->name) }}" placeholder="Masukkan nama lengkap admin..." required>
+                    <input type="text" name="name" id="edit_nama" value="{{ old('name', $admin->name) }}" placeholder="Masukkan nama lengkap admin..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" name="email" value="{{ old('email', $admin->email) }}" placeholder="Masukkan email admin..." required>
+                    <input type="email" name="email" id="edit_email" value="{{ old('email', $admin->email) }}" placeholder="Masukkan email admin..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>Password Baru</label>
-                    <input type="password" name="password" placeholder="Kosongkan jika tidak ingin mengubah password">
+                    <input type="password" name="password" id="edit_password" placeholder="Kosongkan jika tidak ingin mengubah password">
                     <div class="form-helper">Password Min 8 karakter.</div>
                 </div>
 
                 <div class="form-group">
                     <label>Konfirmasi Password Baru</label>
-                    <input type="password" name="password_confirmation" placeholder="Ulangi password baru">
+                    <input type="password" name="password_confirmation" id="edit_password_confirmation" placeholder="Ulangi password baru">
                 </div>
                 
                 <div class="form-group">
                     <label>No Handphone</label>
-                    <input type="text" name="no_handphone" value="{{ old('no_handphone', $admin->no_handphone) }}" placeholder="Masukkan no handphone admin..." required>
+                    <input type="text" name="no_handphone" id="edit_hp" value="{{ old('no_handphone', $admin->no_handphone) }}" placeholder="Masukkan no handphone admin..." required>
                 </div>
                 
                 <div class="form-group">
                     <label>Status</label>
-                    <select name="status" required>
+                    <select name="status" id="edit_status" required>
                         <option value="aktif" {{ old('status', $admin->status) == 'aktif' ? 'selected' : '' }}>Aktif</option>
                         <option value="nonaktif" {{ old('status', $admin->status) == 'nonaktif' ? 'selected' : '' }}>Nonaktif</option>
                     </select>
@@ -312,6 +354,109 @@
         }
     </script>
 
+{{-- Popup --}}
+@include('popup.validasi')
+@include('popup.batal')
+@include('popup.simpan')
+
+{{-- =========================================================
+     VALIDASI FORM SEBELUM SIMPAN (Edit Admin)
+     ========================================================= --}}
+<script>
+function validateFormEditAdmin() {
+    const errors = [];
+
+    // 1. Foto (opsional — hanya cek kalau ada file baru dipilih)
+    const fotoInput = document.getElementById('foto');
+    if (fotoInput.files.length > 0) {
+        const file = fotoInput.files[0];
+        const allowed = ['image/jpeg', 'image/jpg', 'image/png'];
+        if (!allowed.includes(file.type)) {
+            errors.push('Format foto harus JPG atau PNG');
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            errors.push('Ukuran foto maksimal 2MB');
+        }
+    }
+
+    // 2. Nama
+    const nama = document.getElementById('edit_nama');
+    if (!nama.value.trim()) {
+        errors.push('Nama lengkap belum diisi');
+    } else if (nama.value.trim().length < 3) {
+        errors.push('Nama lengkap minimal 3 karakter');
+    }
+
+    // 3. Email
+    const email = document.getElementById('edit_email');
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email.value.trim()) {
+        errors.push('Email belum diisi');
+    } else if (!emailRegex.test(email.value.trim())) {
+        errors.push('Format email tidak valid');
+    }
+
+    // 4. Password (opsional — hanya cek kalau diisi)
+    const password = document.getElementById('edit_password');
+    const confirm = document.getElementById('edit_password_confirmation');
+    if (password.value || confirm.value) {
+        // kalau salah satu diisi, yang lain harus diisi juga
+        if (!password.value) {
+            errors.push('Password baru belum diisi');
+        } else if (password.value.length < 8) {
+            errors.push('Password minimal 8 karakter');
+        }
+
+        if (!confirm.value) {
+            errors.push('Konfirmasi password belum diisi');
+        } else if (password.value && confirm.value !== password.value) {
+            errors.push('Konfirmasi password tidak cocok');
+        }
+    }
+
+    // 5. No Handphone
+    const hp = document.getElementById('edit_hp');
+    if (!hp.value.trim()) {
+        errors.push('No handphone belum diisi');
+    } else if (!/^[0-9+\-\s]{8,15}$/.test(hp.value.trim())) {
+        errors.push('No handphone tidak valid (8-15 digit angka)');
+    }
+
+    // 6. Status
+    const status = document.getElementById('edit_status');
+    if (!status.value) {
+        errors.push('Status admin belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanEditAdmin(formId) {
+    const errors = validateFormEditAdmin();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+{{-- =========================================================
+     OVERRIDE TOMBOL BATAL (redirect ke halaman kelola-admin)
+     ========================================================= --}}
+<script>
+    window._urlBatalEditAdmin = '{{ route("superadmin.kelola-admin") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalEditAdmin;
+    };
+</script>
+
 @if ($errors->any())
 <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
     <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
@@ -334,10 +479,6 @@
 </script>
 @endif
 @endsection
-
-{{-- Popup Batal & Simpan --}}
-@include('popup.batal')
-@include('popup.simpan')
 
 @push('scripts')
 <script>

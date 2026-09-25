@@ -6,9 +6,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* ==========================================
-       1. GEMBOK UTAMA (ANTI-BLOWOUT HORIZONTAL)
-       ========================================== */
+    
     .main, .content {
         min-width: 0 !important;
         max-width: 100vw !important;
@@ -24,9 +22,7 @@
         color: #333;
     }
     
-    /* ==========================================
-       2. RESPONSIF STATS GRID
-       ========================================== */
+    
     .log-stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -83,9 +79,7 @@
         font-weight: 700;
     }
 
-    /* ==========================================
-       3. SEARCH & FILTER ROW (DIPAKSA 1 BARIS)
-       ========================================== */
+    
     .log-search-row {
         display: flex;
         flex-direction: row; 
@@ -140,9 +134,7 @@
         white-space: nowrap;
     }
     
-    /* ==========================================
-       4. TABEL RESPONSIF (ANTI BOCOR)
-       ========================================== */
+   
     .log-table-card {
         background: #ffffff;
         border-radius: 12px;
@@ -171,7 +163,7 @@
     .log-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 800px; /* Batas minimum agar tidak bertumpuk */
+        min-width: 800px;
     }
     .log-table thead {
         background-color: #F5EBEB;
@@ -194,9 +186,7 @@
         color: #333;
     }
     
-    /* ==========================================
-       5. PAGINATION
-       ========================================== */
+   
     .log-pagination {
         display: flex;
         justify-content: space-between;
@@ -289,35 +279,56 @@
     .btn-modal-terapkan { background: #EF4444; color: white; }
     .btn-modal-terapkan:hover { background: #DC2626; }
 
-    /* ==========================================
-       6. MEDIA QUERIES (MOBILE)
-       ========================================== */
+   
     @media (max-width: 640px) {
         
         .log-stats-grid {
-            grid-template-columns: repeat(2, 1fr) !important; /* Terkunci 2 kolom */
+            grid-template-columns: repeat(2, 1fr) !important;
             gap: 10px !important;
             width: 100% !important;
         }
+        
+        /* ✅ FIX: Icon & Text side by side */
         .log-stat-card {
-            padding: 12px 10px !important;
-            flex-direction: column !important;
-            text-align: center !important;
+            padding: 10px 12px !important;
+            flex-direction: row !important;
             align-items: center !important;
-            justify-content: center !important;
-            gap: 5px !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            gap: 10px !important;
             min-width: 0 !important;
             width: 100% !important;
             box-sizing: border-box !important;
         }
+        
         .log-icon-box {
-            width: 35px !important; height: 35px !important; font-size: 1rem !important;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.9rem !important;
+            flex-shrink: 0 !important;
         }
+        
         .log-stat-text {
-            width: 100% !important;
+            text-align: left !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+            width: auto !important;
         }
-        .log-stat-text h2 { font-size: 1.25rem !important; }
-        .log-stat-text h4 { font-size: 0.65rem !important; }
+        
+        .log-stat-text h4 {
+            font-size: 0.6rem !important;
+            letter-spacing: 0.2px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        
+        .log-stat-text h2 {
+            font-size: 1.2rem !important;
+            margin: 2px 0 0 0 !important;
+            line-height: 1.1 !important;
+        }
 
         /* MEMAKSA SEARCH DAN FILTER 1 BARIS DI HP */
         .log-search-row {
@@ -346,7 +357,7 @@
             font-size: 0.8rem !important;
             gap: 5px !important;
         }
-        .log-btn-filter span { display: none !important; } /* Sembunyikan kata filter */
+        .log-btn-filter span { display: none !important; }
 
         /* PERBAIKAN TABEL CARD DI HP */
         .log-table-card {
@@ -357,6 +368,7 @@
         .log-pagination {
             flex-direction: column !important;
             gap: 12px !important;
+            padding: 0 10px !important;
         }
     }
 

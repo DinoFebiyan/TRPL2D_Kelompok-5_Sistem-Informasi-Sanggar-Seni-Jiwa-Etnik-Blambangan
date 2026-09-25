@@ -113,33 +113,54 @@
             color: #b0b0b0;
         }
 
+        /* ==========================================
+           ✅ CUSTOM FILE WRAPPER
+           ========================================== */
         .custom-file-wrapper {
             display: flex;
             border: 1px solid #A87C7C;
             border-radius: 30px;
             overflow: hidden;
             background: #fff;
-            align-items: center;
+            align-items: stretch;
+            min-height: 48px;
         }
 
-        .btn-pilih-file {
-            background: #531919;
+        /* ==========================================
+           ✅ TOMBOL PILIH FILE — specificity tinggi
+           ========================================== */
+        .form-group .btn-pilih-file {
+            background: #531919 !important;
             color: white !important;
-            padding: 12px 25px;
+            padding: 0 25px !important;
             cursor: pointer;
             border-right: 1px solid #A87C7C;
-            margin-bottom: 0 !important;
+            margin: 0 !important;
             font-weight: 500;
             font-size: 0.9rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            align-self: stretch !important;
+            line-height: 1 !important;
+            text-align: center;
+            box-sizing: border-box;
+            min-height: 46px;
+            border-radius: 0;
         }
 
         .file-name-display {
-            padding: 0 15px;
+            padding: 12px 15px;
             display: flex;
             align-items: center;
             color: #b0b0b0;
             flex-grow: 1;
             font-size: 0.9rem;
+            min-width: 0;
+            line-height: 1.3;
+            word-break: break-word;
         }
 
         .form-helper {
@@ -173,6 +194,39 @@
             color: #b0b0b0;
         }
 
+        /* ==========================================
+           ✅ AI GENERATE WRAPPER
+           Desktop: button natural width, rata kanan
+           Mobile: full width
+           ========================================== */
+        .ai-generate-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+            width: 100%;
+            align-items: flex-end;      /* ✅ Desktop: rata kanan */
+        }
+
+        .prompt-input {
+            padding: 10px 20px;
+            border: 1px solid #D4A017;
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            width: 100%;
+            outline: none;
+            transition: all 0.3s ease;
+            background: #fff;
+            box-sizing: border-box;
+            align-self: stretch;        /* ✅ Prompt full width kalau muncul */
+        }
+
+        .prompt-input:focus {
+            border-color: #B08A2D;
+            box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.2);
+        }
+
         .btn-generate-ai {
             background: #FEF9E7;
             border: 1px dashed #D4A017;
@@ -183,11 +237,15 @@
             cursor: pointer;
             display: inline-flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             transition: all 0.25s ease;
             white-space: nowrap;
+            width: auto;                /* ✅ Desktop: natural width */
+            max-width: 100%;
+            box-sizing: border-box;
         }
 
         .btn-generate-ai:hover {
@@ -201,42 +259,100 @@
             cursor: not-allowed;
         }
 
-        .ai-generate-wrapper {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .prompt-input {
-            padding: 10px 20px;
-            border: 1px solid #D4A017;
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 0.9rem;
-            width: 100%;
-            outline: none;
-            transition: all 0.3s ease;
-            background: #fff;
-        }
-
-        .prompt-input:focus {
-            border-color: #B08A2D;
-            box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.2);
-        }
-
         .btn-generate-ai .fa-spinner {
             animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
-            from {
-                transform: rotate(0deg);
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+
+        /* ==========================================
+           ✅ FIX: TINYMCE RESPONSIVE
+           ========================================== */
+        .tox-tinymce {
+            max-width: 100% !important;
+            border-radius: 15px !important;
+            box-sizing: border-box !important;
+        }
+
+        .tox .tox-toolbar-overlord,
+        .tox .tox-toolbar__overflow,
+        .tox .tox-toolbar__primary {
+            max-width: 100% !important;
+        }
+
+        /* ==========================================
+           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
+           ========================================== */
+        @media (max-width: 640px) {
+            .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+                padding: 1.2rem 1.5rem !important;
+            }
+            
+            .form-header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-header p {
+                font-size: 0.78rem !important;
+            }
+            
+            .header-actions {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            
+            .btn-batal,
+            .btn-simpan {
+                flex: 1 !important;
+                justify-content: center !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
             }
 
-            to {
-                transform: rotate(360deg);
+            .form-body {
+                padding: 1.5rem !important;
+            }
+
+            /* ✅ Kecilkan tombol pilih file di mobile */
+            .form-group .btn-pilih-file {
+                padding: 0 16px !important;
+                font-size: 0.8rem !important;
+            }
+            .file-name-display {
+                font-size: 0.8rem !important;
+                padding: 10px 12px !important;
+                line-height: 1.3 !important;
+            }
+
+            /* ✅ Generate AI button full width di mobile */
+            .ai-generate-wrapper {
+                align-items: stretch !important;    /* ✅ Full width di mobile */
+            }
+            .btn-generate-ai {
+                width: 100% !important;
+                justify-content: center !important;
+            }
+
+            /* ✅ TinyMCE: full width di mobile */
+            .tox-tinymce {
+                width: 100% !important;
+                margin: 0 auto !important;
+            }
+            .tox .tox-toolbar-overlord {
+                overflow-x: auto !important;
+            }
+            .tox .tox-toolbar__primary {
+                flex-wrap: nowrap !important;
+            }
+            .tox .tox-edit-area__iframe {
+                width: 100% !important;
             }
         }
     </style>
@@ -396,39 +512,43 @@
         referrerpolicy="origin"></script>
 
     <script>
+        // ✅ Deteksi mobile untuk atur tinggi editor
+        const isMobile = window.matchMedia('(max-width: 640px)').matches;
+
         tinymce.init({
             selector: '#isi_berita_editor',
-            ui_container: 'body', // Hanya perlu di update.blade.php, tapi aman ditaruh di keduanya
-            height: 600,
-            menubar: 'file edit view insert format table tools',
+            ui_container: 'body',
+            height: isMobile ? 420 : 500,   // ✅ Desktop 500px (dari 600, biar tidak terlalu panjang)
+            menubar: isMobile ? false : 'file edit view insert format table tools',
             plugins: [
                 'advlist', 'autolink', 'lists', 'link', 'image', 'media', 'table', 'charmap', 'preview',
                 'searchreplace', 'visualblocks', 'fullscreen', 'insertdatetime', 'wordcount'
             ],
-            toolbar: [
-                'undo redo | blocks fontfamily fontsize',
-                '| bold italic underline strikethrough',
-                '| forecolor backcolor',
-                '| alignleft aligncenter alignright alignjustify',
-                '| bullist numlist',
-                '| outdent indent',
-                '| link image media',
-                '| table',
-                '| charmap',
-                '| removeformat',
-                '| fullscreen preview'
-            ].join(' '),
+            toolbar: isMobile
+                ? 'undo redo | bold italic underline | bullist numlist | link image | removeformat'
+                : [
+                    'undo redo | blocks fontfamily fontsize',
+                    '| bold italic underline strikethrough',
+                    '| forecolor backcolor',
+                    '| alignleft aligncenter alignright alignjustify',
+                    '| bullist numlist',
+                    '| outdent indent',
+                    '| link image media',
+                    '| table',
+                    '| charmap',
+                    '| removeformat',
+                    '| fullscreen preview'
+                ].join(' '),
 
             setup: function (editor) {
                 editor.on('change keyup NodeChange', function () {
-                    editor.save(); // Menyinkronkan konten TinyMCE ke textarea asli
+                    editor.save();
                 });
             },
 
             automatic_uploads: true,
             image_title: true,
 
-            // HANDLER UPLOAD GAMBAR
             images_upload_handler: (blobInfo) => new Promise((resolve, reject) => {
                 let xhr = new XMLHttpRequest();
                 let targetUrl = '{{ auth()->user()->peran === "superadmin" ? route("superadmin.berita.upload-gambar") : route("admin.berita.upload-gambar") }}';
@@ -476,11 +596,7 @@
                 '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt 72pt',
             toolbar_mode: 'sliding',
             branding: false,
-
-            // --- PERBAIKAN: Koma sudah ditambahkan di sini ---
             content_style: "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }",
-
-            // --- KONFIGURASI TAMBAHAN AGAR GAMBAR FLEKSIBEL ---
             relative_urls: false,
             remove_script_host: false,
             convert_urls: false,
@@ -494,9 +610,9 @@
         document.addEventListener('DOMContentLoaded', function () {
             const btnGenerate = document.getElementById('btn-generate-ai');
             const promptInput = document.getElementById('prompt-ai');
-            const promptContainer = document.getElementById('prompt-extra-container'); // Container form prompt tambahan
+            const promptContainer = document.getElementById('prompt-extra-container');
             const fileInput = document.getElementById('foto');
-            const btnText = document.getElementById('btn-text'); // Span/teks di dalam tombol
+            const btnText = document.getElementById('btn-text');
 
             if (!btnGenerate) return;
 
@@ -507,7 +623,6 @@
                 const jenis = document.getElementById('jenis_berita').value || '';
                 const promptText = promptInput ? promptInput.value.trim() : '';
 
-                // 1. Siapkan FormData untuk request ke Laravel
                 const formData = new FormData();
                 formData.append('judul', judul);
                 formData.append('jenis_berita', jenis);
@@ -519,7 +634,6 @@
                     }
                 }
 
-                // 2. Tampilan Loading State
                 btnGenerate.disabled = true;
                 const originalText = btnText ? btnText.innerText : btnGenerate.innerHTML;
                 if (btnText) {
@@ -556,14 +670,12 @@
                         throw new Error(data.message || 'Gagal generate dari server.');
                     }
 
-                    // 3. Masukkan Hasil ke TinyMCE / Textarea
                     if (window.tinymce && tinymce.get('isi_berita_editor')) {
                         tinymce.get('isi_berita_editor').setContent(data.content);
-                        tinymce.get('isi_berita_editor').save(); // Sinkronkan konten AI ke textarea
+                        tinymce.get('isi_berita_editor').save();
                     } else {
                         document.getElementById('isi_berita_editor').value = data.content;
                     }
-
 
                     if (promptContainer) {
                         promptContainer.style.display = 'block';
@@ -572,7 +684,6 @@
                         promptInput.style.display = 'block';
                     }
 
-                    // Ubah teks tombol menjadi Re-generate Berita
                     if (btnText) {
                         btnText.innerText = 'Re-generate Berita';
                     } else {
@@ -595,13 +706,11 @@
         function validateFormBerita() {
             const errors = [];
 
-            // 1. Foto Header (multiple)
             const fotoInput = document.getElementById('foto');
             if (!fotoInput.files || fotoInput.files.length === 0) {
                 errors.push('Foto header berita belum dipilih');
             }
 
-            // 2. Judul
             const judul = document.getElementById('judul_berita');
             if (!judul.value.trim()) {
                 errors.push('Judul berita belum diisi');
@@ -609,13 +718,11 @@
                 errors.push('Judul berita minimal 5 karakter');
             }
 
-            // 3. Jenis Berita
             const jenis = document.getElementById('jenis_berita');
             if (!jenis.value) {
                 errors.push('Jenis berita belum dipilih');
             }
 
-            // 4. Isi Berita (TinyMCE)
             let isiContent = '';
             if (window.tinymce && tinymce.get('isi_berita_editor')) {
                 isiContent = tinymce.get('isi_berita_editor').getContent({ format: 'text' }).trim();
@@ -626,7 +733,6 @@
                 errors.push('Isi berita belum diisi');
             }
 
-            // 5. Status
             const status = document.querySelector('select[name="status"]');
             if (!status.value) {
                 errors.push('Status berita belum dipilih');

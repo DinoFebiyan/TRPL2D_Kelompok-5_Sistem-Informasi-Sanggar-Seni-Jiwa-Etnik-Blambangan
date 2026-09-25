@@ -22,6 +22,48 @@
         .btn-pilih-file { background: #531919; color: white !important; padding: 12px 25px; cursor: pointer; border-right: 1px solid #A87C7C; margin-bottom: 0 !important; font-weight: 500; font-size: 0.9rem; }
         .file-name-display { padding: 0 15px; display: flex; align-items: center; color: #b0b0b0; flex-grow: 1; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .btn-hapus-foto-lama { position: absolute; top: -6px; right: -6px; background: #ef4444; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; cursor: pointer; }
+
+        /* ==========================================
+           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
+           ========================================== */
+        @media (max-width: 640px) {
+            .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+                padding: 1.2rem 1.5rem !important;
+            }
+            
+            .form-header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-header p {
+                font-size: 0.78rem !important;
+            }
+            
+            .header-actions {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            
+            .btn-batal,
+            .btn-simpan {
+                flex: 1 !important;
+                justify-content: center !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .form-body {
+                padding: 1.5rem !important;
+            }
+
+            .form-group {
+                padding: 15px !important;
+            }
+        }
     </style>
 @endsection
 
@@ -33,10 +75,12 @@
                 <p>Kelola Slider Slideshow & Integrasi Aplikasi Media Sosial</p>
             </div>
             <div class="header-actions">
-                <a href="#" onclick="showPopupBatal('{{ route('superadmin.pengaturan-sistem.index') }}'); return false;" class="btn-batal">
+                <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                     <i class="fas fa-times"></i> Batal
                 </a>
-                <button type="button" onclick="showPopupSimpan('formEditSistem')" form="formEditSistem" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="handleSimpanSistem('formEditSistem')" class="btn-simpan">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
             </div>
         </div>
 
@@ -76,23 +120,23 @@
                 {{-- SOCIAL LINKS --}}
                 <div class="form-group">
                     <label>Link Google Maps Embed</label>
-                    <input type="text" name="link_maps" value="{{ old('link_maps', $sistem->link_maps) }}">
+                    <input type="text" name="link_maps" id="link_maps" value="{{ old('link_maps', $sistem->link_maps) }}" placeholder="https://www.google.com/maps/embed?...">
                 </div>
                 <div class="form-group">
                     <label>Nomor WhatsApp Admin (Format: 628xxx)</label>
-                    <input type="text" name="link_wa" value="{{ old('link_wa', $sistem->link_wa) }}">
+                    <input type="text" name="link_wa" id="link_wa" value="{{ old('link_wa', $sistem->link_wa) }}" placeholder="628123456789">
                 </div>
                 <div class="form-group">
                     <label>Email Korespondensi resmi</label>
-                    <input type="email" name="link_email" value="{{ old('link_email', $sistem->link_email) }}">
+                    <input type="email" name="link_email" id="link_email" value="{{ old('link_email', $sistem->link_email) }}" placeholder="info@jeb.id">
                 </div>
                 <div class="form-group">
                     <label>Link Instagram Profil</label>
-                    <input type="url" name="link_instagram" value="{{ old('link_instagram', $sistem->link_instagram) }}">
+                    <input type="url" name="link_instagram" id="link_instagram" value="{{ old('link_instagram', $sistem->link_instagram) }}" placeholder="https://instagram.com/username">
                 </div>
                 <div class="form-group">
                     <label>Link TikTok Profil</label>
-                    <input type="url" name="link_tiktok" value="{{ old('link_tiktok', $sistem->link_tiktok) }}">
+                    <input type="url" name="link_tiktok" id="link_tiktok" value="{{ old('link_tiktok', $sistem->link_tiktok) }}" placeholder="https://tiktok.com/@username">
                 </div>
             </form>
         </div>
@@ -135,9 +179,96 @@
             }
         }
     </script>
-    @include('popup.batal')
-    @include('popup.simpan')
+
+{{-- Popup --}}
+@include('popup.validasi')
+@include('popup.batal')
+@include('popup.simpan')
+
+{{-- =========================================================
+     VALIDASI FORM SEBELUM SIMPAN (Pengaturan Sistem)
+     ========================================================= --}}
+<script>
+function validateFormSistem() {
+    const errors = [];
+
+    // 1. Google Maps
+    const maps = document.getElementById('link_maps');
+    if (maps.value.trim()) {
+        // kalau diisi, harus mengandung karakter URL yang wajar
+        if (!/^https?:\/\//i.test(maps.value.trim()) && !maps.value.includes('<iframe')) {
+            errors.push('Link Google Maps harus berupa URL atau embed code');
+        }
+    }
+
+    // 2. WhatsApp
+    const wa = document.getElementById('link_wa');
+    if (wa.value.trim()) {
+        // format: 628xxx, boleh + atau - atau spasi
+        if (!/^[0-9+\-\s]{8,15}$/.test(wa.value.trim())) {
+            errors.push('Nomor WhatsApp tidak valid (8-15 digit angka)');
+        }
+    }
+
+    // 3. Email
+    const email = document.getElementById('link_email');
+    if (email.value.trim()) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email.value.trim())) {
+            errors.push('Format email tidak valid');
+        }
+    }
+
+    // 4. Instagram
+    const ig = document.getElementById('link_instagram');
+    if (ig.value.trim()) {
+        try {
+            new URL(ig.value.trim());
+        } catch (e) {
+            errors.push('Link Instagram harus berupa URL yang valid (contoh: https://instagram.com/...)');
+        }
+    }
+
+    // 5. TikTok
+    const tiktok = document.getElementById('link_tiktok');
+    if (tiktok.value.trim()) {
+        try {
+            new URL(tiktok.value.trim());
+        } catch (e) {
+            errors.push('Link TikTok harus berupa URL yang valid (contoh: https://tiktok.com/@...)');
+        }
+    }
+
+    return errors;
+}
+
+function handleSimpanSistem(formId) {
+    const errors = validateFormSistem();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+{{-- =========================================================
+     OVERRIDE TOMBOL BATAL (redirect ke pengaturan-sistem.index)
+     ========================================================= --}}
+<script>
+    window._urlBatalSistem = '{{ route("superadmin.pengaturan-sistem.index") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalSistem;
+    };
+</script>
 @endsection
+
 @push('scripts')
 <script>
     document.body.classList.add('page-form');

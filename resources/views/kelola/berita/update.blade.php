@@ -114,33 +114,54 @@
             color: #b0b0b0;
         }
 
+        /* ==========================================
+           ✅ CUSTOM FILE WRAPPER
+           ========================================== */
         .custom-file-wrapper {
             display: flex;
             border: 1px solid #A87C7C;
             border-radius: 30px;
             overflow: hidden;
             background: #fff;
-            align-items: center;
+            align-items: stretch;
+            min-height: 48px;
         }
 
-        .btn-pilih-file {
-            background: #531919;
+        /* ==========================================
+           ✅ TOMBOL PILIH FILE — specificity tinggi
+           ========================================== */
+        .form-group .btn-pilih-file {
+            background: #531919 !important;
             color: white !important;
-            padding: 12px 25px;
+            padding: 0 25px !important;
             cursor: pointer;
             border-right: 1px solid #A87C7C;
-            margin-bottom: 0 !important;
+            margin: 0 !important;
             font-weight: 500;
             font-size: 0.9rem;
+            white-space: nowrap;
+            flex-shrink: 0;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            align-self: stretch !important;
+            line-height: 1 !important;
+            text-align: center;
+            box-sizing: border-box;
+            min-height: 46px;
+            border-radius: 0;
         }
 
         .file-name-display {
-            padding: 0 15px;
+            padding: 12px 15px;
             display: flex;
             align-items: center;
             color: #b0b0b0;
             flex-grow: 1;
             font-size: 0.9rem;
+            min-width: 0;
+            line-height: 1.3;
+            word-break: break-word;
         }
 
         .form-helper {
@@ -203,38 +224,95 @@
         .tox .tox-dialog-wrap {
             z-index: 99999 !important;
         }
+
+        /* ==========================================
+           ✅ FIX: TINYMCE RESPONSIVE + SCROLL
+           ========================================== */
+        .tox-tinymce {
+            max-width: 100% !important;
+            border-radius: 15px !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+        }
+
+        .tox .tox-edit-area,
+        .tox .tox-edit-area__iframe {
+            overflow: visible !important;
+        }
+
+        .tox .tox-edit-area__iframe {
+            min-height: 300px !important;
+        }
+
+        .tox .tox-toolbar-overlord,
+        .tox .tox-toolbar__overflow,
+        .tox .tox-toolbar__primary {
+            max-width: 100% !important;
+        }
+
+        /* ==========================================
+           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
+           ========================================== */
+        @media (max-width: 640px) {
+            .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+                padding: 1.2rem 1.5rem !important;
+            }
+            
+            .form-header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-header p {
+                font-size: 0.78rem !important;
+            }
+            
+            .header-actions {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            
+            .btn-batal,
+            .btn-simpan {
+                flex: 1 !important;
+                justify-content: center !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .form-body {
+                padding: 1.5rem !important;
+            }
+
+            /* ✅ Kecilkan tombol pilih file di mobile */
+            .form-group .btn-pilih-file {
+                padding: 0 16px !important;
+                font-size: 0.8rem !important;
+            }
+            .file-name-display {
+                font-size: 0.8rem !important;
+                padding: 10px 12px !important;
+                line-height: 1.3 !important;
+            }
+
+            .tox-tinymce {
+                width: 100% !important;
+                margin: 0 auto !important;
+            }
+            .tox .tox-toolbar-overlord {
+                overflow-x: auto !important;
+            }
+            .tox .tox-toolbar__primary {
+                flex-wrap: nowrap !important;
+            }
+            .tox .tox-edit-area__iframe {
+                width: 100% !important;
+            }
+        }
     </style>
-    {{-- Popup Server Error: muncul otomatis jika validasi gagal --}}
-    @if ($errors->any())
-        <div id="popup-server-inline"
-            style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
-            <div
-                style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
-                <div
-                    style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">
-                    ✕</div>
-                <p
-                    style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">
-                    Server Error</p>
-                <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
-                <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda
-                    masukkan:</p>
-                <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
-                    @foreach ($errors->all() as $error)
-                        <li style="margin-bottom:4px;">{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button onclick="document.getElementById('popup-server-inline').style.display='none';"
-                    style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba
-                    Lagi</button>
-            </div>
-        </div>
-        <script>
-            window.addEventListener('load', function () {
-                document.getElementById('popup-server-inline').style.display = 'flex';
-            });
-        </script>
-    @endif
 @endsection
 
 @section('content')
@@ -246,17 +324,17 @@
             </div>
             <div class="header-actions">
                 @if(auth()->user()->peran === 'superadmin')
-                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-berita') }}'); return false;"
-                        class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
-                    <a href="#" onclick="showPopupBatal('{{ route('admin.kelola-berita') }}'); return false;" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
-                <button type="button" onclick="showPopupSimpan('formEditBerita')" form="formEditBerita"
-                    class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="handleSimpanEditBerita('formEditBerita')" class="btn-simpan">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
             </div>
         </div>
 
@@ -312,40 +390,35 @@
                     <label>Unggah Gambar Tambahan Baru (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
-                        <span class="file-name-display" id="fileNameDisplay">Kosongkan jika tidak ingin menambah
-                            gambar...</span>
+                        <span class="file-name-display" id="fileNameDisplay">Kosongkan jika tidak ingin menambah gambar...</span>
                         <input type="file" id="foto" name="foto[]" accept="image/jpeg,image/png,image/jpg"
                             style="display:none" onchange="updateFileNameAndPreview(this)" multiple>
                     </div>
                     <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
-                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
-                    </div>
+                    <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
                 </div>
 
                 {{-- Judul Berita --}}
                 <div class="form-group">
                     <label>Judul Berita</label>
-                    <input type="text" name="judul" value="{{ old('judul', $berita->judul) }}"
+                    <input type="text" name="judul" id="edit_judul_berita" value="{{ old('judul', $berita->judul) }}"
                         placeholder="Masukkan judul berita..." required>
                 </div>
 
                 {{-- Isi Berita --}}
-                <!-- TEMPAT: Di dalam tag <form id="formEditBerita"> -->
                 <div class="form-group">
                     <label>Isi Berita</label>
-                    <textarea id="isi_berita_editor" name="isi" rows="6" placeholder="Masukkan isi berita..." required>{{ old('isi', $berita->isi_berita) }}
-                                                    </textarea>
+                    <textarea id="isi_berita_editor" name="isi" rows="6" placeholder="Masukkan isi berita..." required>{{ old('isi', $berita->isi_berita) }}</textarea>
                 </div>
 
                 {{-- Jenis Berita --}}
                 <div class="form-group">
                     <label>Jenis Berita</label>
-                    <select name="jenis_berita" id="jenis_berita" class="select-status" required>
+                    <select name="jenis_berita" id="edit_jenis_berita" class="select-status" required>
                         <option value="Pengumuman" {{ old('jenis_berita', $berita->jenis_berita) == 'Pengumuman' ? 'selected' : '' }}>Pengumuman</option>
                         <option value="Prestasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Prestasi' ? 'selected' : '' }}>Prestasi</option>
                         <option value="Kolaborasi" {{ old('jenis_berita', $berita->jenis_berita) == 'Kolaborasi' ? 'selected' : '' }}>Kolaborasi</option>
-                        <option value="Event" {{ old('jenis_berita', $berita->jenis_berita) == 'Event' ? 'selected' : '' }}>
-                            Event</option>
+                        <option value="Event" {{ old('jenis_berita', $berita->jenis_berita) == 'Event' ? 'selected' : '' }}>Event</option>
                         <option value="Lainnya" {{ old('jenis_berita', $berita->jenis_berita) == 'Lainnya' ? 'selected' : '' }}>Lainnya</option>
                     </select>
                 </div>
@@ -353,9 +426,8 @@
                 {{-- Status Tayang --}}
                 <div class="form-group">
                     <label>Status</label>
-                    <select name="status" required class="select-status">
-                        <option value="tayang" {{ old('status', $berita->status) == 'tayang' ? 'selected' : '' }}>Tayang
-                        </option>
+                    <select name="status" id="edit_status_berita" required class="select-status">
+                        <option value="tayang" {{ old('status', $berita->status) == 'tayang' ? 'selected' : '' }}>Tayang</option>
                         <option value="tidak ditayangkan" {{ old('status', $berita->status) == 'tidak ditayangkan' ? 'selected' : '' }}>Tidak Ditayangkan</option>
                     </select>
                 </div>
@@ -363,7 +435,8 @@
         </div>
     </div>
 
-    {{-- Popup Batal & Simpan --}}
+    {{-- Popup --}}
+    @include('popup.validasi')
     @include('popup.batal')
     @include('popup.simpan')
 
@@ -432,44 +505,51 @@
             }
         }
     </script>
+
     {{-- Memuat Library Resmi TinyMCE dari CDN Cloud --}}
     <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
         referrerpolicy="origin"></script>
 
     <script>
+        // ✅ Deteksi mobile untuk atur tinggi editor
+        const isMobile = window.matchMedia('(max-width: 640px)').matches;
+
         tinymce.init({
             selector: '#isi_berita_editor',
-            ui_container: 'body', // Hanya perlu di update.blade.php, tapi aman ditaruh di keduanya
-            height: 600,
-            menubar: 'file edit view insert format table tools',
+            ui_container: 'body',
+            height: isMobile ? 500 : 600,
+            min_height: 350,
+            resize: true,
+            menubar: isMobile ? false : 'file edit view insert format table tools',
             plugins: [
                 'advlist', 'autolink', 'lists', 'link', 'image', 'media', 'table', 'charmap', 'preview',
                 'searchreplace', 'visualblocks', 'fullscreen', 'insertdatetime', 'wordcount'
             ],
-            toolbar: [
-                'undo redo | blocks fontfamily fontsize',
-                '| bold italic underline strikethrough',
-                '| forecolor backcolor',
-                '| alignleft aligncenter alignright alignjustify',
-                '| bullist numlist',
-                '| outdent indent',
-                '| link image media',
-                '| table',
-                '| charmap',
-                '| removeformat',
-                '| fullscreen preview'
-            ].join(' '),
+            toolbar: isMobile
+                ? 'undo redo | bold italic underline | bullist numlist | link image | removeformat'
+                : [
+                    'undo redo | blocks fontfamily fontsize',
+                    '| bold italic underline strikethrough',
+                    '| forecolor backcolor',
+                    '| alignleft aligncenter alignright alignjustify',
+                    '| bullist numlist',
+                    '| outdent indent',
+                    '| link image media',
+                    '| table',
+                    '| charmap',
+                    '| removeformat',
+                    '| fullscreen preview'
+                ].join(' '),
 
             setup: function (editor) {
                 editor.on('change keyup NodeChange', function () {
-                    editor.save(); // Menyinkronkan konten TinyMCE ke textarea asli
+                    editor.save();
                 });
             },
 
             automatic_uploads: true,
             image_title: true,
 
-            // HANDLER UPLOAD GAMBAR
             images_upload_handler: (blobInfo) => new Promise((resolve, reject) => {
                 let xhr = new XMLHttpRequest();
                 let targetUrl = '{{ auth()->user()->peran === "superadmin" ? route("superadmin.berita.upload-gambar") : route("admin.berita.upload-gambar") }}';
@@ -517,11 +597,7 @@
                 '8pt 9pt 10pt 11pt 12pt 14pt 16pt 18pt 20pt 24pt 28pt 32pt 36pt 48pt 72pt',
             toolbar_mode: 'sliding',
             branding: false,
-
-            // --- PERBAIKAN: Koma sudah ditambahkan di sini ---
-            content_style: "body { font-family: Poppins, sans-serif; font-size:14px; line-height:1.8; }",
-
-            // --- KONFIGURASI TAMBAHAN AGAR GAMBAR FLEKSIBEL ---
+            content_style: "html, body { font-family: Poppins, sans-serif; font-size: 14px; line-height: 1.8; overflow-y: auto !important; }",
             relative_urls: false,
             remove_script_host: false,
             convert_urls: false,
@@ -531,9 +607,111 @@
         });
     </script>
 
+{{-- =========================================================
+     VALIDASI FORM SEBELUM SIMPAN (Edit Berita)
+     ========================================================= --}}
+<script>
+function validateFormEditBerita() {
+    const errors = [];
+
+    const fotoInput = document.getElementById('foto');
+    if (fotoInput.files.length > 0) {
+        for (let i = 0; i < fotoInput.files.length; i++) {
+            const file = fotoInput.files[i];
+            const allowed = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowed.includes(file.type)) {
+                errors.push('Format foto harus JPG atau PNG');
+                break;
+            }
+            if (file.size > 2 * 1024 * 1024) {
+                errors.push('Ukuran foto maksimal 2MB');
+                break;
+            }
+        }
+    }
+
+    const judul = document.getElementById('edit_judul_berita');
+    if (!judul.value.trim()) {
+        errors.push('Judul berita belum diisi');
+    } else if (judul.value.trim().length < 5) {
+        errors.push('Judul berita minimal 5 karakter');
+    }
+
+    let isiContent = '';
+    if (window.tinymce && tinymce.get('isi_berita_editor')) {
+        isiContent = tinymce.get('isi_berita_editor').getContent({ format: 'text' }).trim();
+    } else {
+        isiContent = document.getElementById('isi_berita_editor').value.trim();
+    }
+    if (!isiContent) {
+        errors.push('Isi berita belum diisi');
+    }
+
+    const jenis = document.getElementById('edit_jenis_berita');
+    if (!jenis.value) {
+        errors.push('Jenis berita belum dipilih');
+    }
+
+    const status = document.getElementById('edit_status_berita');
+    if (!status.value) {
+        errors.push('Status berita belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanEditBerita(formId) {
+    const errors = validateFormEditBerita();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+
+<script>
+    window._urlBatalEditBerita = '{{ auth()->user()->peran === "superadmin"
+        ? route("superadmin.kelola-berita")
+        : route("admin.kelola-berita") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalEditBerita;   // ✅ FIX
+    };
+</script>
+
+
+@if ($errors->any())
+<div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
+    <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
+        <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
+        <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
+        <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
+        <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
+        <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
+            @foreach ($errors->all() as $error)
+            <li style="margin-bottom:4px;">{{ $error }}</li>
+            @endforeach
+        </ul>
+        <button onclick="document.getElementById('popup-server-inline').style.display='none';" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
+    </div>
+</div>
+<script>
+    window.addEventListener('load', function() {
+        document.getElementById('popup-server-inline').style.display = 'flex';
+    });
+</script>
+@endif
 @endsection
+
 @push('scripts')
-    <script>
-        document.body.classList.add('page-form');
-    </script>
+<script>
+    document.body.classList.add('page-form');
+</script>
 @endpush

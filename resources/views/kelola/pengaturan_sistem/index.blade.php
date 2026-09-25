@@ -26,6 +26,8 @@
         justify-content: space-between; 
         align-items: center; 
         margin-bottom: 25px; 
+        gap: 12px;
+        flex-wrap: wrap;
     }
     
     .settings-card h3 { 
@@ -88,6 +90,7 @@
         align-items: center; 
         gap: 8px; 
         transition: background-color 0.2s;
+        white-space: nowrap;
     }
     
     .btn-edit-link:hover {
@@ -172,10 +175,106 @@
         text-overflow: ellipsis;
     }
 
+    /* Subjudul "Koleksi Gambar Aktif" */
+    .subtitle-label {
+        font-size: 0.8rem; 
+        font-weight: 600; 
+        color: #b07d7d; 
+        text-transform: uppercase; 
+        margin-bottom: 12px; 
+        letter-spacing: 0.5px;
+    }
+
+    /* ==========================================
+       ✅ UNIVERSAL FILE PICKER — siap pakai
+       (kalau nanti ada form upload di halaman ini)
+       ========================================== */
+    .custom-file-wrapper {
+        display: flex;
+        border: 1px solid #A87C7C;
+        border-radius: 30px;
+        overflow: hidden;
+        background: #fff;
+        align-items: stretch;
+        min-height: 48px;
+        box-sizing: border-box;
+    }
+
+    .form-group .btn-pilih-file,
+    .custom-file-wrapper .btn-pilih-file {
+        background: #531919 !important;
+        color: white !important;
+        padding: 0 25px !important;
+        cursor: pointer;
+        border-right: 1px solid #A87C7C;
+        margin: 0 !important;
+        font-weight: 500;
+        font-size: 0.9rem;
+        white-space: nowrap;
+        flex-shrink: 0;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        align-self: stretch !important;
+        line-height: 1 !important;
+        text-align: center;
+        box-sizing: border-box;
+        min-height: 46px;
+        border-radius: 0;
+    }
+
+    .custom-file-wrapper .file-name-display {
+        padding: 12px 15px;
+        display: flex;
+        align-items: center;
+        color: #b0b0b0;
+        flex-grow: 1;
+        font-size: 0.9rem;
+        min-width: 0;
+        line-height: 1.3;
+        word-break: break-word;
+        box-sizing: border-box;
+    }
+
+    /* ==========================================
+       ✅ RESPONSIVE MOBILE
+       ========================================== */
     @media (max-width: 768px) { 
-        .form-grid { grid-template-columns: 1fr; } 
-        .full-width { grid-column: span 1; } 
-        .settings-card .card-header-flex { flex-direction: column; align-items: flex-start; gap: 12px; } 
+        .form-grid { 
+            grid-template-columns: 1fr !important; 
+        } 
+        .full-width { 
+            grid-column: span 1 !important; 
+        } 
+        .settings-card .card-header-flex { 
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important; 
+        } 
+        .btn-edit-link {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 10px 18px !important;
+        }
+        .settings-card {
+            padding: 18px 15px !important;
+        }
+        .header-preview-display {
+            height: 180px !important;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .form-group .btn-pilih-file,
+        .custom-file-wrapper .btn-pilih-file {
+            padding: 0 16px !important;
+            font-size: 0.8rem !important;
+        }
+        .custom-file-wrapper .file-name-display {
+            font-size: 0.8rem !important;
+            padding: 10px 12px !important;
+            line-height: 1.3 !important;
+        }
     }
 </style>
 
@@ -190,7 +289,9 @@
     <div class="settings-card">
         <div class="card-header-flex">
             <h3><i class="fas fa-images"></i> Gambar Banner Slideshow (Header)</h3>
-            <a href="{{ route('superadmin.pengaturan-sistem.edit') }}" class="btn-edit-link"><i class="fas fa-cog"></i> Kelola Sistem</a>
+            <a href="{{ route('superadmin.pengaturan-sistem.edit') }}" class="btn-edit-link">
+                <i class="fas fa-cog"></i> Kelola Sistem
+            </a>
         </div>
         
         {{-- Frame Karosel Slideshow --}}
@@ -201,15 +302,14 @@
                 @endforeach
             @else
                 <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; width:100%; height:100%; color:#9ca3af; gap:8px;">
-                    <i class="fas fa-image" style="font-size:2rem;"></i><span>Belum ada banner header.</span>
+                    <i class="fas fa-image" style="font-size:2rem;"></i>
+                    <span>Belum ada banner header.</span>
                 </div>
             @endif
         </div>
 
         {{-- Label Pemisah Subjudul --}}
-        <div style="font-size: 0.8rem; font-weight: 600; color: #b07d7d; text-transform: uppercase; margin-bottom: 12px; letter-spacing: 0.5px;">
-            Koleksi Gambar Aktif
-        </div>
+        <div class="subtitle-label">Koleksi Gambar Aktif</div>
 
         {{-- Koleksi Gambar Mini: Berjejer Menyamping --}}
         <div class="header-flex-row-list">
@@ -221,7 +321,9 @@
                     <div class="card-meta">Header {{ $key + 1 }}</div>
                 </div>
             @empty
-                <div style="font-size:0.85rem; color:#888; font-style:italic; padding: 10px 0;">Daftar banner kosong.</div>
+                <div style="font-size:0.85rem; color:#888; font-style:italic; padding: 10px 0;">
+                    Daftar banner kosong.
+                </div>
             @endforelse
         </div>
     </div>

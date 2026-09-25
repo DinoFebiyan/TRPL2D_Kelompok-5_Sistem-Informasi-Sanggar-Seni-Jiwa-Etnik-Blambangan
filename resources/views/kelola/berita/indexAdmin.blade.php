@@ -6,9 +6,7 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    /* ==========================================
-       1. GEMBOK UTAMA (ANTI-BLOWOUT HORIZONTAL)
-       ========================================== */
+    
     html, body {
         max-width: 100vw;
         overflow-x: hidden;
@@ -21,7 +19,7 @@
     }
 
     .news-wrapper {
-        width: 100%
+        width: 100%;
         max-width: 100%;
         box-sizing: border-box;
         overflow-x: hidden;
@@ -29,9 +27,7 @@
         color: #333;
     }
     
-    /* ==========================================
-       2. RESPONSIF STATS GRID
-       ========================================== */
+   
     .news-stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -105,9 +101,7 @@
         background: #d4aeae;
     }
 
-    /* ==========================================
-       3. SEARCH & FILTER ROW (DIPAKSA 1 BARIS)
-       ========================================== */
+    
     .news-search-row {
         display: flex;
         flex-direction: row !important;
@@ -158,9 +152,7 @@
         white-space: nowrap;
     }
 
-    /* ==========================================
-       4. TABEL RESPONSIF (ANTI BOCOR)
-       ========================================== */
+   
     .news-table-card {
         background: #fff;
         border-radius: 12px;
@@ -191,7 +183,7 @@
     .news-table {
         width: 100%;
         border-collapse: collapse;
-        min-width: 800px; /* Batas minimum lebar tabel */
+        min-width: 800px;
     }
     .news-table thead {
         background-color: #F5EBEB; 
@@ -271,14 +263,12 @@
     .btn-edit-news { background: #eff6ff; color: #3b82f6; }
     .btn-hapus-news { background: #fef2f2; color: #ef4444; }
 
-    /* ==========================================
-       5. PAGINATION (LEBIH LEGA)
-       ========================================== */
+   
     .news-pagination {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 35px; /* Jarak aman dari scrollbar tabel */
+        margin-top: 35px;
         padding: 10px 5px 0 5px;
         flex-wrap: wrap;
         gap: 15px;
@@ -369,23 +359,48 @@
             gap: 10px !important;
             width: 100% !important;
         }
+        
+        /* ✅ FIX: Icon & Text side by side */
         .news-stat-card {
-            padding: 12px 10px !important;
-            flex-direction: column !important;
-            text-align: center !important;
+            padding: 10px 12px !important;
+            flex-direction: row !important;
             align-items: center !important;
-            justify-content: center !important;
-            gap: 5px !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            gap: 10px !important;
             min-width: 0 !important;
             width: 100% !important;
             box-sizing: border-box !important;
         }
+        
         .news-icon-box {
-            width: 35px !important; height: 35px !important; font-size: 1rem !important;
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 0.9rem !important;
+            flex-shrink: 0 !important;
         }
-        .news-stat-text { width: 100% !important; }
-        .news-stat-text h2 { font-size: 1.25rem !important; }
-        .news-stat-text h4 { font-size: 0.65rem !important; }
+        
+        .news-stat-text {
+            text-align: left !important;
+            flex: 1 !important;
+            min-width: 0 !important;
+            width: auto !important;
+        }
+        
+        .news-stat-text h4 {
+            font-size: 0.6rem !important;
+            letter-spacing: 0.2px !important;
+            line-height: 1.2 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+        
+        .news-stat-text h2 {
+            font-size: 1.2rem !important;
+            margin: 2px 0 0 0 !important;
+            line-height: 1.1 !important;
+        }
         
         .adm-btn-tambah {
             grid-column: span 2 !important; 
@@ -522,58 +537,62 @@
 
     <div class="news-table-card">
         <h3>Daftar Berita</h3>
-        <table class="news-table" id="newsTable">
-            <thead>
-                <tr>
-                    <th>Gambar</th>
-                    <th>Judul Berita</th>
-                    <th>Penulis</th>
-                    <th>Tanggal Terbit</th>
-                    <th>Status</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($beritas as $berita)
-                <tr>
-                    <td>
-                        <div class="news-foto slideshow-container">
-                            @if($berita->galeri && $berita->galeri->isNotEmpty())
-                                @foreach($berita->galeri as $index => $foto)
-                                    <img src="{{ asset('storage/' . $foto->path) }}" 
-                                         alt="Foto Berita" 
-                                         class="{{ $index === 0 ? 'active' : '' }}">
-                                @endforeach
+
+        {{-- WRAPPER TABEL SCROLL HORIZONTAL --}}
+        <div class="table-responsive-wrapper">
+            <table class="news-table" id="newsTable">
+                <thead>
+                    <tr>
+                        <th>Gambar</th>
+                        <th>Judul Berita</th>
+                        <th>Penulis</th>
+                        <th>Tanggal Terbit</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($beritas as $berita)
+                    <tr>
+                        <td>
+                            <div class="news-foto slideshow-container">
+                                @if($berita->galeri && $berita->galeri->isNotEmpty())
+                                    @foreach($berita->galeri as $index => $foto)
+                                        <img src="{{ asset('storage/' . $foto->path) }}" 
+                                             alt="Foto Berita" 
+                                             class="{{ $index === 0 ? 'active' : '' }}">
+                                    @endforeach
+                                @else
+                                    <div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f3f4f6; color:#9ca3af;">No Img</div>
+                                @endif
+                            </div>
+                        </td>
+                        <td><strong>{{ $berita->judul }}</strong><br>
+                           <span style="font-size:0.7rem; color:#888;">{{ \Illuminate\Support\Str::limit(strip_tags($berita->isi_berita), 60) }}</span>
+                        </td>
+                        <td>{{ $berita->user->name ?? 'Admin' }}</td>
+                        <td>{{ $berita->created_at ? $berita->created_at->format('d/m/Y H:i') : '-' }}</td>
+                        <td>
+                            @if($berita->status == 'tayang')
+                                <span class="badge-tayang">Tayang</span>
                             @else
-                                <div style="display:flex; align-items:center; justify-content:center; width:100%; height:100%; background:#f3f4f6; color:#9ca3af;">No Img</div>
+                                <span class="badge-tidak-tayang">Tidak Ditayangkan</span>
                             @endif
-                        </div>
-                    </td>
-                    <td><strong>{{ $berita->judul }}</strong><br>
-                       <span style="font-size:0.7rem; color:#888;">{{ \Illuminate\Support\Str::limit(strip_tags($berita->isi_berita), 60) }}</span>
-                    </td>
-                    <td>{{ $berita->user->name ?? 'Admin' }}</td>
-                    <td>{{ $berita->created_at ? $berita->created_at->format('d/m/Y H:i') : '-' }}</td>
-                    <td>
-                        @if($berita->status == 'tayang')
-                            <span class="badge-tayang">Tayang</span>
-                        @else
-                            <span class="badge-tidak-tayang">Tidak Ditayangkan</span>
-                        @endif
-                    </td>
-                    <td class="news-actions">
-                        <a href="{{ route('admin.edit-berita', $berita->id) }}" class="btn-edit-news">Edit</a>
-                        <button class="btn-hapus-news" onclick="confirmDelete({{ $berita->id }})">Hapus</button>
-                        <form id="delete-form-{{ $berita->id }}" action="{{ route('admin.hapus-berita', $berita->id) }}" method="POST" style="display:none;">
-                            @csrf @method('DELETE')
-                        </form>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="6" style="text-align:center">Belum ada data berita yang sesuai kriteria.</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+                        </td>
+                        <td class="news-actions">
+                            <a href="{{ route('admin.edit-berita', $berita->id) }}" class="btn-edit-news">Edit</a>
+                            <button class="btn-hapus-news" onclick="showPopupHapus('delete-form-{{ $berita->id }}')">Hapus</button>
+                            <form id="delete-form-{{ $berita->id }}" action="{{ route('admin.hapus-berita', $berita->id) }}" method="POST" style="display:none;">
+                                @csrf @method('DELETE')
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="6" style="text-align:center">Belum ada data berita yang sesuai kriteria.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
         
         <div class="news-pagination">
             @if($beritas->total() > 0)
@@ -602,11 +621,7 @@
 </div>
 
 <script>
-    function confirmDelete(id) {
-        if(confirm('Yakin ingin menghapus berita ini?')) {
-            document.getElementById('delete-form-'+id).submit();
-        }
-    }
+    
 
     function openFilterModal() {
         document.getElementById('filterModal').style.display = 'flex';
@@ -658,4 +673,7 @@
         });
     });
 </script>
+
+{{-- Popup Konfirmasi Hapus --}}
+@include('popup.hapus')
 @endsection

@@ -6,11 +6,31 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 <style>
-    html, body { max-width: 100vw; overflow-x: hidden; }
+    /* =========================================================
+       OVERRIDE LAYOUT — buka gembok scroll horizontal
+       Layout admin punya .content dengan overflow yang bisa
+       blokir wrapper tabel. Kita paksa auto di mobile.
+       ========================================================= */
+    @media (max-width: 992px) {
+        .content {
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            min-width: 0 !important;
+            max-width: 100vw !important;
+            box-sizing: border-box !important;
+        }
+        .main {
+            overflow-x: hidden !important;
+            max-width: 100vw !important;
+            min-width: 0 !important;
+        }
+    }
+
+    html, body { max-width: 100vw; }
     .prof-wrapper { width: 100%; font-family: 'Poppins', sans-serif; color: #333; }
     .prof-card-card { background: #fff; border-radius: 12px; padding: 25px; border: 1px solid #f0f0f0; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 28px; }
     .prof-card-card h3 { margin: 0 0 20px 0; font-size: 1.1rem; color: #333; display: flex; justify-content: space-between; align-items: center; }
-    .btn-edit-profil { background: #e2c0c0; color: #5a1a1a; border-radius: 12px; padding: 8px 20px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-edit-profil { background: #e2c0c0; color: #5a1a1a; border-radius: 12px; padding: 8px 20px; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; }
     .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .info-item { display: flex; flex-direction: column; gap: 6px; }
     .info-item label { font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: #b07d7d; }
@@ -27,7 +47,147 @@
     .prof-foto-frame img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; }
     .badge-aktif { background: #dcfce7; color: #16a34a; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; }
     .badge-nonaktif { background: #fee2e2; color: #ef4444; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; }
-    @media (max-width: 768px) { .info-grid { grid-template-columns: 1fr !important; } .full-width, .photo-row { grid-column: span 1 !important; } .photo-row { flex-direction: column; } }
+
+    /* Header tabel dengan tombol tambah */
+    .prof-table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+    .btn-tambah-personel {
+        background: #e2c0c0;
+        color: #5a1a1a;
+        padding: 8px 16px;
+        border-radius: 12px;
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+
+    /* Action buttons di tabel */
+    .btn-aksi-edit {
+        color: #3b82f6;
+        text-decoration: none;
+        margin-right: 10px;
+        font-weight: 600;
+    }
+    .btn-aksi-hapus {
+        color: #ef4444;
+        border: none;
+        background: none;
+        cursor: pointer;
+        font-weight: 600;
+        padding: 0;
+        font-family: inherit;
+    }
+
+    /* ==========================================
+       RESPONSIVE
+       ========================================== */
+    @media (max-width: 768px) {
+        .info-grid { grid-template-columns: 1fr !important; }
+        .full-width, .photo-row { grid-column: span 1 !important; }
+        .photo-row { flex-direction: column !important; }
+
+        .prof-card-card { padding: 18px 15px !important; }
+
+        /* ✅ Header card */
+        .prof-card-card h3 {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 12px !important;
+        }
+        .btn-edit-profil {
+            width: auto !important;
+            align-self: flex-start !important;
+            padding: 10px 18px !important;
+            min-height: 40px !important;
+        }
+
+        /* ✅ Header tabel stack */
+        .prof-table-header {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 12px !important;
+            margin-bottom: 18px !important;
+        }
+
+        /* ✅ Tombol Tambah Personel — full width di mobile */
+        .btn-tambah-personel {
+            display: flex !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            min-height: 44px !important;
+            padding: 12px 16px !important;
+            justify-content: center !important;
+            align-items: center !important;
+            gap: 8px !important;
+            background-color: #e2c0c0 !important;
+            color: #5a1a1a !important;
+            font-size: 0.9rem !important;
+            font-weight: 700 !important;
+            border-radius: 12px !important;
+            text-decoration: none !important;
+            box-sizing: border-box !important;
+            line-height: 1.4 !important;
+            white-space: nowrap !important;
+            height: auto !important;
+        }
+        .btn-tambah-personel i,
+        .btn-tambah-personel span {
+            display: inline-block !important;
+            color: inherit !important;
+        }
+
+        /* ✅ Card: overflow visible supaya anak bisa scroll */
+        .prof-table-card {
+            padding: 18px 12px !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow: visible !important;
+        }
+
+        /* ✅ Wrapper tabel — paksa scroll horizontal */
+        .table-responsive-wrapper {
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+            -webkit-overflow-scrolling: touch !important;
+            box-sizing: border-box !important;
+            padding-bottom: 12px !important;
+            margin: 0 !important;
+        }
+
+        /* Scrollbar kelihatan */
+        .table-responsive-wrapper::-webkit-scrollbar { height: 6px !important; }
+        .table-responsive-wrapper::-webkit-scrollbar-track { background: #f1f1f1 !important; border-radius: 3px !important; }
+        .table-responsive-wrapper::-webkit-scrollbar-thumb { background: #c0a0a0 !important; border-radius: 3px !important; }
+
+        /* Tabel lebar minimum */
+        .prof-table {
+            display: table !important;
+            min-width: 900px !important;
+            width: 900px !important;
+            table-layout: auto !important;
+        }
+
+        .photo-box { padding: 12px !important; }
+    }
+
+    @media (max-width: 480px) {
+        .prof-card-card { padding: 15px 12px !important; }
+        .info-item .value { font-size: 0.8rem !important; padding: 10px 12px !important; }
+        .prof-table th, .prof-table td { padding: 10px 15px !important; }
+    }
 </style>
 
 <div class="prof-wrapper">
@@ -59,9 +219,11 @@
 
     {{-- DAFTAR PENGURUS --}}
     <div class="prof-table-card">
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-            <h3>Daftar Pengurus</h3>
-            <a href="{{ route('admin.tambah-pengurus') }}" style="background:#e2c0c0; color:#5a1a1a; padding:8px 16px; border-radius:12px; text-decoration:none; font-weight:700;">+ Tambah Pengurus</a>
+        <div class="prof-table-header">
+            <h3 style="margin: 0;">Daftar Pengurus</h3>
+            <a href="{{ route('admin.tambah-pengurus') }}" class="btn-tambah-personel">
+                <i class="fas fa-plus"></i> <span>Tambah Pengurus</span>
+            </a>
         </div>
         <div class="table-responsive-wrapper">
             <table class="prof-table">
@@ -71,16 +233,22 @@
                 <tbody>
                     @forelse($pengurus as $item)
                     <tr>
-                        <td><div class="prof-foto-frame"><img src="{{ $item->galeri->isNotEmpty() ? asset('storage/' . $item->galeri->first()->path) : 'https://ui-avatars.com/api/?name='.urlencode($item->nama) }}"></div></td>
+                        <td>
+                            <div class="prof-foto-frame">
+                                <img src="{{ $item->galeri->isNotEmpty() ? asset('storage/' . $item->galeri->first()->path) : 'https://ui-avatars.com/api/?name='.urlencode($item->nama) }}">
+                            </div>
+                        </td>
                         <td style="font-weight:600">{{ $item->nama }}</td>
                         <td>{{ $item->jabatan }}</td>
                         <td>{{ $item->instagram ?? '-' }}</td>
                         <td>{{ $item->no_handphone }}</td>
                         <td><span class="{{ $item->status == 'aktif' ? 'badge-aktif' : 'badge-nonaktif' }}">{{ ucfirst($item->status) }}</span></td>
                         <td>
-                            <a href="{{ route('admin.edit-pengurus', $item->id) }}" style="color:#3b82f6; text-decoration:none; margin-right:10px;">Edit</a>
-                            <button onclick="confirmDelete('pengurus', {{ $item->id }})" style="color:#ef4444; border:none; background:none; cursor:pointer;">Hapus</button>
-                            <form id="delete-pengurus-{{ $item->id }}" action="{{ route('admin.hapus-pengurus', $item->id) }}" method="POST">@csrf @method('DELETE')</form>
+                            <a href="{{ route('admin.edit-pengurus', $item->id) }}" class="btn-aksi-edit">Edit</a>
+                            <button class="btn-aksi-hapus" onclick="showPopupHapus('delete-pengurus-{{ $item->id }}')">Hapus</button>
+                            <form id="delete-pengurus-{{ $item->id }}" action="{{ route('admin.hapus-pengurus', $item->id) }}" method="POST" style="display:none;">
+                                @csrf @method('DELETE')
+                            </form>
                         </td>
                     </tr>
                     @empty
@@ -94,9 +262,11 @@
 
     {{-- DAFTAR PELATIH --}}
     <div class="prof-table-card">
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-            <h3>Daftar Pelatih</h3>
-            <a href="{{ route('admin.tambah-pelatih') }}" style="background:#e2c0c0; color:#5a1a1a; padding:8px 16px; border-radius:12px; text-decoration:none; font-weight:700;">+ Tambah Pelatih</a>
+        <div class="prof-table-header">
+            <h3 style="margin: 0;">Daftar Pelatih</h3>
+            <a href="{{ route('admin.tambah-pelatih') }}" class="btn-tambah-personel">
+                <i class="fas fa-plus"></i> <span>Tambah Pelatih</span>
+            </a>
         </div>
         <div class="table-responsive-wrapper">
             <table class="prof-table">
@@ -106,16 +276,22 @@
                 <tbody>
                     @forelse($pelatih as $item)
                     <tr>
-                        <td><div class="prof-foto-frame"><img src="{{ $item->galeri->isNotEmpty() ? asset('storage/' . $item->galeri->first()->path) : 'https://ui-avatars.com/api/?name='.urlencode($item->nama) }}"></div></td>
+                        <td>
+                            <div class="prof-foto-frame">
+                                <img src="{{ $item->galeri->isNotEmpty() ? asset('storage/' . $item->galeri->first()->path) : 'https://ui-avatars.com/api/?name='.urlencode($item->nama) }}">
+                            </div>
+                        </td>
                         <td style="font-weight:600">{{ $item->nama }}</td>
                         <td>{{ $item->jabatan }}</td>
                         <td>{{ $item->instagram ?? '-' }}</td>
                         <td>{{ $item->no_handphone }}</td>
                         <td><span class="{{ $item->status == 'aktif' ? 'badge-aktif' : 'badge-nonaktif' }}">{{ ucfirst($item->status) }}</span></td>
                         <td>
-                            <a href="{{ route('admin.edit-pelatih', $item->id) }}" style="color:#3b82f6; text-decoration:none; margin-right:10px;">Edit</a>
-                            <button onclick="confirmDelete('pelatih', {{ $item->id }})" style="color:#ef4444; border:none; background:none; cursor:pointer;">Hapus</button>
-                            <form id="delete-pelatih-{{ $item->id }}" action="{{ route('admin.hapus-pelatih', $item->id) }}" method="POST">@csrf @method('DELETE')</form>
+                            <a href="{{ route('admin.edit-pelatih', $item->id) }}" class="btn-aksi-edit">Edit</a>
+                            <button class="btn-aksi-hapus" onclick="showPopupHapus('delete-pelatih-{{ $item->id }}')">Hapus</button>
+                            <form id="delete-pelatih-{{ $item->id }}" action="{{ route('admin.hapus-pelatih', $item->id) }}" method="POST" style="display:none;">
+                                @csrf @method('DELETE')
+                            </form>
                         </td>
                     </tr>
                     @empty
@@ -128,9 +304,6 @@
     </div>
 </div>
 
-<script>
-    function confirmDelete(jenis, id) {
-        if(confirm('Hapus personel ini?')) { document.getElementById('delete-' + jenis + '-' + id).submit(); }
-    }
-</script>
+{{-- Popup Konfirmasi Hapus --}}
+@include('popup.hapus')
 @endsection

@@ -112,6 +112,44 @@
         }
         .select-status { color: #333; }
         .select-status:invalid { color: #b0b0b0; }
+
+        /* ==========================================
+           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
+           ========================================== */
+        @media (max-width: 640px) {
+            .form-header {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 15px !important;
+                padding: 1.2rem 1.5rem !important;
+            }
+            
+            .form-header h1 {
+                font-size: 1.4rem !important;
+            }
+            
+            .form-header p {
+                font-size: 0.78rem !important;
+            }
+            
+            .header-actions {
+                width: 100% !important;
+                display: flex !important;
+                gap: 10px !important;
+            }
+            
+            .btn-batal,
+            .btn-simpan {
+                flex: 1 !important;
+                justify-content: center !important;
+                padding: 10px 14px !important;
+                font-size: 0.85rem !important;
+            }
+
+            .form-body {
+                padding: 1.5rem !important;
+            }
+        }
     </style>
 @endsection
 
@@ -124,15 +162,17 @@
             </div>
             <div class="header-actions">
                 @if(auth()->user()->peran === 'superadmin')
-                    <a href="#" onclick="showPopupBatal('{{ route('superadmin.kelola-profil') }}'); return false;" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @elseif(auth()->user()->peran === 'admin')
-                    <a href="#" onclick="showPopupBatal('{{ route('admin.kelola-profil') }}'); return false;" class="btn-batal">
+                    <a href="#" onclick="showPopupBatal(); return false;" class="btn-batal">
                         <i class="fas fa-times"></i> Batal
                     </a>
                 @endif
-                <button type="button" onclick="showPopupSimpan('formTambahPelatih')" form="formTambahPelatih" class="btn-simpan"><i class="fas fa-save"></i> Simpan</button>
+                <button type="button" onclick="handleSimpanPelatih('formTambahPelatih')" class="btn-simpan">
+                    <i class="fas fa-save"></i> Simpan
+                </button>
             </div>
         </div>
 
@@ -244,8 +284,83 @@
             }
         }
     </script>
-@endsection
 
+{{-- Popup --}}
+@include('popup.validasi')
+@include('popup.batal')
+@include('popup.simpan')
+
+{{-- =========================================================
+     VALIDASI FORM SEBELUM SIMPAN (Pelatih)
+     ========================================================= --}}
+<script>
+function validateFormPelatih() {
+    const errors = [];
+
+    // 1. Foto (multiple)
+    const fotoInput = document.getElementById('foto');
+    if (!fotoInput.files || fotoInput.files.length === 0) {
+        errors.push('Foto pelatih belum dipilih');
+    }
+
+    // 2. Nama
+    const nama = document.getElementById('nama');
+    if (!nama.value.trim()) {
+        errors.push('Nama lengkap belum diisi');
+    } else if (nama.value.trim().length < 3) {
+        errors.push('Nama lengkap minimal 3 karakter');
+    }
+
+    // 3. Jabatan
+    const jabatan = document.getElementById('jabatan');
+    if (!jabatan.value) {
+        errors.push('Jabatan belum dipilih');
+    }
+
+    // 4. No Handphone
+    const hp = document.getElementById('hp');
+    if (!hp.value.trim()) {
+        errors.push('No handphone belum diisi');
+    } else if (!/^[0-9+\-\s]{8,15}$/.test(hp.value.trim())) {
+        errors.push('No handphone tidak valid (8-15 digit angka)');
+    }
+
+    // 5. Status
+    const status = document.getElementById('status');
+    if (!status.value) {
+        errors.push('Status belum dipilih');
+    }
+
+    return errors;
+}
+
+function handleSimpanPelatih(formId) {
+    const errors = validateFormPelatih();
+
+    if (errors.length > 0) {
+        showPopupValidasi(errors);
+        return;
+    }
+
+    showPopupSimpan(formId);
+}
+</script>
+
+{{-- =========================================================
+     OVERRIDE TOMBOL BATAL (redirect ke halaman kelola-profil)
+     ========================================================= --}}
+<script>
+    window._urlBatalPelatih = '{{ auth()->user()->peran === "superadmin"
+        ? route("superadmin.kelola-profil")
+        : route("admin.kelola-profil") }}';
+
+    window.batalkanForm = function () {
+        if (typeof hidePopupBatal === 'function') {
+            hidePopupBatal();
+        }
+        window.location.href = window._urlBatalPelatih;
+    };
+</script>
 
 @if ($errors->any())
 <div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
@@ -268,10 +383,7 @@
     });
 </script>
 @endif
-
-{{-- Popup Batal & Simpan --}}
-@include('popup.batal')
-@include('popup.simpan')
+@endsection
 
 @push('scripts')
 <script>
