@@ -31,13 +31,29 @@
     }
 
     /* ========== NAVBAR ========== */
+    /* ========== NAVBAR ========== */
     nav {
         position: sticky;
         top: 0;
         z-index: 200;
         background: var(--maroon-dark);
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         width: 100%;
+        
+        /* Box Shadow Emas & Pendaran di Bawah Navbar */
+        box-shadow: 0 4px 15px rgba(223, 177, 91, 0.4), 
+                    0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Pendaran Gradasi Emas Meluruh ke Bawah (Gold Glow Effect) */
+    nav::after {
+        content: '';
+        position: absolute;
+        bottom: -15px; /* Ketebalan pancaran ke bawah */
+        left: 0;
+        width: 100%;
+        height: 15px;
+        background: linear-gradient(to bottom, rgba(223, 177, 91, 0.6) 0%, rgba(223, 177, 91, 0) 100%);
+        pointer-events: none; /* Agar tidak menghalangi kursor mouse */
     }
 
     /* Container pembatas lebar */
