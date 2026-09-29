@@ -132,7 +132,6 @@ class EventController extends Controller
 
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
-                // Menggunakan fungsi pembuat watermark
                 $path = $this->simpanDenganWatermark($file);
 
                 Galeri::create([
@@ -140,7 +139,7 @@ class EventController extends Controller
                     'path' => $path,
                     'nama_file' => uniqid() . '_' . $file->getClientOriginalName(),
                     'kategori' => 'event',
-                    'is_watermark' => true, // Menandai bahwa foto ini memiliki watermark (opsional: bisa disesuaikan dengan kebutuhan database)
+                    'is_watermark' => true,
                 ]);
             }
         }

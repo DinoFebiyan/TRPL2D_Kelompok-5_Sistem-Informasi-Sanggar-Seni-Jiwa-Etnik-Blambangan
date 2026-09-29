@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\UploadHelper;
+use Illuminate\Http\Request;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
 use App\Models\PengaturanSistem;

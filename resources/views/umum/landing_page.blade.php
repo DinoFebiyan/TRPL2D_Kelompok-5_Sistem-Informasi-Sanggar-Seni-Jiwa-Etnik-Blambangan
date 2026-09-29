@@ -5,17 +5,27 @@
 @push('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    :root {
-      --maroon-dark: #6b1414;
-      --maroon-light: #a71818;
-      --gold: #f1c40f;
-      --white: #ffffff;
-      --text-dark: #333333;
-      --text-gray: #555555;
+:root {
+  /* Ubah warna merah menjadi lebih tenang/maroon berkelas */
+  --maroon-dark: #4a0c0c;
+  --maroon-light: #7a1515;
+  --gold: #f1c40f;
+  --white: #ffffff;
+  --text-dark: #333333;
+  --text-gray: #555555;
+}
+
+    /* ══ CONTAINER PEMBATAS UTAMA ══ */
+    .section-wrapper {
+      max-width: 1280px;
+      margin: 0 auto;
+      width: 100%;
     }
 
     section {
-      padding: 5rem 8%;
+      padding: 5rem 1.5rem;
+      width: 100%;
+      box-sizing: border-box;
     }
 
     .section-header {
@@ -25,54 +35,60 @@
 
     /* ══ HERO ══ */
     #beranda {
-      background: linear-gradient(135deg, var(--maroon-light) 0%, #c42020 100%);
-      min-height: 90vh;
-      display: flex;
-      align-items: center;
-      padding: 4rem 8%;
-    }
+  /* Gunakan warna yang lebih gelap + pola halus/overlay */
+  background: linear-gradient(135deg, rgba(74, 12, 12, 0.95) 0%, rgba(122, 21, 21, 0.9) 100%),
+              radial-gradient(circle at center, rgba(241, 196, 15, 0.08) 0%, transparent 70%);
+  
+  /* Kurangi padding vertikal & ubah tinggi minimum agar tidak memakan layar berlebihan */
+  padding: 4rem 1.5rem 5rem 1.5rem;
+  min-height: auto; /* Mengikuti isi konten agar pas */
+  display: flex;
+  align-items: center;
+  position: relative;
+  box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.15); /* Efek bayangan halus di bagian bawah */
+}
 
     .hero-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       align-items: center;
-      gap: 2rem;
+      gap: 3rem;
       width: 100%;
     }
 
     .hero-text {
-      text-align: center;
+      text-align: left;
     }
 
-    .hero-text h1 {
-      font-family: 'Playfair Display', serif;
-      font-weight: 900;
-      color: var(--white);
-      font-size: 3rem;
-      line-height: 1.1;
-      margin-bottom: 0.5rem;
-    }
+    /* Buat ukuran teks lebih proporsional */
+.hero-text h1 {
+  font-family: 'Playfair Display', serif;
+  font-weight: 900;
+  color: var(--white);
+  font-size: 3.2rem; /* Sedikit diperbesar */
+  line-height: 1.15;
+  margin-bottom: 0.5rem;
+}
 
-    .hero-text h1 .script {
-      display: block;
-      font-family: 'Brush Script MT', cursive;
-      font-style: italic;
-      font-weight: 400;
-      color: var(--gold);
-      font-size: 5.5rem;
-      line-height: 0.9;
-      margin: 0.2rem 0 1.2rem 0;
-    }
+.hero-text h1 .script {
+  display: block;
+  font-family: 'Brush Script MT', cursive;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--gold);
+  font-size: 5rem;
+  line-height: 1;
+  margin: 0.3rem 0 1rem 0;
+}
 
-    .hero-text p {
-      font-family: 'Poppins', sans-serif;
-      color: rgba(255, 255, 255, 0.95);
-      font-size: 0.95rem;
-      line-height: 1.5;
-      max-width: 450px;
-      margin: 0 auto 2rem auto;
-      font-weight: 400;
-    }
+.hero-text p {
+  font-family: 'Poppins', sans-serif;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.05rem;
+  line-height: 1.6;
+  max-width: 540px;
+  margin: 0 0 2rem 0;
+}
 
     .btn-gray-pill {
       font-family: 'Poppins', sans-serif;
@@ -94,12 +110,13 @@
 
     .hero-logo-wrap {
       display: flex;
-      justify-content: flex-end;
+      justify-content: center;
+      align-items: center;
     }
 
     .logo-img-hero {
-      width: clamp(280px, 40vw, 400px);
-      height: clamp(280px, 40vw, 400px);
+      width: clamp(260px, 30vw, 360px);
+      height: clamp(260px, 30vw, 360px);
       border-radius: 50%;
       object-fit: cover;
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
@@ -134,23 +151,16 @@
       color: var(--text-gray);
     }
 
-    .section-title-center {
-        font-family: 'Playfair Display', serif; 
-        color: var(--maroon-dark); 
-        font-size: 1.8rem; 
-        font-weight: 700; 
-        margin-top: 0.5rem; 
-        margin-bottom: 0.5rem;
-    }
-
     /* ══ GARIS PEMBATAS DEKORATIF ══ */
     .section-divider {
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: 0 auto;
-      width: 80%;
-      max-width: 900px;
+      margin: 2rem auto;
+      width: 100%;
+      max-width: 1280px;
+      padding: 0 1.5rem;
+      box-sizing: border-box;
     }
     .section-divider::before, .section-divider::after {
       content: '';
@@ -176,7 +186,7 @@
     .profile-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 4rem;
+      gap: 3rem;
       align-items: center;
     }
 
@@ -198,20 +208,20 @@
     .profile-card {
       background: #7a1212;
       border-radius: 20px;
-      padding: 3rem 2rem;
+      padding: 3rem 2rem 2rem;
       text-align: center;
       color: var(--white);
       position: relative;
-      margin-top: 4rem;
+      margin-top: 3rem;
       box-shadow: 0 10px 25px rgba(0,0,0,0.05);
     }
 
     .profile-card-img {
-      width: 180px;
-      height: 180px;
+      width: 140px;
+      height: 140px;
       object-fit: cover;
       position: absolute;
-      top: -100px;
+      top: -70px;
       left: 50%;
       transform: translateX(-50%);
       border-radius: 50%;
@@ -225,7 +235,7 @@
       font-size: 1.3rem;
       font-weight: 700;
       color: var(--gold);
-      margin: 5rem 0 0.5rem;
+      margin: 3.5rem 0 0.3rem;
     }
 
     .profile-card .role-title {
@@ -264,7 +274,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 2rem;
-      margin-bottom: 3rem;
+      margin-bottom: 2rem;
     }
 
     .katalog-link-card {
@@ -280,6 +290,7 @@
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       transition: transform 0.3s, box-shadow 0.3s;
       border: 1px solid #eee;
+      height: 100%;
     }
     .katalog-link-card:hover .katalog-card {
       transform: translateY(-5px);
@@ -342,11 +353,6 @@
       font-weight: 700;
     }
 
-    .katalog-actions {
-      display: flex;
-      gap: 0.5rem;
-    }
-
     .katalog-actions span {
       font-size: 0.8rem;
       font-family: 'Poppins', sans-serif;
@@ -386,12 +392,13 @@
       padding: 2.5rem;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       min-height: 380px;
     }
 
     .badge-yellow {
       align-self: flex-start;
-      margin-bottom: auto;
+      margin-bottom: 1rem;
       background: var(--gold);
       color: var(--maroon-dark);
       font-size: 0.75rem;
@@ -406,13 +413,12 @@
       font-weight: 700;
       color: var(--white);
       font-size: 1.6rem;
-      margin-bottom: 1.2rem;
+      margin-bottom: 1rem;
       line-height: 1.4;
-      margin-top: 1.5rem;
     }
 
     .berita-main p {
-      color: rgba(255, 255, 255, 0.7);
+      color: rgba(255, 255, 255, 0.8);
       font-size: 0.85rem;
       line-height: 1.6;
       margin-bottom: 2rem;
@@ -422,10 +428,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
     }
 
     .meta span {
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.7);
       font-size: 0.8rem;
     }
 
@@ -459,13 +467,9 @@
       overflow: hidden;
       transition: background-color 0.2s;
     }
+
     .berita-list a:hover .berita-item {
       background: #f1f1f1;
-    }
-
-    .berita-img-placeholder {
-      width: 100px;
-      background: var(--maroon-dark);
     }
 
     .berita-item-content {
@@ -534,79 +538,11 @@
       box-shadow: 0 5px 15px rgba(0,0,0,0.15);
     }
 
-    /* ══ GRID TIM PENGURUS & PELATIH ══ */
-    .cards-grid { 
-        display: grid; 
-        grid-template-columns: repeat(5, 1fr); 
-        gap: 1.2rem; 
-        margin-top: 1.5rem; 
-        margin-bottom: 3rem; 
-    }
-    .profile-card-team { 
-        background: #ffffff; 
-        border-radius: 12px; 
-        overflow: hidden; 
-        box-shadow: 0 4px 12px rgba(0,0,0,0.04); 
-        text-align: center; 
-        padding-bottom: 1rem; 
-        border: 1px solid #f0f0f0;
-    }
-    
-    .avatar-wrapper { 
-        width: 100%; 
-        height: 180px; 
-        overflow: hidden; 
-        background-color: #eee; 
-        position: relative; 
-    }
-    .avatar-wrapper img { 
-        width: 100%; 
-        height: 100%; 
-        object-fit: cover; 
-        position: absolute; 
-        top: 0; left: 0; 
-        opacity: 0; 
-        transition: opacity 0.5s ease-in-out; 
-    }
-    .avatar-wrapper img.active { opacity: 1; }
-
-    .inline-error-fallback {
-        width: 100%; height: 100%; display: none; flex-direction: column; align-items: center; justify-content: center; background-color: #e5e7eb; color: #9ca3af; position: absolute; top: 0; left: 0; z-index: 10;
-    }
-    .inline-error-fallback.active { display: flex; }
-
-    .profile-info { padding: 0.8rem 0.5rem 0.4rem; position: relative; z-index: 15; background: #fff; }
-    .profile-info h4 { margin: 0; font-size: 0.95rem; color: #333; font-weight: 700; }
-    .profile-info p { margin: 2px 0 8px; font-size: 0.75rem; color: #888; font-weight: 500; }
-    .profile-socials { display: flex; justify-content: center; gap: 8px; }
-    
-    .social-btn {
-        width: 28px; 
-        height: 28px; 
-        border-radius: 50%; 
-        background-color: var(--maroon-dark); 
-        color: white; 
-        display: flex; 
-        align-items: center; 
-        justify-content: center; 
-        font-size: 0.75rem; 
-        text-decoration: none; 
-        transition: background-color 0.2s;
-    }
-    .social-btn:hover { background-color: #b22222; }
-
     /* ══ KALENDER EVENT ══ */
     #kalender {
         background: #ffffff !important;
-        padding: 80px 0;
+        padding: 5rem 1.5rem;
         width: 100%;
-        display: block;
-    }
-
-    .kalender-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 20px;
     }
 
     .kalender-grid {
@@ -763,7 +699,7 @@
     #cta-join {
         background-color: #3D0C0C;
         color: var(--white);
-        padding: 5rem 10%;
+        padding: 5rem 1.5rem;
     }
 
     .cta-container {
@@ -788,14 +724,14 @@
     .cta-content h2 {
         font-size: 2.8rem;
         line-height: 1.2;
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         font-family: 'Playfair Display', serif;
     }
 
     .cta-content p {
         font-size: 1rem;
         line-height: 1.7;
-        opacity: 0.8;
+        opacity: 0.85;
         max-width: 600px;
     }
 
@@ -821,10 +757,16 @@
         transform: translateY(-5px);
     }
 
-    
+    /* RESPONSIVE */
     @media (max-width: 992px) {
         .hero-grid, .profile-grid, .berita-grid, .kalender-grid, .cta-container {
             grid-template-columns: 1fr;
+        }
+        .hero-text {
+            text-align: center;
+        }
+        .hero-text p {
+            margin: 0 auto 2rem auto;
         }
         .katalog-grid {
             grid-template-columns: repeat(2, 1fr);
@@ -832,7 +774,7 @@
         .hero-logo-wrap, .cta-action {
             justify-content: center;
             text-align: center;
-            margin-top: 2rem;
+            margin-top: 1.5rem;
         }
         .galeri-mosaik {
             grid-template-columns: repeat(2, 1fr);
@@ -841,115 +783,23 @@
             max-width: 400px;
             margin: 0 auto;
         }
-        .cards-grid {
-            grid-template-columns: repeat(3, 1fr);
-        }
     }
 
     @media (max-width: 768px) {
         section {
-            padding: 3rem 5%;
+            padding: 3.5rem 1rem;
         }
         .hero-text h1 {
             font-size: 2.2rem;
         }
         .hero-text h1 .script {
-            font-size: 3rem;
+            font-size: 3.5rem;
         }
-        .hero-text p {
-            font-size: 0.85rem;
-        }
-        .btn-gray-pill, .btn-dark-pill, .btn-dark-red-pill {
-            padding: 0.5rem 1.5rem;
-            font-size: 0.85rem;
-        }
-        .section-title {
-            font-size: 1.8rem;
-        }
-        .katalog-grid {
+        .katalog-grid, .berita-grid {
             grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-        .berita-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-        .berita-main {
-            padding: 1.5rem;
-            min-height: auto;
-        }
-        .berita-main h3 {
-            font-size: 1.3rem;
-        }
-        .galeri-mosaik {
-            grid-template-columns: repeat(2, 1fr);
-            grid-auto-rows: 180px;
-        }
-        .cards-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-        .kalender-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-        .event-card {
-            flex-direction: column;
-            text-align: center;
-        }
-        #kalender .event-date {
-            align-self: center;
         }
         .cta-content h2 {
             font-size: 2rem;
-        }
-        .btn-daftar-cta {
-            padding: 0.8rem 2rem;
-            font-size: 0.9rem;
-        }
-        .profile-grid {
-            gap: 2rem;
-        }
-        .profile-card-img {
-            width: 120px;
-            height: 120px;
-            top: -60px;
-        }
-        .profile-card h4 {
-            margin-top: 3rem;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .hero-text h1 {
-            font-size: 1.8rem;
-        }
-        .hero-text h1 .script {
-            font-size: 2.5rem;
-        }
-        .logo-img-hero {
-            width: 200px;
-            height: 200px;
-        }
-        .section-title {
-            font-size: 1.5rem;
-        }
-        .galeri-mosaik {
-            grid-template-columns: 1fr;
-            grid-auto-rows: 200px;
-        }
-        .cards-grid {
-            grid-template-columns: 1fr;
-        }
-        .badge-pill, .badge-yellow, .cta-badge {
-            font-size: 0.65rem;
-            padding: 0.2rem 0.8rem;
-        }
-        .visi-card, .misi-card {
-            padding: 20px !important;
-        }
-        .visi-card p, .misi-card div {
-            font-size: 0.85rem !important;
         }
     }
   </style>
@@ -958,76 +808,80 @@
 @section('content')
   {{-- ══ HERO SECTION ══ --}}
   <section id="beranda">
-    <div class="hero-grid">
-      <div class="hero-text">
-        <h1>Sanggar Tari <span class="script">Jiwa Etnik Blambangan</span></h1>
-        <p>Pusat pelestarian seni dan budaya tari tradisional Banyuwangi. Menggerakkan jiwa, merayakan budaya, melestarikan warisan Nusantara.</p>
-        <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat Galeri</a>
-      </div>
-      <div class="hero-logo-wrap">
-        @if($profil && $profil->logo && $profil->logo->path)
-          <img src="{{ asset('storage/' . $profil->logo->path) }}" alt="Logo Sanggar Jiwa Etnik Blambangan" class="logo-img-hero" />
-        @else
-          <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo Default Sanggar" class="logo-img-hero" />
-        @endif
+    <div class="section-wrapper">
+      <div class="hero-grid">
+        <div class="hero-text">
+          <h1>Sanggar Tari <span class="script">Jiwa Etnik Blambangan</span></h1>
+          <p>Pusat pelestarian seni dan budaya tari tradisional Banyuwangi. Menggerakkan jiwa, merayakan budaya, melestarikan warisan Nusantara.</p>
+          <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat Galeri</a>
+        </div>
+        <div class="hero-logo-wrap">
+          @if($profil && $profil->logo && $profil->logo->path)
+            <img src="{{ asset('storage/' . $profil->logo->path) }}" alt="Logo Sanggar Jiwa Etnik Blambangan" class="logo-img-hero" />
+          @else
+            <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo Default Sanggar" class="logo-img-hero" />
+          @endif
+        </div>
       </div>
     </div>
   </section>
 
   {{-- ══ PROFILE SECTION ══ --}}
   <section id="profile">
-    <div class="section-header">
-      <span class="badge-pill">TENTANG KAMI</span>
-      <h2 class="section-title">Profile Sanggar</h2>
-      <p class="section-subtitle">Mengenal lebih dekat Sanggar Tari Jiwa Etnik Blambangan</p>
-    </div>
-    <div class="profile-grid">
-      <div class="profile-text">
-        <h3>Jiwa Etnik Blambangan</h3>
-        <p>{{ $profil->deskripsi ?? 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional yang berdedikasi untuk melestarikan kekayaan budaya Banyuwangi.'}}</p>
-        <p>{{ $profil->sejarah ?? 'Kami membina generasi muda untuk mencintai dan menguasai seni tari tradisional, mulai dari tari Gandrung, hingga tari kreasi baru berbasis budaya lokal Blambangan.' }}</p>
+    <div class="section-wrapper">
+      <div class="section-header">
+        <span class="badge-pill">TENTANG KAMI</span>
+        <h2 class="section-title">Profile Sanggar</h2>
+        <p class="section-subtitle">Mengenal lebih dekat Sanggar Tari Jiwa Etnik Blambangan</p>
       </div>
-      <div class="profile-card">
-        @if($profil && $profil->fotoPembina && $profil->fotoPembina->path)
-          <img src="{{ asset('storage/' . $profil->fotoPembina->path) }}" alt="Foto Pembina Sanggar" class="profile-card-img">
-        @else
-          <img src="{{ asset('img/images-landing-page/galeri/foto_pembina.jpeg') }}" alt="Default Pembina Sanggar" class="profile-card-img">
-        @endif
-        <h4>{{ $profil->nama_pembina ?? 'Adlin Mustika Alam' }}</h4>
-        <div class="role-title">Pembina Sanggar JEB</div>
-        <p>"{{ $profil->sambutan_pembina ?? 'Tari Tradisional adalah jiwa dari identitas budaya kita. Bersama kami, lestarikan dan rayakan kekayaan seni Nusantara.' }}"</p>
+      <div class="profile-grid">
+        <div class="profile-text">
+          <h3>Jiwa Etnik Blambangan</h3>
+          <p>{{ $profil->deskripsi ?? 'Sanggar Tari Jiwa Etnik Blambangan (JEB) adalah pusat seni tari tradisional yang berdedikasi untuk melestarikan kekayaan budaya Banyuwangi.'}}</p>
+          <p>{{ $profil->sejarah ?? 'Kami membina generasi muda untuk mencintai dan menguasai seni tari tradisional, mulai dari tari Gandrung, hingga tari kreasi baru berbasis budaya lokal Blambangan.' }}</p>
+        </div>
+        <div class="profile-card">
+          @if($profil && $profil->fotoPembina && $profil->fotoPembina->path)
+            <img src="{{ asset('storage/' . $profil->fotoPembina->path) }}" alt="Foto Pembina Sanggar" class="profile-card-img">
+          @else
+            <img src="{{ asset('img/images-landing-page/galeri/foto_pembina.jpeg') }}" alt="Default Pembina Sanggar" class="profile-card-img">
+          @endif
+          <h4>{{ $profil->nama_pembina ?? 'Adlin Mustika Alam' }}</h4>
+          <div class="role-title">Pembina Sanggar JEB</div>
+          <p>"{{ $profil->sambutan_pembina ?? 'Tari Tradisional adalah jiwa dari identitas budaya kita. Bersama kami, lestarikan dan rayakan kekayaan seni Nusantara.' }}"</p>
+        </div>
       </div>
-    </div>
-    <div class="center-action">
-      <a href="{{ route('umum.profil') }}" class="btn-dark-pill">Profil Lengkap Sanggar</a>
+      <div class="center-action">
+        <a href="{{ route('umum.profil') }}" class="btn-dark-pill">Profil Lengkap Sanggar</a>
+      </div>
     </div>
   </section>
   
-  {{-- ══ GARIS PEMBATAS ELEGAN VIA FONTAWESOME ══ --}}
+  {{-- ══ GARIS PEMBATAS ELEGAN ══ --}}
   <div class="section-divider">
     <i class="fas fa-gopuram"></i>
   </div>
 
   {{-- ══ VISI & MISI SECTION ══ --}}
-  <section class="section-visi-misi" style="padding: 60px 0; background-color: #fff;">
-    <div class="container" style="max-width: 900px; margin: auto; text-align: center;">
-        <h2 style="font-family: 'Playfair Display', serif; color: #3D0C0C; margin-bottom: 40px; font-weight: 700; font-size: 2.2rem;">VISI & MISI</h2>
+  <section class="section-visi-misi" style="padding: 3rem 1.5rem; background-color: #fff;">
+    <div class="section-wrapper" style="max-width: 900px; text-align: center;">
+        <h2 style="font-family: 'Playfair Display', serif; color: #3D0C0C; margin-bottom: 30px; font-weight: 700; font-size: 2.2rem;">VISI & MISI</h2>
 
-        <div class="visi-card" style="background: #a51c1c; color: white; padding: 40px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif; font-weight:700; color:#f1c40f; letter-spacing:1px;">VISI</h3>
-            <p style="font-size: 1.1rem; line-height: 1.6; margin: 0;">
+        <div class="visi-card" style="background: #a51c1c; color: white; padding: 30px; border-radius: 15px; margin-bottom: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif; font-weight:700; color:#f1c40f; letter-spacing:1px; margin-bottom: 10px;">VISI</h3>
+            <p style="font-size: 1.05rem; line-height: 1.6; margin: 0;">
                 {{ $profil->visi ?? 'Menjadi sanggar seni terdepan dalam melestarikan warisan luhur adat tari Blambangan di kancah nasional maupun internasional.' }}
             </p>
         </div>
 
-        <div class="misi-card" style="background: #fdf5e6; color: #3D0C0C; padding: 40px; border-radius: 15px; border: 1px solid #e0d0c0; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
-            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif; font-weight:700; color:#a51c1c; letter-spacing:1px;">MISI</h3>
-            <div style="font-size: 1.1rem; line-height: 1.8; text-align: left; color:#555; padding-left: 10px;">
+        <div class="misi-card" style="background: #fdf5e6; color: #3D0C0C; padding: 30px; border-radius: 15px; border: 1px solid #e0d0c0; box-shadow: 0 4px 15px rgba(0,0,0,0.02);">
+            <h3 style="margin-top: 0; font-family: 'Poppins', sans-serif; font-weight:700; color:#a51c1c; letter-spacing:1px; margin-bottom: 10px;">MISI</h3>
+            <div style="font-size: 1rem; line-height: 1.8; text-align: left; color:#555;">
                 @if($profil && $profil->misi)
                     {!! $profil->misi !!}
                 @else
-                    <p>1. Membina generasi muda aktif dalam mencintai kesenian lokal daerah.</p>
-                    <p>2. Menyelenggarakan pelatihan tari berkala bagi masyarakat umum.</p>
+                    <p style="margin-bottom: 0.5rem;">1. Membina generasi muda aktif dalam mencintai kesenian lokal daerah.</p>
+                    <p style="margin-bottom: 0;">2. Menyelenggarakan pelatihan tari berkala bagi masyarakat umum.</p>
                 @endif
             </div>
         </div>
@@ -1036,270 +890,258 @@
 
   {{-- ══ KATALOG KOSTUM SECTION ══ --}}
   <section id="katalog">
-    <div class="section-header">
-      <h2 class="section-title white">Katalog Kostum</h2>
-      <p class="section-subtitle white" style="color: var(--text-gray) !important;">Koleksi Kostum tari tradisional dan kreasi Sanggar JEB</p>
-    </div>
-    <div class="katalog-grid">
-      @forelse($katalogs as $item)
-      <a href="{{ route('umum.katalog-detail', $item->id) }}" class="katalog-link-card">
-          <div class="katalog-card">
-            <div class="katalog-img">
-              @php
-                $gambarPath = null;
-                if ($item->galeri) {
-                    if ($item->galeri instanceof \Illuminate\Support\Collection || $item->galeri instanceof \Illuminate\Database\Eloquent\Collection) {
-                        $gambarPath = $item->galeri->first()?->path;
-                    } else {
-                        $gambarPath = $item->galeri->path;
-                    }
-                }
-              @endphp
+    <div class="section-wrapper">
+      <div class="section-header">
+        <h2 class="section-title white">Katalog Kostum</h2>
+        <p class="section-subtitle white" style="color: var(--text-gray) !important;">Koleksi Kostum tari tradisional dan kreasi Sanggar JEB</p>
+      </div>
+      <div class="katalog-grid">
+        @forelse($katalogs as $item)
+        <a href="{{ route('umum.katalog-detail', $item->id) }}" class="katalog-link-card">
+            <div class="katalog-card">
+              <div class="katalog-img">
+                @php
+                  $gambarPath = null;
+                  if ($item->galeri) {
+                      if ($item->galeri instanceof \Illuminate\Support\Collection || $item->galeri instanceof \Illuminate\Database\Eloquent\Collection) {
+                          $gambarPath = $item->galeri->first()?->path;
+                      } else {
+                          $gambarPath = $item->galeri->path;
+                      }
+                  }
+                @endphp
 
-              @if($gambarPath)
-                <img src="{{ asset('storage/' . $gambarPath) }}" alt="{{ $item->nama_tari }}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.backgroundColor='#ffffff';">
-              @else
-                <img src="{{ asset('img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.backgroundColor='#ffffff';">
-              @endif
-              
-              <span class="badge">{{ $item->kategori }}</span>
-            </div>
-            <div class="katalog-info">
-              <h4>{{ $item->nama_tari }}</h4>
-              <p>{{ Str::limit(strip_tags($item->deskripsi), 80) }}</p>
-              <div class="katalog-footer">
-                <span class="tipe" style="color: {{ $item->status == 'tersedia' ? '#28a745' : '#dc3545' }} ;">
-                    {{ $item->status == 'tersedia' ? 'Tersedia' : 'Tidak Tersedia' }}
-                </span>
-                <div class="katalog-actions">
-                  <span>Stok: {{ $item->stok ?? 0 }}</span>
+                @if($gambarPath)
+                  <img src="{{ asset('storage/' . $gambarPath) }}" alt="{{ $item->nama_tari }}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.backgroundColor='#ffffff';">
+                @else
+                  <img src="{{ asset('img/images-landing-page/banner_katalog.jpeg') }}" alt="{{ $item->nama_tari }}" onerror="this.onerror=null; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7'; this.style.backgroundColor='#ffffff';">
+                @endif
+                
+                <span class="badge">{{ $item->kategori }}</span>
+              </div>
+              <div class="katalog-info">
+                <h4>{{ $item->nama_tari }}</h4>
+                <p>{{ Str::limit(strip_tags($item->deskripsi), 80) }}</p>
+                <div class="katalog-footer">
+                  <span class="tipe" style="color: {{ $item->status == 'tersedia' ? '#28a745' : '#dc3545' }} ;">
+                      {{ $item->status == 'tersedia' ? 'Tersedia' : 'Tidak Tersedia' }}
+                  </span>
+                  <div class="katalog-actions">
+                    <span>Stok: {{ $item->stok ?? 0 }}</span>
+                  </div>
                 </div>
               </div>
             </div>
+        </a>
+        @empty
+        <div class="katalog-card" style="grid-column: 1/-1; text-align: center; padding: 30px;">
+          <div class="katalog-info">
+            <h4>Belum ada data katalog kostum</h4>
+            <p>Koleksi kostum panggung sanggar menanti untuk diperbarui.</p>
           </div>
-      </a>
-      @empty
-      <div class="katalog-card" style="grid-column: 1/-1; text-align: center; padding: 30px;">
-        <div class="katalog-info">
-          <h4>Belum ada data katalog kostum</h4>
-          <p>Koleksi kostum panggung sanggar menanti untuk diperbarui.</p>
         </div>
+        @endforelse
       </div>
-      @endforelse
-    </div>
-    <div class="center-action">
-      <a href="{{ route('umum.katalog') }}" class="btn-dark-red-pill">Lihat semua katalog</a>
+      <div class="center-action">
+        <a href="{{ route('umum.katalog') }}" class="btn-dark-red-pill">Lihat semua katalog</a>
+      </div>
     </div>
   </section>  
 
   {{-- ══ BERITA SECTION ══ --}}
   <section id="berita">
-    <div class="section-header">
-      <span class="badge-pill">INFORMASI</span>
-      <h2 class="section-title">Berita & Artikel</h2>
-      <p class="section-subtitle">Kabar terbaru kegiatan dan prestasi sanggar JEB</p>
-    </div>
-    <div class="berita-grid">
-      @if($beritaUtama)
-        @php
-          $pathBeritaUtama = 'img/images-landing-page/banner_berita.jpeg';
-          if ($beritaUtama->galeri && $beritaUtama->galeri->isNotEmpty()) {
-              $pathBeritaUtama = 'storage/' . $beritaUtama->galeri->first()->path;
-          } elseif ($beritaUtama->galeri && isset($beritaUtama->galeri->path)) {
-              $pathBeritaUtama = 'storage/' . $beritaUtama->galeri->path;
-          }
-          $coverUtama = asset($pathBeritaUtama);
-        @endphp
-        <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(30, 5, 5, 0.8)), url('{{ $coverUtama }}'); background-size: cover; background-position: center;">
-          <span class="badge-yellow">BERITA UTAMA</span>
-          <h3>{{ $beritaUtama->judul }}</h3>
-          <p>{{ Str::limit(strip_tags($beritaUtama->isi_berita), 150) }}</p>
-          <div class="meta">
-            <span>Berita • {{ \Carbon\Carbon::parse($beritaUtama->tgl_terbit)->translatedFormat('d M Y') }} • {{ $beritaUtama->user->name ?? 'Admin' }}</span>
-            <a href="{{ route('umum.berita-detail', $beritaUtama->id) }}" class="btn-red-pill">Baca Selengkapnya</a>
-          </div>
-        </div>
-      @else
-        <div class="berita-main" style="background: #5a1a1a; justify-content: center; align-items: center; text-align: center;">
-          <span class="badge-yellow">BERITA UTAMA</span>
-          <h3 style="margin-top: 1rem;">Belum ada berita utama</h3>
-          <p>Kabar info menarik seputar sanggar tari JEB akan segera hadir.</p>
-        </div>
-      @endif
-
-      <div class="berita-list">
-        @forelse($beritaTerbaru as $item)
+    <div class="section-wrapper">
+      <div class="section-header">
+        <span class="badge-pill">INFORMASI</span>
+        <h2 class="section-title">Berita & Artikel</h2>
+        <p class="section-subtitle">Kabar terbaru kegiatan dan prestasi sanggar JEB</p>
+      </div>
+      <div class="berita-grid">
+        @if($beritaUtama)
           @php
-            $pathBeritaTerbaru = 'img/images-landing-page/banner_berita.jpeg';
-            if ($item->galeri && $item->galeri->isNotEmpty()) {
-                $pathBeritaTerbaru = 'storage/' . $item->galeri->first()->path;
-            } elseif ($item->galeri && isset($item->galeri->path)) {
-                $pathBeritaTerbaru = 'storage/' . $item->galeri->path;
+            $pathBeritaUtama = 'img/images-landing-page/banner_berita.jpeg';
+            if ($beritaUtama->galeri && $beritaUtama->galeri->isNotEmpty()) {
+                $pathBeritaUtama = 'storage/' . $beritaUtama->galeri->first()->path;
+            } elseif ($beritaUtama->galeri && isset($beritaUtama->galeri->path)) {
+                $pathBeritaUtama = 'storage/' . $beritaUtama->galeri->path;
             }
-            $coverTerbaru = asset($pathBeritaTerbaru);
+            $coverUtama = asset($pathBeritaUtama);
           @endphp
-          <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
-            <div class="berita-item">
-              <div class="berita-img-placeholder" style="background: url('{{ $coverTerbaru }}'); background-size: cover; background-position: center; width: 120px; min-width: 120px; height: 100px;"></div>
-              <div class="berita-item-content">
-                <span class="tag">Berita</span>
-                <h5>{{ Str::limit($item->judul, 60) }}</h5>
-                <span>{{ \Carbon\Carbon::parse($item->tgl_terbit)->translatedFormat('d M Y') }} - {{ $item->user->name ?? 'Admin' }}</span>
+          <div class="berita-main" style="background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(30, 5, 5, 0.85)), url('{{ $coverUtama }}'); background-size: cover; background-position: center;">
+            <div>
+              <span class="badge-yellow">BERITA UTAMA</span>
+              <h3>{{ $beritaUtama->judul }}</h3>
+              <p>{{ Str::limit(strip_tags($beritaUtama->isi_berita), 150) }}</p>
+            </div>
+            <div class="meta">
+              <span>Berita • {{ \Carbon\Carbon::parse($beritaUtama->tgl_terbit)->translatedFormat('d M Y') }} • {{ $beritaUtama->user->name ?? 'Admin' }}</span>
+              <a href="{{ route('umum.berita-detail', $beritaUtama->id) }}" class="btn-red-pill">Baca Selengkapnya</a>
+            </div>
+          </div>
+        @else
+          <div class="berita-main" style="background: #5a1a1a; justify-content: center; align-items: center; text-align: center;">
+            <span class="badge-yellow">BERITA UTAMA</span>
+            <h3 style="margin-top: 1rem;">Belum ada berita utama</h3>
+            <p>Kabar info menarik seputar sanggar tari JEB akan segera hadir.</p>
+          </div>
+        @endif
+
+        <div class="berita-list">
+          @forelse($beritaTerbaru as $item)
+            @php
+              $pathBeritaTerbaru = 'img/images-landing-page/banner_berita.jpeg';
+              if ($item->galeri && $item->galeri->isNotEmpty()) {
+                  $pathBeritaTerbaru = 'storage/' . $item->galeri->first()->path;
+              } elseif ($item->galeri && isset($item->galeri->path)) {
+                  $pathBeritaTerbaru = 'storage/' . $item->galeri->path;
+              }
+              $coverTerbaru = asset($pathBeritaTerbaru);
+            @endphp
+            <a href="{{ route('umum.berita-detail', $item->id) }}" style="text-decoration: none; color: inherit;">
+              <div class="berita-item">
+                <div style="background: url('{{ $coverTerbaru }}'); background-size: cover; background-position: center; width: 120px; min-width: 120px; height: 100px;"></div>
+                <div class="berita-item-content">
+                  <span class="tag">Berita</span>
+                  <h5>{{ Str::limit($item->judul, 60) }}</h5>
+                  <span>{{ \Carbon\Carbon::parse($item->tgl_terbit)->translatedFormat('d M Y') }} - {{ $item->user->name ?? 'Admin' }}</span>
+                </div>
+              </div>
+            </a>
+          @empty
+            <div class="berita-item" style="padding: 20px; text-align: center;">
+              <div class="berita-item-content" style="align-items: center; width: 100%;">
+                <span class="tag">Kosong</span>
+                <h5>Belum ada kumpulan berita terbaru</h5>
               </div>
             </div>
-          </a>
-        @empty
-          <div class="berita-item" style="padding: 20px; text-align: center;">
-            <div class="berita-item-content" style="align-items: center; width: 100%;">
-              <span class="tag">Kosong</span>
-              <h5>Belum ada kumpulan berita terbaru</h5>
-            </div>
-          </div>
-        @endforelse
+          @endforelse
+        </div>
       </div>
-    </div>
-    <div class="center-action">
-      <a href="{{ route('umum.berita') }}" class="btn-dark-pill">Lihat Semua Berita</a>
+      <div class="center-action">
+        <a href="{{ route('umum.berita') }}" class="btn-dark-pill">Lihat Semua Berita</a>
+      </div>
     </div>
   </section>
 
   {{-- ══ GALERI MOSAIK SECTION ══ --}}
-<section id="galeri">
-  <div class="section-header">
-    <span class="badge-pill" style="background:transparent; border:1px solid var(--maroon-dark); color:var(--maroon-dark);">DOKUMENTASI</span>
-    <h2 class="section-title white">Galeri Sanggar</h2>
-    <p class="section-subtitle white" style="color: var(--text-gray) !important;">Momen indah perjalanan seni dan budaya Jiwa Etnik Blambangan</p>
-  </div>
-  <div class="galeri-mosaik">
-    @forelse($galeri as $item)
-      <a href="{{ route('umum.galeri-detail', $item->id) }}" class="g-box" style="background-image: url('{{ asset('storage/' . $item->path) }}'); background-size: cover; background-position: center; display: block;"></a>
-    @empty
-      <div class="g-box"></div>
-      <div class="g-box"></div>
-      <div class="g-box"></div>
-      <div class="g-box"></div>
-      <div class="g-box"></div>
-      <div class="g-box"></div>
-    @endforelse
-  </div>
-  <div class="center-action">
-    <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat selengkapnya</a>
-  </div>
-</section>
+  <section id="galeri">
+    <div class="section-wrapper">
+      <div class="section-header">
+        <span class="badge-pill" style="background:transparent; border:1px solid var(--maroon-dark); color:var(--maroon-dark);">DOKUMENTASI</span>
+        <h2 class="section-title white">Galeri Sanggar</h2>
+        <p class="section-subtitle white" style="color: var(--text-gray) !important;">Momen indah perjalanan seni dan budaya Jiwa Etnik Blambangan</p>
+      </div>
+      <div class="galeri-mosaik">
+        @forelse($galeri as $item)
+          <a href="{{ route('umum.galeri-detail', $item->id) }}" class="g-box" style="background-image: url('{{ asset('storage/' . $item->path) }}'); background-size: cover; background-position: center; display: block;"></a>
+        @empty
+          <div class="g-box"></div>
+          <div class="g-box"></div>
+          <div class="g-box"></div>
+          <div class="g-box"></div>
+          <div class="g-box"></div>
+          <div class="g-box"></div>
+        @endforelse
+      </div>
+      <div class="center-action">
+        <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat selengkapnya</a>
+      </div>
+    </div>
+  </section>
 
   {{-- ══ KALENDER EVENT SECTION ══ --}}
   <section id="kalender">
-    <div class="section-header">
-        <span class="badge-pill">KEGIATAN</span>
-        <h2 class="section-title">Kalender Event</h2>
-        <p class="section-subtitle">Jadwal pentas dan kegiatan Sanggar JEB</p>
-    </div>
+    <div class="section-wrapper">
+      <div class="section-header">
+          <span class="badge-pill">KEGIATAN</span>
+          <h2 class="section-title">Kalender Event</h2>
+          <p class="section-subtitle">Jadwal pentas dan kegiatan Sanggar JEB</p>
+      </div>
 
-    <div class="kalender-container">
-        <div class="kalender-grid">
-            <div class="cal-widget">
-                <div class="cal-header">{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</div>
-                <div class="cal-body">
-                    <div class="cal-grid">
-                        <span class="day-name">Su</span><span class="day-name">Mo</span><span class="day-name">Tu</span><span class="day-name">We</span><span class="day-name">Th</span><span class="day-name">Fr</span><span class="day-name">Sa</span>
-                        
-                        @for($x = 0; $x < ($blankDays ?? 0); $x++)
-                            <span></span>
-                        @endfor
+      <div class="kalender-grid">
+          <div class="cal-widget">
+              <div class="cal-header">{{ \Carbon\Carbon::now()->translatedFormat('F Y') }}</div>
+              <div class="cal-body">
+                  <div class="cal-grid">
+                      <span class="day-name">Su</span><span class="day-name">Mo</span><span class="day-name">Tu</span><span class="day-name">We</span><span class="day-name">Th</span><span class="day-name">Fr</span><span class="day-name">Sa</span>
+                      
+                      @for($x = 0; $x < ($blankDays ?? 0); $x++)
+                          <span></span>
+                      @endfor
 
-                        @for($i = 1; $i <= ($daysInMonth ?? 30); $i++)
-                            @php 
-                                $isEvent = in_array($i, $eventDays ?? []); 
-                                $isToday = ($i == date('d') && \Carbon\Carbon::now()->month == date('m'));
-                            @endphp
-                            <span class="{{ $isEvent ? 'event-day' : '' }} {{ $isToday ? 'active-today' : '' }}">
-                                {{ $i }}
-                            </span>
-                        @endfor
-                    </div>
-                </div>
-            </div> 
-            
-            <div class="event-list">
-                @forelse($events as $event)
-                <a href="{{ route('umum.event-detail', $event->id) }}" class="event-link-card">
-                    <div class="event-card">
-                        <div class="event-date">
-                            <h2>{{ \Carbon\Carbon::parse($event->tanggal)->format('d') }}</h2>
-                            <span>{{ strtoupper(\Carbon\Carbon::parse($event->tanggal)->translatedFormat('M')) }}</span>
-                        </div>
-                        <div class="event-info">
-                            <h4>{{ $event->nama }}</h4>
-                            <p>{{ Str::limit(strip_tags($event->deskripsi), 160) ?? 'Kegiatan pertunjukan seni tari Sanggar Tari JEB.' }}</p>
-                            <div class="meta">
-                                <span>📍 {{ Str::limit($event->lokasi, 40) }}</span>
-                                <span style="margin-left: 15px;">🕒 {{ \Carbon\Carbon::parse($event->jam)->format('H:i') }} WIB</span>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-                @empty
-                <div class="event-card" style="justify-content: center; padding: 40px; color:#aaa; width:100%;">
-                    <p style="margin:0; font-weight:600;">Belum ada event terjadwal bulan ini.</p>
-                </div>
-                @endforelse
-            </div> 
-            
-            <div class="center-action" style="text-align: center; margin-top: 4rem; width: 100%; grid-column: 1 / -1;">
-                <a href="{{ route('umum.event') }}" class="btn-dark-pill" style="background: #5a1a1a; color: #fff; padding: 0.8rem 3rem; border-radius: 30px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.3s;">
-                    Lihat Semua Event
-                </a>
-            </div>
-        </div> 
+                      @for($i = 1; $i <= ($daysInMonth ?? 30); $i++)
+                          @php 
+                              $isEvent = in_array($i, $eventDays ?? []); 
+                              $isToday = ($i == date('d') && \Carbon\Carbon::now()->month == date('m'));
+                          @endphp
+                          <span class="{{ $isEvent ? 'event-day' : '' }} {{ $isToday ? 'active-today' : '' }}">
+                              {{ $i }}
+                          </span>
+                      @endfor
+                  </div>
+              </div>
+          </div> 
+          
+          <div class="event-list">
+              @forelse($events as $event)
+              <a href="{{ route('umum.event-detail', $event->id) }}" class="event-link-card">
+                  <div class="event-card">
+                      <div class="event-date">
+                          <h2>{{ \Carbon\Carbon::parse($event->tanggal)->format('d') }}</h2>
+                          <span>{{ strtoupper(\Carbon\Carbon::parse($event->tanggal)->translatedFormat('M')) }}</span>
+                      </div>
+                      <div class="event-info">
+                          <h4>{{ $event->nama }}</h4>
+                          <p>{{ Str::limit(strip_tags($event->deskripsi), 160) ?? 'Kegiatan pertunjukan seni tari Sanggar Tari JEB.' }}</p>
+                          <div class="meta">
+                              <span>📍 {{ Str::limit($event->lokasi, 40) }}</span>
+                              <span style="margin-left: 15px;">🕒 {{ \Carbon\Carbon::parse($event->jam)->format('H:i') }} WIB</span>
+                          </div>
+                      </div>
+                  </div>
+              </a>
+              @empty
+              <div class="event-card" style="justify-content: center; padding: 40px; color:#aaa; width:100%;">
+                  <p style="margin:0; font-weight:600;">Belum ada event terjadwal bulan ini.</p>
+              </div>
+              @endforelse
+          </div> 
+      </div> 
+      <div class="center-action" style="text-align: center; margin-top: 3rem;">
+          <a href="{{ route('umum.event') }}" class="btn-dark-pill" style="background: #5a1a1a; color: #fff; padding: 0.8rem 3rem; border-radius: 30px; text-decoration: none; font-weight: 600; display: inline-block; transition: 0.3s;">
+              Lihat Semua Event
+          </a>
+      </div>
     </div> 
   </section>
 
   {{-- ══ CTA JOIN SECTION ══ --}}
   <section id="cta-join">
-    <div class="cta-container">
-        <div class="cta-content">
-            <span class="cta-badge">BERGABUNG</span>
-            <h2>Kembangkan Bakat Seni <br> Anda Bersama Kami</h2>
-            <p>
-                Sanggar Seni Jiwa Etnik Blambangan adalah ruang kreatif bagi pecinta seni budaya Banyuwangi 
-                untuk belajar, berkarya, dan berprestasi. Kami menghadirkan pelatihan tari tradisional, 
-                pertunjukan seni, serta kegiatan budaya yang menginspirasi dan mempererat kebersamaan.
-            </p>
-        </div>
+    <div class="section-wrapper">
+      <div class="cta-container">
+          <div class="cta-content">
+              <span class="cta-badge">BERGABUNG</span>
+              <h2>Kembangkan Bakat Seni <br> Anda Bersama Kami</h2>
+              <p>
+                  Sanggar Seni Jiwa Etnik Blambangan adalah ruang kreatif bagi pecinta seni budaya Banyuwangi 
+                  untuk belajar, berkarya, dan berprestasi. Kami menghadirkan pelatihan tari tradisional, 
+                  pertunjukan seni, serta kegiatan budaya yang menginspirasi dan mempererat kebersamaan.
+              </p>
+          </div>
 
-        @php
-            $sistemCta = \App\Models\PengaturanSistem::first();
-            
-            if ($sistemCta && $sistemCta->link_wa) {
-                $nomorPendaftaran = preg_replace('/[^0-9]/', '', $sistemCta->link_wa);
-            } else {
-                $nomorPendaftaran = '6282232505355';
-            }
-        @endphp
+          @php
+              $sistemCta = \App\Models\PengaturanSistem::first();
+              if ($sistemCta && $sistemCta->link_wa) {
+                  $nomorPendaftaran = preg_replace('/[^0-9]/', '', $sistemCta->link_wa);
+              } else {
+                  $nomorPendaftaran = '6282232505355';
+              }
+          @endphp
 
-        <div class="cta-action">
-            <a href="https://wa.me/{{ $nomorPendaftaran }}" target="_blank" class="btn-daftar-cta">DAFTAR SEKARANG</a>
-        </div>
+          <div class="cta-action">
+              <a href="https://wa.me/{{ $nomorPendaftaran }}" target="_blank" class="btn-daftar-cta">DAFTAR SEKARANG</a>
+          </div>
+      </div>
     </div>
   </section>
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener("DOMContentLoaded", function() {
-        // AUTOMATIC SLIDESHOW MULTI-FOTO CARD TIM PENGURUS & PELATIH
-        const containers = document.querySelectorAll('.slideshow-container');
-        containers.forEach(container => {
-            const images = container.querySelectorAll('img');
-            if (images.length > 1) {
-                let currentIndex = 0;
-                setInterval(() => {
-                    images[currentIndex].classList.remove('active');
-                    currentIndex = (currentIndex + 1) % images.length;
-                    images[currentIndex].classList.add('active');
-                }, 5000);
-            }
-        });
-    });
-</script>
-@endpush

@@ -36,20 +36,32 @@
         top: 0;
         z-index: 200;
         background: var(--maroon-dark);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        width: 100%;
+    }
+
+    /* Container pembatas lebar */
+    .nav-container {
+        width: 100%;
+        max-width: 1280px; /* Diperlebar sedikit agar lebih muat */
+        margin: 0 auto;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 0.8rem 4%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        flex-wrap: nowrap;
+        padding: 0.8rem 1.5rem; /* Padding disesuaikan */
     }
+
     .nav-logo {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 0.6rem;
+        flex-shrink: 0;
     }
+
     .logo-img-nav {
-        width: 45px;
-        height: 45px;
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
         object-fit: cover;
         border: 2px solid var(--white);
@@ -58,39 +70,47 @@
         font-family: 'Playfair Display', serif;
         font-style: italic;
         font-weight: 700;
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         color: var(--white);
         letter-spacing: 1px;
     }
+
     /* Desktop menu */
     .nav-links {
         display: flex;
         align-items: center;
-        gap: 1.5rem;
+        gap: 0.8rem; /* Jarak antar-menu dirapatkan */
+        flex-shrink: 0;
     }
+
     .nav-links a {
         color: var(--white);
         text-decoration: none;
-        font-size: 0.85rem;
+        font-size: 0.82rem; /* Ukuran font disesuaikan */
         font-weight: 400;
         transition: color .2s;
+        white-space: nowrap;
     }
+
     .nav-links a:hover, .nav-links a.active {
         color: var(--gold);
     }
+
     .btn-login {
         border: 1px solid var(--gold);
         color: var(--gold) !important;
         border-radius: 20px;
-        padding: 0.4rem 1.2rem;
+        padding: 0.35rem 1rem;
         display: flex;
         align-items: center;
         gap: 0.4rem;
+        flex-shrink: 0;
     }
     .btn-login:hover {
         background: var(--gold);
         color: var(--maroon-dark) !important;
     }
+
     /* Mobile menu button */
     .mobile-menu-btn {
         display: none;
@@ -133,39 +153,54 @@
     footer {
         background: var(--maroon-dark);
         color: var(--white);
-        padding: 4rem 8% 2rem;
+        padding: 3.5rem 1.5rem 2rem; /* Padding samping disesuaikan */
         border-top: 4px solid var(--gold);
+        width: 100%;
     }
+
+    /* Container pembatas agar footer tepat berada di tengah */
+    .footer-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        width: 100%;
+    }
+
     .footer-grid {
         display: grid;
         grid-template-columns: 2fr 1fr 1fr;
         gap: 3rem;
         margin-bottom: 3rem;
     }
+
     .footer-brand h3 {
         font-family: 'Playfair Display', serif;
         font-size: 1.5rem;
         color: var(--gold);
         margin-bottom: 1rem;
     }
+
     .footer-brand p {
         font-size: 0.85rem;
         color: rgba(255,255,255,0.7);
         line-height: 1.8;
         max-width: 400px;
     }
+
     .footer-links h4 {
         font-family: 'Playfair Display', serif;
         font-size: 1.1rem;
         margin-bottom: 1.2rem;
         color: var(--white);
     }
+
     .footer-links ul {
         list-style: none;
     }
+
     .footer-links ul li {
         margin-bottom: 0.8rem;
     }
+
     .footer-links ul li a {
         color: rgba(255,255,255,0.7);
         text-decoration: none;
@@ -175,9 +210,11 @@
         align-items: center;
         gap: 8px;
     }
+
     .footer-links ul li a:hover {
         color: var(--gold);
     }
+
     .footer-bottom {
         text-align: center;
         padding-top: 2rem;
@@ -187,17 +224,8 @@
     }
 
     /* ========== RESPONSIF DASAR ========== */
-    @media (max-width: 900px) {
-        .footer-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-        nav {
-            padding: 0.8rem 5%;
-        }
-    }
-
-    @media (max-width: 768px) {
+    /* Breakpoint diubah ke 800px agar menu otomatis masuk mode mobile sebelum berhimpitan */
+    @media (max-width: 850px) {
         .nav-links {
             display: none;
         }
@@ -207,6 +235,16 @@
         .mobile-nav.open {
             display: flex;
         }
+    }
+
+    @media (max-width: 900px) {
+        .footer-grid {
+            grid-template-columns: 1fr;
+            gap: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
         .footer-grid {
             text-align: center;
         }
@@ -228,7 +266,6 @@
         }
     }
 
-    
     @media (max-width: 768px) {
         /* Container global */
         .container,
@@ -475,27 +512,33 @@
 <body>
 
 <nav>
-    <div class="nav-logo">
-        <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-nav" />
-        <span>JEB</span>
+    <div class="nav-container">
+        <!-- Logo di Kiri -->
+        <div class="nav-logo">
+            <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-nav" />
+            <span>JEB</span>
+        </div>
+
+        <!-- Links di Kanan -->
+        <div class="nav-links">
+            <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
+            <a href="{{ route('umum.profil') }}" class="{{ request()->routeIs('umum.profil') ? 'active' : '' }}">Profile Sanggar</a>
+            <a href="{{ route('umum.berita') }}" class="{{ request()->routeIs('umum.berita*') ? 'active' : '' }}">Artikel/Berita</a>
+            <a href="{{ route('umum.event') }}" class="{{ request()->routeIs('umum.event*') ? 'active' : '' }}">Kalender Event</a>
+            <a href="{{ route('umum.katalog') }}" class="{{ request()->routeIs('umum.katalog*') ? 'active' : '' }}">Katalog Kostum</a>
+            <a href="{{ route('umum.galeri') }}" class="{{ request()->routeIs('umum.galeri*') ? 'active' : '' }}">Galeri</a>
+            <a href="{{ route('login') }}" class="btn-login">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
+                </svg>
+                Login
+            </a>
+        </div>
+
+        <button class="mobile-menu-btn" id="mobileMenuBtn">
+            <i class="fas fa-bars"></i>
+        </button>
     </div>
-    <div class="nav-links">
-        <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
-        <a href="{{ route('umum.profil') }}" class="{{ request()->routeIs('umum.profil') ? 'active' : '' }}">Profile Sanggar</a>
-        <a href="{{ route('umum.berita') }}" class="{{ request()->routeIs('umum.berita*') ? 'active' : '' }}">Artikel/Berita</a>
-        <a href="{{ route('umum.event') }}" class="{{ request()->routeIs('umum.event*') ? 'active' : '' }}">Kalender Event</a>
-        <a href="{{ route('umum.katalog') }}" class="{{ request()->routeIs('umum.katalog*') ? 'active' : '' }}">Katalog Kostum</a>
-        <a href="{{ route('umum.galeri') }}" class="{{ request()->routeIs('umum.galeri*') ? 'active' : '' }}">Galeri</a>
-        <a href="{{ route('login') }}" class="btn-login">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/>
-            </svg>
-            Login
-        </a>
-    </div>
-    <button class="mobile-menu-btn" id="mobileMenuBtn">
-        <i class="fas fa-bars"></i>
-    </button>
 </nav>
 
 <div class="mobile-nav" id="mobileNav">
