@@ -312,6 +312,24 @@ class BeritaController extends Controller
         $judul      = trim($request->input('judul', ''));
         $jenis      = $request->input('jenis_berita') ?: 'Event / Pentas';
         $promptUser = trim($request->input('prompt', ''));
+        $beritaTerdahulu = Berita::where('status', 'tayang')
+            ->latest()
+            ->take(5)
+            ->get(['judul', 'isi_berita']);
+
+        $referensiKonteks = "";
+        if ($beritaTerdahulu->isNotEmpty()) {
+            $referensiKonteks .= "\n--- REFERENSI BERITA & GAYA PENULISAN UTUH DARI WEBSITE SAYA ---\n";
+            foreach ($beritaTerdahulu as $index => $b) {
+                // Ambil isi berita utuh (hanya dibersihkan dari tag HTML agar format prompt rapi)
+                $isiUtuh = strip_tags($b->isi_berita);
+                
+                $referensiKonteks .= "Contoh " . ($index + 1) . ":\n";
+                $referensiKonteks .= "Judul: {$b->judul}\n";
+                $referensiKonteks .= "Isi Lengkap:\n{$isiUtuh}\n\n";
+            }
+            $referensiKonteks .= "Pelajari gaya penulisan, alur cerita, pemilihan kata, dan struktur khas dari contoh-contoh berita utuh di atas agar berita baru ini terpersonalisasi sesuai karakter Sanggar Tari.\n";
+        }
 
         // 2. Ambil API Key
         $apiKey = config('services.gemini.key');
@@ -341,6 +359,7 @@ Kamu adalah seorang jurnalis senior untuk Sanggar Tari JEB. Analisis gambar yang
 Konteks/Kategori Kegiatan: {$jenis}
 {$instruksiJudul}
 {$instruksiTambahan}
+{$referensiKonteks}
 
 Panduan Penulisan sesuai Kategori:
 - Jika 'Latihan Rutin': fokus pada semangat penari, detail gerakan, dan proses latihan di sanggar.
@@ -382,6 +401,10 @@ CONTOH STRUKTUR OUTPUT YANG DIHARAPKAN:
 
 <p>Paragraf penutup yang mengajak pembaca untuk terus mendukung pelestarian budaya...</p>
 PROMPT;
+
+// \Illuminate\Support\Facades\Log::info("=== PROMPT GEMINI LENGKAP ===");
+// \Illuminate\Support\Facades\Log::info($promptFinal);
+// \Illuminate\Support\Facades\Log::info("=============================");
 
         // 5. Susun Array 'parts' (Teks + Multiple Gambar)
         $parts = [
