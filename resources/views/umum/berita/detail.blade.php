@@ -15,7 +15,8 @@
     .news-detail-hero {
       position: relative;
       width: 100%;
-      height: 480px;
+      height: auto !important;
+      min-height: 480px;
       background-size: cover;
       background-position: center;
       background-repeat: no-repeat;
@@ -66,6 +67,9 @@
       font-weight: 700;
       margin-bottom: 1.5rem;
       max-width: 900px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-word;
     }
 
     .news-meta-bar {
@@ -90,50 +94,142 @@
       padding: 5rem 24px;
     }
 
+    /* ==========================================
+       ✅ UKURAN FONT TERPUSAT (CSS VARIABLE)
+       Ubah ukuran cukup di sini saja.
+       Semua elemen (termasuk table, blockquote,
+       heading) mengikuti --fs dan --lh.
+       ========================================== */
     .article-body {
-      font-family: 'Poppins', sans-serif;
-      font-size: 1.05rem;
-      line-height: 1.9;
-      color: #2b2b2b;
+      --fs: 1.05rem;
+      --lh: 1.9;
     }
 
+    .article-body,
+    .article-body *,
+    .article-body table,
+    .article-body table *,
+    .article-body blockquote,
+    .article-body blockquote * {
+      font-family: 'Poppins', sans-serif !important;
+      font-size: var(--fs) !important;
+      line-height: var(--lh) !important;
+    }
+
+    /* Heading: ukuran relatif terhadap --fs */
+    .article-body h1, .article-body h1 * { font-size: calc(var(--fs) * 1.7) !important; line-height: 1.35 !important; }
+    .article-body h2, .article-body h2 * { font-size: calc(var(--fs) * 1.5) !important; line-height: 1.35 !important; }
+    .article-body h3, .article-body h3 * { font-size: calc(var(--fs) * 1.3) !important; line-height: 1.35 !important; }
+    .article-body h4, .article-body h4 * { font-size: calc(var(--fs) * 1.15) !important; line-height: 1.4 !important; }
+
+    /* <em>, <strong>, <a> : ukuran ikut induknya */
+    .article-body em,
+    .article-body i,
+    .article-body em *,
+    .article-body i *,
+    .article-body strong,
+    .article-body b,
+    .article-body strong *,
+    .article-body b *,
+    .article-body a,
+    .article-body a * {
+      font-size: inherit !important;
+      line-height: inherit !important;
+    }
+
+    .article-body em,
+    .article-body i,
+    .article-body em *,
+    .article-body i * {
+      font-style: italic !important;
+    }
+
+    .article-body strong,
+    .article-body b,
+    .article-body strong *,
+    .article-body b * {
+      font-weight: 700 !important;
+    }
+
+    /* Paragraf */
     .article-body p {
       margin-bottom: 1.8rem;
       text-align: justify;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
     }
 
+    /* List */
+    .article-body ul,
+    .article-body ol {
+      margin: 1rem 0 1.8rem 1.8rem;
+      padding-left: 0.5rem;
+    }
+
+    .article-body li {
+      margin-bottom: 0.8rem;
+      text-align: left;
+    }
+
+    /* Link */
+    .article-body a,
+    .article-body a * {
+      color: #b51c1c !important;
+      text-decoration: underline !important;
+    }
+
+    /* Image */
     .article-body img {
-      /* display: block !important; */
       max-width: 100% !important;
       height: auto !important;
-      /* margin: 20px auto !important; */
+      border-radius: 8px;
+      margin: 1rem 0;
     }
 
-    /* Drop Cap: Huruf pertama di paragraf pertama otomatis membesar ala majalah seni */
+    /* Blockquote */
+    .article-body blockquote {
+      border-left: 4px solid #d4af37;
+      padding: 0.8rem 1.2rem;
+      margin: 1.5rem 0;
+      background: #fdf8ee;
+      color: #555;
+      border-radius: 0 8px 8px 0;
+    }
+
+    .article-body blockquote,
+    .article-body blockquote * {
+      font-style: italic !important;
+    }
+
+    /* Table */
+    .article-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+    }
+
+    .article-body table th,
+    .article-body table td {
+      border: 1px solid #e0d5b8;
+      padding: 8px 12px;
+      text-align: left;
+    }
+
+    .article-body table th {
+      background: #fdf8ee;
+      font-weight: 700 !important;
+      color: #3d0c0c;
+    }
+
+    /* Drop Cap */
     .article-body p:first-of-type::first-letter {
-      font-family: 'Playfair Display', serif;
-      font-size: 4rem;
-      float: left;
-      margin-right: 12px;
-      line-height: 0.85;
-      font-weight: 900;
-      color: #3d0c0c;
-    }
-
-    .article-body h2,
-    .article-body h3 {
-      font-family: 'Playfair Display', serif;
-      color: #3d0c0c;
-      font-weight: 700;
-      margin: 3rem 0 1.2rem 0;
-    }
-
-    .article-body h2 {
-      font-size: 1.8rem;
-    }
-
-    .article-body h3 {
-      font-size: 1.5rem;
+      font-family: 'Playfair Display', serif !important;
+      font-size: 4rem !important;
+      float: left !important;
+      margin-right: 12px !important;
+      line-height: 0.85 !important;
+      font-weight: 900 !important;
+      color: #3d0c0c !important;
     }
 
     /* ══ 3. SECTION BERITA LAIN (BAWAH) ══ */
@@ -173,7 +269,6 @@
       box-shadow: 0 12px 25px rgba(0, 0, 0, 0.08);
     }
 
-    /* MODIFIKASI: Ditambahkan sistem posisi relative & ganti background */
     .lain-img-wrapper {
       height: 160px;
       position: relative;
@@ -181,7 +276,6 @@
       overflow: hidden;
     }
 
-    /* MODIFIKASI: Gambar diatur absolute dengan transisi opacity seperti di list utama */
     .lain-img-wrapper img {
       width: 100%;
       height: 100%;
@@ -197,7 +291,6 @@
     .lain-img-wrapper img.active {
       opacity: 1;
       position: relative;
-      /* Menjaga kestabilan aspek rasio grid layout box */
     }
 
     .lain-tag {
@@ -213,7 +306,6 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       z-index: 10;
-      /* Berada di atas tumpukan gambar */
     }
 
     .lain-content {
@@ -258,7 +350,6 @@
       padding-top: 0.8rem;
     }
 
-    /* Fallback sistem jika semua gambar eror */
     .inline-error-fallback {
       width: 100%;
       height: 100%;
@@ -278,6 +369,7 @@
       display: flex;
     }
 
+    /* ══ TABLET ══ */
     @media (max-width: 1200px) {
       .berita-lain-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -285,22 +377,92 @@
       }
     }
 
+    /* ══ MOBILE ══ */
     @media (max-width: 768px) {
       .news-detail-hero {
-        height: 380px;
+        min-height: 400px !important;
+        padding: 100px 0 40px !important;
+      }
+
+      .hero-content-wrap {
+        padding: 0 6% !important;
       }
 
       .news-detail-hero h1 {
-        font-size: 2rem;
+        font-size: 1.5rem !important;
+        line-height: 1.35 !important;
+        margin-bottom: 1rem !important;
       }
 
       .news-meta-bar {
-        gap: 0.8rem;
-        flex-direction: column;
+        gap: 0.8rem !important;
+        flex-direction: column !important;
+        font-size: 0.8rem !important;
+        padding-top: 1rem !important;
+      }
+
+      .article-container {
+        padding: 2.5rem 16px !important;
+      }
+
+      /* Cukup ganti variabel, semua elemen ikut */
+      .article-body {
+        --fs: 0.95rem;
+        --lh: 1.75;
+      }
+
+      .article-body p,
+      .article-body li {
+        text-align: left !important;
+        word-break: normal !important;
+      }
+
+      .article-body table,
+      .article-body table * {
+        white-space: nowrap !important;
+      }
+
+      .article-body p:first-of-type::first-letter {
+        font-size: 3rem !important;
+        margin-right: 8px !important;
       }
 
       .berita-lain-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
+      }
+
+      .berita-lain-section {
+        padding: 4rem 6% !important;
+      }
+
+      .berita-lain-header {
+        font-size: 1.6rem !important;
+      }
+    }
+
+    /* ══ EXTRA SMALL ══ */
+    @media (max-width: 480px) {
+      .news-detail-hero {
+        min-height: 350px !important;
+        padding: 90px 0 30px !important;
+      }
+
+      .news-detail-hero h1 {
+        font-size: 1.25rem !important;
+        line-height: 1.3 !important;
+      }
+
+      .article-container {
+        padding: 2rem 14px !important;
+      }
+
+      .article-body {
+        --fs: 0.9rem;
+        --lh: 1.7;
+      }
+
+      .article-body p:first-of-type::first-letter {
+        font-size: 2.5rem !important;
       }
     }
   </style>
@@ -346,12 +508,10 @@
       @forelse($beritaLainnya as $lain)
         <a href="{{ route('umum.berita-detail', $lain->id) }}" class="lain-card">
 
-          {{-- MODIFIKASI: Container diganti/ditambahkan class .slideshow-container --}}
           <div class="lain-img-wrapper slideshow-container">
             <span class="lain-tag">{{ $lain->jenis_berita ?? 'Kegiatan' }}</span>
 
             @if($lain->galeri && $lain->galeri->isNotEmpty())
-              {{-- MODIFIKASI: Looping mengeluarkan seluruh gambar dari database relasi galeri berita terkait --}}
               @foreach($lain->galeri as $index => $foto)
                 <img src="{{ asset('storage/' . $foto->path) }}" alt="{{ $lain->judul }}"
                   class="{{ $index === 0 ? 'active' : '' }}"
@@ -362,7 +522,6 @@
                 <i class="fas fa-image" style="font-size: 2rem; margin-bottom: 5px;"></i>
               </div>
             @else
-              {{-- Fallback default asset jika data galeri di DB kosong --}}
               <img src="{{ asset('img/images-landing-page/banner_berita.jpeg') }}" alt="{{ $lain->judul }}" class="active">
             @endif
           </div>
@@ -381,14 +540,40 @@
     </div>
   </section>
 
-  {{-- SCRIPT JAVASCRIPT SLIDESHOW --}}
+  {{-- SCRIPT: STRIP INLINE STYLE + SLIDESHOW --}}
   <script>
     document.addEventListener("DOMContentLoaded", function () {
-      // AUTOMATIC SLIDESHOW BERITA LAIN (Berganti setiap 5 detik)
+
+      /* ==========================================
+         ✅ STRIP inline style + atribut ukuran lama
+         + ganti tag <font> jadi <span>
+         Berlaku di .article-body
+         ========================================== */
+      const articleBody = document.querySelector('.article-body');
+      if (articleBody) {
+        // Ganti tag <font> (obsolete) jadi <span> dulu
+        articleBody.querySelectorAll('font').forEach(function (el) {
+          const span = document.createElement('span');
+          span.innerHTML = el.innerHTML;
+          if (el.parentNode) {
+            el.parentNode.replaceChild(span, el);
+          }
+        });
+
+        // Hapus style inline & atribut ukuran bawaan paste dari Word/Docs
+        articleBody.querySelectorAll('*').forEach(function (el) {
+          el.removeAttribute('style');
+          el.removeAttribute('size');
+          el.removeAttribute('face');
+        });
+      }
+
+      /* ==========================================
+         SLIDESHOW "BERITA LAIN"
+         ========================================== */
       const containers = document.querySelectorAll('.slideshow-container');
       containers.forEach(container => {
         const images = container.querySelectorAll('img');
-        // Hanya aktifkan interval jika gambar di dalam card lebih dari 1
         if (images.length > 1) {
           let currentIndex = 0;
           setInterval(() => {

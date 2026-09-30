@@ -6,7 +6,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
 :root {
-  /* Ubah warna merah menjadi lebih tenang/maroon berkelas */
   --maroon-dark: #4a0c0c;
   --maroon-light: #7a1515;
   --gold: #f1c40f;
@@ -33,21 +32,21 @@
       margin-bottom: 3rem;
     }
 
-    /* ══ HERO ══ */
+    /* ==========================================
+       ✅ HERO — Desktop: 2 kolom, Mobile: 1 kolom
+       ========================================== */
     #beranda {
-  /* Gunakan warna yang lebih gelap + pola halus/overlay */
-  background: linear-gradient(135deg, rgba(74, 12, 12, 0.95) 0%, rgba(122, 21, 21, 0.9) 100%),
-              radial-gradient(circle at center, rgba(241, 196, 15, 0.08) 0%, transparent 70%);
-  
-  /* Kurangi padding vertikal & ubah tinggi minimum agar tidak memakan layar berlebihan */
-  padding: 4rem 1.5rem 5rem 1.5rem;
-  min-height: auto; /* Mengikuti isi konten agar pas */
-  display: flex;
-  align-items: center;
-  position: relative;
-  box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.15); /* Efek bayangan halus di bagian bawah */
-}
+      background: linear-gradient(135deg, rgba(74, 12, 12, 0.95) 0%, rgba(122, 21, 21, 0.9) 100%),
+                  radial-gradient(circle at center, rgba(241, 196, 15, 0.08) 0%, transparent 70%);
+      padding: 4rem 1.5rem 5rem 1.5rem;
+      min-height: auto;
+      display: flex;
+      align-items: center;
+      position: relative;
+      box-shadow: inset 0 -10px 20px rgba(0, 0, 0, 0.15);
+    }
 
+    /* ✅ Desktop default: 2 kolom (teks kiri, logo kanan) */
     .hero-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -56,39 +55,59 @@
       width: 100%;
     }
 
+    /* ✅ Teks kiri */
     .hero-text {
       text-align: left;
+      order: 1;
     }
 
-    /* Buat ukuran teks lebih proporsional */
-.hero-text h1 {
-  font-family: 'Playfair Display', serif;
-  font-weight: 900;
-  color: var(--white);
-  font-size: 3.2rem; /* Sedikit diperbesar */
-  line-height: 1.15;
-  margin-bottom: 0.5rem;
-}
+    /* ✅ Logo kanan */
+    .hero-logo-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      order: 2;
+    }
 
-.hero-text h1 .script {
-  display: block;
-  font-family: 'Brush Script MT', cursive;
-  font-style: italic;
-  font-weight: 400;
-  color: var(--gold);
-  font-size: 5rem;
-  line-height: 1;
-  margin: 0.3rem 0 1rem 0;
-}
+    .logo-img-hero {
+      width: clamp(180px, 20vw, 240px);
+      height: clamp(180px, 20vw, 240px);
+      border-radius: 50%;
+      object-fit: cover;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      background: var(--white);
+      border: 6px solid var(--white);
+      margin: 0 auto;
+    }
 
-.hero-text p {
-  font-family: 'Poppins', sans-serif;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.05rem;
-  line-height: 1.6;
-  max-width: 540px;
-  margin: 0 0 2rem 0;
-}
+    .hero-text h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      color: var(--white);
+      font-size: 3.2rem;
+      line-height: 1.15;
+      margin-bottom: 0.5rem;
+    }
+
+    .hero-text h1 .script {
+      display: block;
+      font-family: 'Brush Script MT', cursive;
+      font-style: italic;
+      font-weight: 400;
+      color: var(--gold);
+      font-size: 5rem;
+      line-height: 1;
+      margin: 0.3rem 0 1rem 0;
+    }
+
+    .hero-text p {
+      font-family: 'Poppins', sans-serif;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 1.05rem;
+      line-height: 1.6;
+      max-width: 540px;
+      margin: 0 0 2rem 0;
+    }
 
     .btn-gray-pill {
       font-family: 'Poppins', sans-serif;
@@ -106,22 +125,6 @@
     .btn-gray-pill:hover {
       transform: translateY(-3px);
       background: var(--white);
-    }
-
-    .hero-logo-wrap {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .logo-img-hero {
-      width: clamp(260px, 30vw, 360px);
-      height: clamp(260px, 30vw, 360px);
-      border-radius: 50%;
-      object-fit: cover;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-      background: var(--white);
-      border: 8px solid var(--white);
     }
 
     /* ══ GLOBAL SECTIONS ══ */
@@ -757,21 +760,20 @@
         transform: translateY(-5px);
     }
 
-    /* RESPONSIVE */
+    /* ==========================================
+       ✅ RESPONSIVE
+       ========================================== */
+
+    /* ═══ TABLET (≤992px) ═══ */
     @media (max-width: 992px) {
-        .hero-grid, .profile-grid, .berita-grid, .kalender-grid, .cta-container {
+        /* Hero tetap 2 kolom sampai tablet, baru switch ke 1 kolom */
+        .profile-grid, .berita-grid, .kalender-grid, .cta-container {
             grid-template-columns: 1fr;
-        }
-        .hero-text {
-            text-align: center;
-        }
-        .hero-text p {
-            margin: 0 auto 2rem auto;
         }
         .katalog-grid {
             grid-template-columns: repeat(2, 1fr);
         }
-        .hero-logo-wrap, .cta-action {
+        .cta-action {
             justify-content: center;
             text-align: center;
             margin-top: 1.5rem;
@@ -785,21 +787,78 @@
         }
     }
 
+    /* ═══ MOBILE (≤850px) — Hero jadi stack vertikal ═══ */
+    @media (max-width: 850px) {
+        /* ✅ Hero: dari grid 2 kolom → flex column 1 kolom */
+        .hero-grid {
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 1.5rem !important;
+            text-align: center !important;
+        }
+
+        /* ✅ Logo dulu (di atas) */
+        .hero-logo-wrap {
+            order: -1 !important;
+            margin-bottom: 0.5rem !important;
+            width: 100%;
+        }
+
+        /* ✅ Teks di bawah logo */
+        .hero-text {
+            text-align: center !important;
+            order: 2 !important;
+            width: 100%;
+        }
+
+        .hero-text h1 {
+            font-size: 2.2rem !important;
+        }
+
+        .hero-text h1 .script {
+            font-size: 3.5rem !important;
+        }
+
+        .hero-text p {
+            margin: 0 auto 2rem auto !important;
+            max-width: 100% !important;
+        }
+
+        /* ✅ Logo lebih kecil di mobile */
+        .logo-img-hero {
+            width: clamp(140px, 45vw, 180px) !important;
+            height: clamp(140px, 45vw, 180px) !important;
+            border: 5px solid var(--white) !important;
+        }
+    }
+
+    /* ═══ SMALL MOBILE (≤768px) ═══ */
     @media (max-width: 768px) {
         section {
             padding: 3.5rem 1rem;
-        }
-        .hero-text h1 {
-            font-size: 2.2rem;
-        }
-        .hero-text h1 .script {
-            font-size: 3.5rem;
         }
         .katalog-grid, .berita-grid {
             grid-template-columns: 1fr;
         }
         .cta-content h2 {
             font-size: 2rem;
+        }
+    }
+
+    /* ═══ EXTRA SMALL (≤480px) ═══ */
+    @media (max-width: 480px) {
+        .hero-text h1 {
+            font-size: 1.8rem !important;
+        }
+        .hero-text h1 .script {
+            font-size: 2.8rem !important;
+        }
+        .logo-img-hero {
+            width: clamp(120px, 42vw, 160px) !important;
+            height: clamp(120px, 42vw, 160px) !important;
+            border: 4px solid var(--white) !important;
         }
     }
   </style>
@@ -810,11 +869,15 @@
   <section id="beranda">
     <div class="section-wrapper">
       <div class="hero-grid">
+
+        {{-- ✅ Teks — otomatis pindah posisi sesuai breakpoint --}}
         <div class="hero-text">
           <h1>Sanggar Tari <span class="script">Jiwa Etnik Blambangan</span></h1>
           <p>Pusat pelestarian seni dan budaya tari tradisional Banyuwangi. Menggerakkan jiwa, merayakan budaya, melestarikan warisan Nusantara.</p>
           <a href="{{ route('umum.galeri') }}" class="btn-gray-pill">Lihat Galeri</a>
         </div>
+
+        {{-- ✅ Logo — otomatis pindah posisi sesuai breakpoint --}}
         <div class="hero-logo-wrap">
           @if($profil && $profil->logo && $profil->logo->path)
             <img src="{{ asset('storage/' . $profil->logo->path) }}" alt="Logo Sanggar Jiwa Etnik Blambangan" class="logo-img-hero" />
@@ -822,6 +885,7 @@
             <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo Default Sanggar" class="logo-img-hero" />
           @endif
         </div>
+
       </div>
     </div>
   </section>

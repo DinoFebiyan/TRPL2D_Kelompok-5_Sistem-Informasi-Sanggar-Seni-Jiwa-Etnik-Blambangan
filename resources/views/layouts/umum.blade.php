@@ -22,6 +22,13 @@
         --text-gray: #666666;
         --white: #ffffff;
     }
+
+    /* ✅ Cegah browser HP membesarkan sebagian teks (text autosizing) */
+    html {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+    }
+
     body {
         font-family: 'Poppins', sans-serif;
         background: var(--white);
@@ -30,7 +37,10 @@
         scroll-behavior: smooth;
     }
 
-    /* ========== NAVBAR ========== */
+    body.nav-open {
+        overflow: hidden;
+    }
+
     /* ========== NAVBAR ========== */
     nav {
         position: sticky;
@@ -38,34 +48,30 @@
         z-index: 200;
         background: var(--maroon-dark);
         width: 100%;
-        
-        /* Box Shadow Emas & Pendaran di Bawah Navbar */
-        box-shadow: 0 4px 15px rgba(223, 177, 91, 0.4), 
+        box-shadow: 0 4px 15px rgba(223, 177, 91, 0.4),
                     0 2px 6px rgba(0, 0, 0, 0.3);
     }
 
-    /* Pendaran Gradasi Emas Meluruh ke Bawah (Gold Glow Effect) */
     nav::after {
         content: '';
         position: absolute;
-        bottom: -15px; /* Ketebalan pancaran ke bawah */
+        bottom: -15px;
         left: 0;
         width: 100%;
         height: 15px;
         background: linear-gradient(to bottom, rgba(223, 177, 91, 0.6) 0%, rgba(223, 177, 91, 0) 100%);
-        pointer-events: none; /* Agar tidak menghalangi kursor mouse */
+        pointer-events: none;
     }
 
-    /* Container pembatas lebar */
     .nav-container {
         width: 100%;
-        max-width: 1280px; /* Diperlebar sedikit agar lebih muat */
+        max-width: 1280px;
         margin: 0 auto;
         display: flex;
         align-items: center;
         justify-content: space-between;
         flex-wrap: nowrap;
-        padding: 0.8rem 1.5rem; /* Padding disesuaikan */
+        padding: 0.8rem 1.5rem;
     }
 
     .nav-logo {
@@ -95,14 +101,14 @@
     .nav-links {
         display: flex;
         align-items: center;
-        gap: 0.8rem; /* Jarak antar-menu dirapatkan */
+        gap: 0.8rem;
         flex-shrink: 0;
     }
 
     .nav-links a {
         color: var(--white);
         text-decoration: none;
-        font-size: 0.82rem; /* Ukuran font disesuaikan */
+        font-size: 0.82rem;
         font-weight: 400;
         transition: color .2s;
         white-space: nowrap;
@@ -127,7 +133,6 @@
         color: var(--maroon-dark) !important;
     }
 
-    /* Mobile menu button */
     .mobile-menu-btn {
         display: none;
         background: none;
@@ -135,46 +140,129 @@
         color: var(--white);
         font-size: 1.8rem;
         cursor: pointer;
+        padding: 4px 8px;
+        transition: color 0.2s;
     }
-    /* Mobile menu container */
-    .mobile-nav {
+    .mobile-menu-btn:hover {
+        color: var(--gold);
+    }
+
+    /* ==========================================
+       ✅ MOBILE NAV — POPUP MENU (gaya menu Chrome)
+       Muncul di pojok kanan atas, sudut membulat,
+       ikon + teks, dan garis pemisah antar grup.
+       ========================================== */
+
+    .mobile-nav-overlay {
         display: none;
-        flex-direction: column;
-        background: var(--maroon-dark);
-        padding: 1rem 4%;
-        gap: 0.8rem;
-        border-top: 1px solid rgba(255,255,255,0.1);
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 998;
+        opacity: 0;
+        transition: opacity 0.2s ease;
     }
+
+    .mobile-nav-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+
+    .mobile-nav {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        width: min(300px, calc(100vw - 20px));
+        max-height: calc(100vh - 20px);
+        max-height: calc(100dvh - 20px);
+        overflow-y: auto;
+        background: #4a0c0c;
+        border: 1px solid rgba(223, 177, 91, 0.25);
+        border-radius: 24px;
+        padding: 0.6rem 0.6rem;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45),
+                    0 2px 8px rgba(0, 0, 0, 0.3);
+
+        /* animasi buka: membesar dari pojok kanan atas */
+        transform-origin: top right;
+        transform: scale(0.85);
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: transform 0.18s ease-out, opacity 0.18s ease-out, visibility 0.18s;
+    }
+
+    .mobile-nav.open {
+        transform: scale(1);
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+    }
+
     .mobile-nav a {
         color: var(--white);
         text-decoration: none;
-        padding: 0.5rem 0;
+        padding: 0.85rem 1rem;
         font-size: 1rem;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 1rem;
+        border-radius: 14px;
+        transition: background 0.15s, color 0.15s;
+        flex-shrink: 0;
     }
-    .mobile-nav a.active, .mobile-nav a:hover {
+
+    .mobile-nav a i {
+        width: 22px;
+        text-align: center;
+        font-size: 1.05rem;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .mobile-nav a:hover,
+    .mobile-nav a:active {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .mobile-nav a.active {
+        color: var(--gold);
+        background: rgba(223, 177, 91, 0.15);
+        font-weight: 600;
+    }
+
+    .mobile-nav a.active i {
         color: var(--gold);
     }
+
+    /* garis pemisah antar grup menu */
+    .mobile-nav-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.15);
+        margin: 0.35rem 1rem;
+        flex-shrink: 0;
+    }
+
     .mobile-nav .btn-login-mobile {
-        border: 1px solid var(--gold);
-        border-radius: 20px;
-        padding: 0.5rem 1rem;
-        justify-content: center;
-        margin-top: 0.5rem;
+        color: var(--gold);
+    }
+
+    .mobile-nav .btn-login-mobile i {
+        color: var(--gold);
     }
 
     /* ========== FOOTER ========== */
     footer {
         background: var(--maroon-dark);
         color: var(--white);
-        padding: 3.5rem 1.5rem 2rem; /* Padding samping disesuaikan */
+        padding: 3.5rem 1.5rem 2rem;
         border-top: 4px solid var(--gold);
         width: 100%;
     }
 
-    /* Container pembatas agar footer tepat berada di tengah */
     .footer-container {
         max-width: 1280px;
         margin: 0 auto;
@@ -239,8 +327,15 @@
         color: rgba(255,255,255,0.5);
     }
 
+    /* ==========================================
+       CATATAN: Style isi artikel (font-size, tabel,
+       blockquote, heading) SENGAJA tidak diatur di
+       layout ini. Semuanya diatur di
+       resources/views/umum/berita/detail.blade.php
+       lewat variabel --fs / --lh pada .article-body.
+       ========================================== */
+
     /* ========== RESPONSIF DASAR ========== */
-    /* Breakpoint diubah ke 800px agar menu otomatis masuk mode mobile sebelum berhimpitan */
     @media (max-width: 850px) {
         .nav-links {
             display: none;
@@ -248,8 +343,14 @@
         .mobile-menu-btn {
             display: block;
         }
-        .mobile-nav.open {
-            display: flex;
+    }
+
+    @media (min-width: 851px) {
+        .mobile-nav {
+            display: none !important;
+        }
+        .mobile-nav-overlay {
+            display: none !important;
         }
     }
 
@@ -282,6 +383,9 @@
         }
     }
 
+    /* ==========================================
+       ✅ RESPONSIVE — MOBILE & TABLET
+       ========================================== */
     @media (max-width: 768px) {
         /* Container global */
         .container,
@@ -312,13 +416,13 @@
             font-size: 1.5rem !important;
         }
 
-        /* Grid Katalog (beranda & halaman katalog) */
+        /* Grid Katalog */
         .katalog-grid {
             grid-template-columns: 1fr !important;
             gap: 20px !important;
         }
 
-        /* Grid Berita (beranda & halaman berita) */
+        /* Grid Berita */
         .berita-grid {
             grid-template-columns: 1fr !important;
             gap: 20px !important;
@@ -331,13 +435,13 @@
             font-size: 1.3rem !important;
         }
 
-        /* Galeri mosaik (beranda) */
+        /* Galeri mosaik */
         .galeri-mosaik {
             grid-template-columns: repeat(2, 1fr) !important;
             grid-auto-rows: 160px !important;
         }
 
-        /* Grid Pengurus & Pelatih (halaman profil) */
+        /* Grid Pengurus & Pelatih */
         .cards-grid {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 15px !important;
@@ -346,7 +450,7 @@
             height: 160px !important;
         }
 
-        /* Layout event split (halaman event) */
+        /* Layout event split */
         .event-split-layout {
             grid-template-columns: 1fr !important;
             gap: 30px !important;
@@ -401,14 +505,8 @@
         }
 
         /* Halaman Detail Event */
-        .event-image-wrapper {
-            height: 280px !important;
-        }
         .event-info-body {
             padding: 20px !important;
-        }
-        .event-title {
-            font-size: 1.8rem !important;
         }
         .event-header-row {
             flex-direction: column !important;
@@ -426,12 +524,6 @@
         }
 
         /* Halaman Detail Berita */
-        .news-detail-hero {
-            height: 300px !important;
-        }
-        .news-detail-hero h1 {
-            font-size: 1.8rem !important;
-        }
         .article-container {
             padding: 2rem 16px !important;
         }
@@ -464,7 +556,7 @@
             gap: 15px !important;
         }
 
-        /* Visi & Misi (card) */
+        /* Visi & Misi */
         .visi-card,
         .misi-card {
             padding: 20px !important;
@@ -475,13 +567,56 @@
             font-size: 1.3rem !important;
         }
 
-        /* Slideshow gambar (agar tidak overflow) */
+        /* Slideshow gambar */
         .slideshow-container,
         .lain-card-slideshow,
         .news-foto-wrapper,
         .event-slideshow-box {
             height: auto !important;
             aspect-ratio: 4 / 3 !important;
+        }
+
+        /* ==========================================
+           ✅ FIX: HERO JUDUL PANJANG TIDAK KEPOTONG
+           ========================================== */
+        .news-detail-hero,
+        .event-image-wrapper,
+        .hero-section {
+            height: auto !important;
+            min-height: 400px !important;
+            padding: 110px 20px 50px !important;
+            display: flex !important;
+            align-items: flex-end !important;
+            box-sizing: border-box !important;
+        }
+
+        .news-detail-hero h1,
+        .event-title,
+        .hero-title {
+            font-size: 1.5rem !important;
+            line-height: 1.35 !important;
+            word-wrap: break-word !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+            hyphens: auto !important;
+            max-width: 100% !important;
+            margin-bottom: 15px !important;
+        }
+
+        .news-detail-hero > div,
+        .event-image-wrapper > div,
+        .hero-content {
+            width: 100% !important;
+            max-width: 100% !important;
+            position: relative !important;
+            box-sizing: border-box !important;
+        }
+
+        .news-detail-hero .meta-info,
+        .event-info-meta {
+            font-size: 0.78rem !important;
+            flex-wrap: wrap !important;
+            gap: 8px !important;
         }
     }
 
@@ -497,14 +632,8 @@
         .other-gallery-grid {
             grid-template-columns: 1fr !important;
         }
-        .hero-title {
-            font-size: 1.8rem !important;
-        }
         .berita-banner-content h1 {
             font-size: 2rem !important;
-        }
-        .event-title {
-            font-size: 1.5rem !important;
         }
         .section-title {
             font-size: 1.3rem !important;
@@ -513,6 +642,20 @@
         .badge-pill {
             font-size: 0.7rem !important;
             padding: 4px 12px !important;
+        }
+
+        .news-detail-hero h1,
+        .event-title,
+        .hero-title {
+            font-size: 1.25rem !important;
+            line-height: 1.3 !important;
+        }
+
+        .news-detail-hero,
+        .event-image-wrapper,
+        .hero-section {
+            min-height: 350px !important;
+            padding: 100px 16px 40px !important;
         }
     }
 
@@ -551,20 +694,47 @@
             </a>
         </div>
 
-        <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
             <i class="fas fa-bars"></i>
         </button>
     </div>
 </nav>
 
-<div class="mobile-nav" id="mobileNav">
-    <a href="{{ route('home') }}"><i class="fas fa-home"></i> Beranda</a>
-    <a href="{{ route('umum.profil') }}"><i class="fas fa-info-circle"></i> Profile Sanggar</a>
-    <a href="{{ route('umum.berita') }}"><i class="fas fa-newspaper"></i> Artikel/Berita</a>
-    <a href="{{ route('umum.event') }}"><i class="fas fa-calendar-alt"></i> Kalender Event</a>
-    <a href="{{ route('umum.katalog') }}"><i class="fas fa-tshirt"></i> Katalog Kostum</a>
-    <a href="{{ route('umum.galeri') }}"><i class="fas fa-images"></i> Galeri</a>
-    <a href="{{ route('login') }}" class="btn-login-mobile"><i class="fas fa-sign-in-alt"></i> Login</a>
+{{-- ✅ Overlay gelap --}}
+<div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
+
+{{-- ✅ Popup menu (gaya menu Chrome) --}}
+<div class="mobile-nav" id="mobileNav" role="menu">
+    <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">
+        <i class="fas fa-home"></i> Beranda
+    </a>
+    <a href="{{ route('umum.profil') }}" class="{{ request()->routeIs('umum.profil') ? 'active' : '' }}">
+        <i class="fas fa-info-circle"></i> Profile Sanggar
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="{{ route('umum.berita') }}" class="{{ request()->routeIs('umum.berita*') ? 'active' : '' }}">
+        <i class="fas fa-newspaper"></i> Artikel/Berita
+    </a>
+    <a href="{{ route('umum.event') }}" class="{{ request()->routeIs('umum.event*') ? 'active' : '' }}">
+        <i class="fas fa-calendar-alt"></i> Kalender Event
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="{{ route('umum.katalog') }}" class="{{ request()->routeIs('umum.katalog*') ? 'active' : '' }}">
+        <i class="fas fa-tshirt"></i> Katalog Kostum
+    </a>
+    <a href="{{ route('umum.galeri') }}" class="{{ request()->routeIs('umum.galeri*') ? 'active' : '' }}">
+        <i class="fas fa-images"></i> Galeri
+    </a>
+
+    <div class="mobile-nav-divider"></div>
+
+    <a href="{{ route('login') }}" class="btn-login-mobile">
+        <i class="fas fa-sign-in-alt"></i> Login
+    </a>
 </div>
 
 <main>
@@ -575,14 +745,52 @@
 @include('partials.footer')
 
 <script>
-    // Mobile menu toggle
-    const menuBtn = document.getElementById('mobileMenuBtn');
-    const mobileNav = document.getElementById('mobileNav');
-    if (menuBtn && mobileNav) {
-        menuBtn.addEventListener('click', function() {
-            mobileNav.classList.toggle('open');
+    document.addEventListener('DOMContentLoaded', function () {
+        const menuBtn = document.getElementById('mobileMenuBtn');
+        const mobileNav = document.getElementById('mobileNav');
+        const overlay = document.getElementById('mobileNavOverlay');
+
+        if (!menuBtn || !mobileNav || !overlay) return;
+
+        function openMenu() {
+            mobileNav.classList.add('open');
+            overlay.classList.add('active');
+            document.body.classList.add('nav-open');
+        }
+
+        function closeMenu() {
+            mobileNav.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.classList.remove('nav-open');
+        }
+
+        function toggleMenu() {
+            if (mobileNav.classList.contains('open')) {
+                closeMenu();
+            } else {
+                openMenu();
+            }
+        }
+
+        menuBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleMenu();
         });
-    }
+
+        overlay.addEventListener('click', closeMenu);
+
+        mobileNav.querySelectorAll('a').forEach(function (link) {
+            link.addEventListener('click', closeMenu);
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeMenu();
+        });
+
+        window.addEventListener('resize', function () {
+            if (window.innerWidth > 850) closeMenu();
+        });
+    });
 </script>
 
 @stack('scripts')
