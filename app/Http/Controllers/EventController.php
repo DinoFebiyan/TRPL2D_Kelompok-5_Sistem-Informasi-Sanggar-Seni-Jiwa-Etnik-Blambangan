@@ -64,7 +64,23 @@ class EventController extends Controller
 
         // 2. Logika Multi-Filter Checkbox Status
         if (! empty($statuses)) {
-            $query->whereIn('status', $statuses);
+            $query->where(function ($q) use ($statuses) {
+                if (in_array('selesai', $statuses)) {
+                    $q->orWhere('status', 'selesai');
+                }
+                if (in_array('belum selesai', $statuses)) {
+                    $q->orWhere(function ($sub) {
+                        $sub->where('status', 'belum selesai')
+                            ->where('tanggal', '>=', now()->toDateString());
+                    });
+                }
+                if (in_array('terlambat', $statuses)) {
+                    $q->orWhere(function ($sub) {
+                        $sub->where('status', 'belum selesai')
+                            ->where('tanggal', '<', now()->toDateString());
+                    });
+                }
+            });
         }
 
         $events = $query->latest()->paginate(10)->withQueryString();
@@ -72,14 +88,23 @@ class EventController extends Controller
         // Menghitung data statistik real data tanpa filter
         $totalEvent = Event::count();
         $selesai = Event::where('status', 'selesai')->count();
-        $belumSelesai = Event::where('status', 'belum selesai')->count();
+        
+        // Belum Selesai (yang belum lewat tanggal)
+        $belumSelesai = Event::where('status', 'belum selesai')
+            ->where('tanggal', '>=', now()->toDateString())
+            ->count();
+
+        // Terlambat (belum selesai & tanggal sudah lewat)
+        $terlambat = Event::where('status', 'belum selesai')
+            ->where('tanggal', '<', now()->toDateString())
+            ->count();
 
         $role = auth()->user()->peran;
 
         if ($role === 'superadmin') {
-            return view('kelola.event.indexSuperadmin', compact('events', 'totalEvent', 'selesai', 'belumSelesai'));
+            return view('kelola.event.indexSuperadmin', compact('events', 'totalEvent', 'selesai', 'belumSelesai', 'terlambat'));
         } elseif ($role === 'admin') {
-            return view('kelola.event.indexAdmin', compact('events', 'totalEvent', 'selesai', 'belumSelesai'));
+            return view('kelola.event.indexAdmin', compact('events', 'totalEvent', 'selesai', 'belumSelesai', 'terlambat'));
         } else {
             abort(403, 'Anda tidak memiliki akses.');
         }

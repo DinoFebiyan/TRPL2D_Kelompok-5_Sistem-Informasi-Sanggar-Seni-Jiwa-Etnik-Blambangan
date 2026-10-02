@@ -59,7 +59,7 @@
         flex-shrink: 0;
     }
     .event-icon-blue { background: #eff6ff; color: #3b82f6; }
-    .event-icon-green { background: #f0fdf4; color: #16a34a; }
+    .event-icon-yellow { background: #fcfdf0; color: #d1e000; }
     .event-icon-red { background: #fef2f2; color: #ef4444; }
     .event-icon-dark-red { background-color: #7a2a214a; color: #411f1f; }
     
@@ -246,6 +246,15 @@
     .badge-belum-selesai {
         background: #fef08a;
         color: #a16207;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+    .badge-terlambat {
+        background: #fee2e2;
+        color: #b91c1c;
         padding: 5px 12px;
         border-radius: 20px;
         font-size: 0.7rem;
@@ -483,17 +492,17 @@
             </div>
         </div>
         <div class="event-stat-card">
-            <div class="event-icon-box event-icon-green"><i class="fas fa-check-circle"></i></div>
-            <div class="event-stat-text">
-                <h4>Selesai</h4>
-                <h2>{{ $selesai ?? 0 }}</h2>
-            </div>
-        </div>
-        <div class="event-stat-card">
-            <div class="event-icon-box event-icon-red"><i class="fas fa-ban"></i></div>
+            <div class="event-icon-box event-icon-yellow"><i class="fas fa-ban"></i></div>
             <div class="event-stat-text">
                 <h4>Belum Selesai</h4>
                 <h2>{{ $belumSelesai ?? 0 }}</h2>
+            </div>
+        </div>
+        <div class="event-stat-card">
+            <div class="event-icon-box event-icon-red"><i class="fas fa-clock"></i></div>
+            <div class="event-stat-text">
+                <h4>Terlambat</h4>
+                <h2>{{ $terlambat ?? 0 }}</h2>
             </div>
         </div>
         <a href="{{ route('admin.tambah-event') }}" class="event-btn-tambah">
@@ -536,6 +545,10 @@
                             <label class="filter-checkbox-card {{ in_array('belum selesai', request('status', [])) ? 'selected-box' : '' }}">
                                 <input type="checkbox" name="status[]" value="belum selesai" onchange="syncCardVisual(this)" {{ in_array('belum selesai', request('status', [])) ? 'checked' : '' }}> 
                                 <span class="checkbox-label">Belum Selesai</span>
+                            </label>
+                            <label class="filter-checkbox-card {{ in_array('terlambat', request('status', [])) ? 'selected-box' : '' }}">
+                                <input type="checkbox" name="status[]" value="terlambat" onchange="syncCardVisual(this)" {{ in_array('terlambat', request('status', [])) ? 'checked' : '' }}> 
+                                <span class="checkbox-label">Terlambat</span>
                             </label>
                         </div>
                     </div>
@@ -591,8 +604,25 @@
                         <td>{{ \Illuminate\Support\Str::limit($event->lokasi, 25) }}</td>
                         <td>{{ $event->kategori }}</td>
                         <td>
-                            @if(strtolower($event->status) == 'selesai')
+                        <td>
+                            @php
+                                // 1. Ambil format Y-m-d saja jika kolom tanggal berupa Datetime / Timestamp
+                                $tanggalHanya = \Carbon\Carbon::parse($event->tanggal)->format('Y-m-d');
+
+                                // 2. Gabungkan tanggal Y-m-d dengan jam jika ada
+                                if (!empty($event->jam)) {
+                                    $waktuEvent = \Carbon\Carbon::parse($tanggalHanya . ' ' . $event->jam);
+                                } else {
+                                    $waktuEvent = \Carbon\Carbon::parse($tanggalHanya)->endOfDay();
+                                }
+                                
+                                $isTerlambat = (strtolower($event->status) === 'belum selesai') && ($waktuEvent->isPast());
+                            @endphp
+
+                            @if(strtolower($event->status) === 'selesai')
                                 <span class="badge-selesai">Selesai</span>
+                            @elseif($isTerlambat)
+                                <span class="badge-terlambat">Terlambat</span>
                             @else
                                 <span class="badge-belum-selesai">Belum Selesai</span>
                             @endif
