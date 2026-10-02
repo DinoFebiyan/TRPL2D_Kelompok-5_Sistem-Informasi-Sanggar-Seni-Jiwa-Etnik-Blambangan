@@ -590,9 +590,6 @@
                             autocomplete="username"
                         />
                     </div>
-                    @error('email')
-                        <p class="field-error">{{ $message }}</p>
-                    @enderror
                 </div>
 
               
@@ -618,6 +615,9 @@
                             </svg>
                         </button>
                     </div>
+                    @error('email')
+                        <p class="field-error">{{ $message }}</p>
+                    @enderror
                     @error('password')
                         <p class="field-error">{{ $message }}</p>
                     @enderror
@@ -655,8 +655,8 @@
                 </div>
 
                 <p class="footer-note">
-                    Hanya untuk pengguna terdaftar.<br>
-                    Butuh akses? Hubungi <strong>Super Admin</strong>.
+                    Hanya admin yang dapat mengakses.<br>
+                    Butuh akses? Hubungi <strong><a href="https://wa.me/6282232505355" target="_blank" class="btn-daftar-cta">Super Admin</a></strong>.
                 </p>
             </form>
         </div>

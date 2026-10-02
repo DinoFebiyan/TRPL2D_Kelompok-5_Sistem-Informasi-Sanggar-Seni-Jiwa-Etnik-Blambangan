@@ -25,14 +25,14 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
-        // Validasi wajib centang captcha
+        // 1. Validasi reCAPTCHA
         $request->validate([
             'g-recaptcha-response' => ['required'],
         ], [
             'g-recaptcha-response.required' => 'Silakan centang reCAPTCHA terlebih dahulu.',
         ]);
 
-        // Verifikasi ke server Google
+        // 2. Verifikasi reCAPTCHA ke server Google
         $response = Http::asForm()->post(
             'https://www.google.com/recaptcha/api/siteverify',
             [
@@ -51,15 +51,20 @@ class AuthenticatedSessionController extends Controller
                 ->withInput();
         }
 
-        $request->authenticate();
+        // 3. Ambil kredensial email & password
+        $credentials = $request->only('email', 'password');
 
-        $request->session()->regenerate();
+        // 4. Coba Autentikasi Manual dengan Pesan Kustom Bahasa Indonesia
+        if (! Auth::attempt($credentials, $request->boolean('remember'))) {
+            return back()->withErrors([
+                'email' => 'Email atau password Anda salah.',
+            ])->onlyInput('email');
+        }
 
-        // Ambil data user yang login
+        // 5. Cek Status Akun setelah Autentikasi Berhasil
         $user = Auth::user();
 
         if ($user->status !== 'aktif') {
-
             Auth::logout();
 
             $request->session()->invalidate();
@@ -67,17 +72,20 @@ class AuthenticatedSessionController extends Controller
 
             return back()->withErrors([
                 'email' => 'Akun Anda telah dinonaktifkan. Hubungi Super Admin.',
-            ]);
+            ])->onlyInput('email');
         }
 
-        // SINKRONISASI COATING ROLE (Menggunakan route() murni untuk mematikan intended bypass)
+        // 6. Regenerasi Session
+        $request->session()->regenerate();
+
+        // 7. Pengalihan berdasarkan Peran (Role)
         if ($user->peran === 'superadmin') {
             return redirect()->route('superadmin.dashboard');
         } elseif ($user->peran === 'admin') {
             return redirect()->route('admin.dashboard');
         }
 
-        // Jika peran tidak dikenali, logout paksa agar tidak menggantung di sistem
+        // Jika peran tidak dikenali, logout paksa
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
