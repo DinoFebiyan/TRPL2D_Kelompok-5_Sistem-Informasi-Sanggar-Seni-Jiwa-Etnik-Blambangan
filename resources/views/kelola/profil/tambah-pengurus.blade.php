@@ -238,7 +238,7 @@
 
                 {{-- Foto Pengurus (Mendukung Multi-Upload Akumulatif) --}}
                 <div class="form-group">
-                    <label>Foto Kegiatan / Profil Pengurus (Bisa pilih lebih dari satu)</label>
+                    <label>Foto Pengurus (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
                         <span class="file-name-display" id="fileNameDisplay">Masukkan foto pengurus...</span>

@@ -193,7 +193,7 @@
 
                 {{-- Foto Pelatih Multi-Upload --}}
                 <div class="form-group">
-                    <label>Foto Kegiatan / Profil Pelatih (Bisa pilih lebih dari satu)</label>
+                    <label>Foto Pelatih (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
                         <label for="foto" class="btn-pilih-file">Pilih File</label>
                         <span class="file-name-display" id="fileNameDisplay">Masukkan foto pelatih...</span>
