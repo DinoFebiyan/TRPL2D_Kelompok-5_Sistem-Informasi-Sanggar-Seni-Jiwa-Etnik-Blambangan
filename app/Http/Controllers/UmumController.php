@@ -143,10 +143,10 @@ class UmumController extends Controller
         }
 
         // Ambil SEMUA data tanpa paginasi khusus untuk suplai KALENDER penuh
-        $allEvents = $query->clone()->orderBy('tanggal', 'asc')->get();
+        $allEvents = $query->clone()->orderBy('tanggal', 'desc')->get();
 
         // Tetap menggunakan paginasi 3 data untuk list kartu awal di sebelah kanan
-        $events = $query->orderBy('tanggal', 'asc')->paginate(3)->withQueryString();
+        $events = $query->orderBy('tanggal', 'desc')->paginate(3)->withQueryString();
 
         return view('umum.event.index', [
             'events' => $events,
@@ -297,6 +297,10 @@ class UmumController extends Controller
             $query->where('kategori', 'profil');
         }])->where('peran', 'pelatih')->where('status', 'aktif')->get();
 
-        return view('umum.profil.index', compact('profil', 'pengurus', 'pelatih'));
+        $anggota = Personel::with(['galeri' => function ($query) {
+            $query->where('kategori', 'profil');
+        }])->where('peran', 'anggota')->where('status', 'aktif')->get();
+
+        return view('umum.profil.index', compact('profil', 'pengurus', 'pelatih', 'anggota'));
     }
 }

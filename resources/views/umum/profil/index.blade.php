@@ -196,7 +196,7 @@
                     @endif
                     <div id="pembina-fallback" class="inline-error-fallback"><i class="fas fa-user" style="font-size: 3rem;"></i></div>
                 </div>
-                <div class="pembina-name">Adlin Mustika Alam</div>
+                <div class="pembina-name">Adlin Mustika Alam S.,Sn.</div>
             </div>
         </div>
     </div>
@@ -286,6 +286,52 @@
                     <div class="avatar-wrapper">
                         <img src="{{ asset('img/images-landing-page/personel/dummy-pelatih.jpg') }}" alt="Bpk. Adlin" class="active" onerror="this.style.display='none'; document.getElementById('pelatih-empty-{{ $i }}').classList.add('active');">
                         <div id="pelatih-empty-{{ $i }}" class="inline-error-fallback"><i class="fas fa-user" style="font-size: 2rem;"></i></div>
+                    </div>
+                    <div class="profile-info">
+                        <h4>Bpk. Adlin</h4><p>Founder</p>
+                        <div class="profile-socials">
+                            <a href="#" target="_blank" class="social-btn"><i class="fa-brands fa-whatsapp"></i></a>
+                            <a href="#" target="_blank" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                        </div>
+                    </div>
+                </div>
+                @endfor
+            @endforelse
+        </div>
+        <div class="text-center" style="margin-top: 2rem;">
+            <h2 class="section-title-center">Anggota Sanggar</h2>
+        </div>
+        <div class="cards-grid">
+            @forelse($anggota as $ag)
+                <div class="profile-card">
+                    {{-- MODIFIKASI: Container dirubah menjadi class avatar-wrapper (slideshow-target) --}}
+                    <div class="avatar-wrapper slideshow-container">
+                        @if($ag->galeri && $ag->galeri->isNotEmpty())
+                            {{-- MODIFIKASI: Looping mengeluarkan seluruh gambar dari database relasi galeri --}}
+                            @foreach($ag->galeri as $index => $foto)
+                                <img src="{{ asset('storage/' . $foto->path) }}" alt="{{ $ag->nama }}" class="{{ $index === 0 ? 'active' : '' }}" onerror="this.style.display='none'; document.getElementById('anggota-fallback-{{ $ag->id }}').classList.add('active');">
+                            @endforeach
+                        @else
+                            <img src="{{ asset('img/images-landing-page/personel/dummy-pelatih.jpg') }}" alt="{{ $ag->nama }}" class="active" onerror="this.style.display='none'; document.getElementById('anggota-fallback-{{ $ag->id }}').classList.add('active');">
+                        @endif
+                        <div id="anggota-fallback-{{ $ag->id }}" class="inline-error-fallback"><i class="fas fa-user" style="font-size: 2rem;"></i></div>
+                    </div>
+                    <div class="profile-info">
+                        <h4>{{ $ag->nama }}</h4><p>{{ $ag->jabatan ?? 'Anggota' }}</p>
+                        <div class="profile-socials">
+                            <a href="https://wa.me/{{ $ag->no_handphone }}" target="_blank" class="social-btn"><i class="fa-brands fa-whatsapp"></i></a>
+                            @if($ag->instagram)
+                                <a href="https://instagram.com/{{ $ag->instagram }}" target="_blank" class="social-btn"><i class="fa-brands fa-instagram"></i></a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @empty
+                @for ($i = 0; $i < 5; $i++)
+                <div class="profile-card">
+                    <div class="avatar-wrapper">
+                        <img src="{{ asset('img/images-landing-page/personel/dummy-pelatih.jpg') }}" alt="Bpk. Adlin" class="active" onerror="this.style.display='none'; document.getElementById('anggota-empty-{{ $i }}').classList.add('active');">
+                        <div id="anggota-empty-{{ $i }}" class="inline-error-fallback"><i class="fas fa-user" style="font-size: 2rem;"></i></div>
                     </div>
                     <div class="profile-info">
                         <h4>Bpk. Adlin</h4><p>Founder</p>

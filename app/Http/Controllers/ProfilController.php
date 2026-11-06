@@ -26,12 +26,13 @@ class ProfilController extends Controller
 
         $pengurus = Personel::with('galeri')->where('peran', 'pengurus')->paginate(10);
         $pelatih = Personel::with('galeri')->where('peran', 'pelatih')->paginate(10);
+        $anggota = Personel::with('galeri')->where('peran', 'anggota')->paginate(10);
 
         $role = auth()->user()->peran;
         if ($role === 'superadmin') {
-            return view('kelola.profil.indexSuperadmin', compact('profil', 'pengurus', 'pelatih'));
+            return view('kelola.profil.indexSuperadmin', compact('profil', 'pengurus', 'pelatih', 'anggota'));
         } elseif ($role === 'admin') {
-            return view('kelola.profil.indexAdmin', compact('profil', 'pengurus', 'pelatih'));
+            return view('kelola.profil.indexAdmin', compact('profil', 'pengurus', 'pelatih', 'anggota'));
         } else {
             abort(403, 'Anda tidak memiliki akses.');
         }
@@ -524,6 +525,166 @@ class ProfilController extends Controller
             return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pelatih berhasil dihapus.');
         } elseif ($role === 'admin') {
             return redirect()->route('admin.kelola-profil')->with('success', 'Data pelatih berhasil dihapus.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    //  Method untuk Anggota (CRUD)
+    // ─────────────────────────────────────────────────────────
+
+    public function tambahAnggota()
+    {
+        return view('kelola.profil.tambah-anggota');
+    }
+
+    public function storeAnggota(Request $request)
+    {
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'nullable|string',
+            'instagram' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'status' => 'required|in:aktif,nonaktif',
+            'foto' => 'required|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                if (! UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
+            }
+        }
+
+        $personel = Personel::create([
+            'nama' => $request->nama,
+            'jabatan' => $request->jabatan ?? 'Anggota',
+            'instagram' => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status' => $request->status,
+            'peran' => 'anggota',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+                Galeri::create([
+                    'sumber_id' => $personel->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        $role = auth()->user()->peran;
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data anggota baru berhasil disimpan.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data anggota baru berhasil disimpan.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    public function editAnggota(string $id)
+    {
+        $anggota = Personel::with('galeri')->findOrFail($id);
+
+        return view('kelola.profil.edit_anggota', compact('anggota'));
+    }
+
+    public function updateAnggota(Request $request, string $id)
+    {
+        $anggota = Personel::findOrFail($id);
+
+        $request->validate([
+            'nama' => 'required|string|max:255',
+            'jabatan' => 'nullable|string',
+            'instagram' => 'nullable|string|max:255',
+            'no_hp' => 'nullable|string|max:20',
+            'status' => 'required|in:aktif,nonaktif',
+            'foto' => 'nullable|array',
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+            'hapus_foto' => 'nullable|array',
+            'hapus_foto.*' => 'exists:galeri,id',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                if (! UploadHelper::isImageMimeValid($file)) {
+                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
+                }
+            }
+        }
+
+        $anggota->update([
+            'nama' => $request->nama,
+            'jabatan' => $request->jabatan ?? 'Anggota',
+            'instagram' => $request->instagram,
+            'no_handphone' => $request->no_hp,
+            'status' => $request->status,
+        ]);
+
+        // Hapus foto lama yang ditandai
+        if ($request->filled('hapus_foto')) {
+            foreach ($request->hapus_foto as $fotoId) {
+                $fotoLama = Galeri::where('sumber_id', $anggota->id)
+                    ->where('kategori', 'profil')
+                    ->find($fotoId);
+                if ($fotoLama) {
+                    if (Storage::disk('public')->exists($fotoLama->path)) {
+                        Storage::disk('public')->delete($fotoLama->path);
+                    }
+                    $fotoLama->delete();
+                }
+            }
+        }
+
+        // Upload foto baru
+        if ($request->hasFile('foto')) {
+            foreach ($request->file('foto') as $file) {
+                $path = $file->store('personel', 'public');
+                Galeri::create([
+                    'sumber_id' => $anggota->id,
+                    'path' => $path,
+                    'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
+                    'kategori' => 'profil',
+                    'is_watermark' => false,
+                ]);
+            }
+        }
+
+        $role = auth()->user()->peran;
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil anggota berhasil diperbarui.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data profil anggota berhasil diperbarui.');
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
+    }
+
+    public function hapusAnggota(string $id)
+    {
+        $anggota = Personel::findOrFail($id);
+        foreach ($anggota->galeri as $foto) {
+            if (Storage::disk('public')->exists($foto->path)) {
+                Storage::disk('public')->delete($foto->path);
+            }
+            $foto->delete();
+        }
+        $anggota->delete();
+
+        $role = auth()->user()->peran;
+        if ($role === 'superadmin') {
+            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data anggota berhasil dihapus.');
+        } elseif ($role === 'admin') {
+            return redirect()->route('admin.kelola-profil')->with('success', 'Data anggota berhasil dihapus.');
         } else {
             abort(403, 'Anda tidak memiliki akses.');
         }

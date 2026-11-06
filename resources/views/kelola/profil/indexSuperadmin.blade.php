@@ -283,6 +283,47 @@
         </div>
         <div style="margin-top:15px;">{{ $pelatih->links() }}</div>
     </div>
+    {{-- DAFTAR ANGGOTA --}}
+    <div class="prof-table-card">
+        <div class="prof-table-header">
+            <h3 style="margin: 0;">Daftar Anggota</h3>
+            <a href="{{ route('superadmin.tambah-anggota') }}" class="btn-tambah-personel">
+                <i class="fas fa-plus"></i> <span>Tambah Anggota</span>
+            </a>
+        </div>
+        <div class="table-responsive-wrapper">
+            <table class="prof-table">
+                <thead>
+                    <tr><th>Foto</th><th>Nama Lengkap</th><th>Instagram</th><th>No HP</th><th>Status</th><th>Aksi</th></tr>
+                </thead>
+                <tbody>
+                    @forelse($anggota as $item)
+                    <tr>
+                        <td>
+                            <div class="prof-foto-frame">
+                                <img src="{{ $item->galeri->isNotEmpty() ? asset('storage/' . $item->galeri->first()->path) : 'https://ui-avatars.com/api/?name='.urlencode($item->nama) }}">
+                            </div>
+                        </td>
+                        <td style="font-weight:600">{{ $item->nama }}</td>
+                        <td>{{ $item->instagram ?? '-' }}</td>
+                        <td>{{ $item->no_handphone }}</td>
+                        <td><span class="{{ $item->status == 'aktif' ? 'badge-aktif' : 'badge-nonaktif' }}">{{ ucfirst($item->status) }}</span></td>
+                        <td>
+                            <a href="{{ route('superadmin.edit-anggota', $item->id) }}" class="btn-aksi-edit">Edit</a>
+                            <button class="btn-aksi-hapus" onclick="showPopupHapus('delete-anggota-{{ $item->id }}')">Hapus</button>
+                            <form id="delete-anggota-{{ $item->id }}" action="{{ route('superadmin.hapus-anggota', $item->id) }}" method="POST" style="display:none;">
+                                @csrf @method('DELETE')
+                            </form>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr><td colspan="7" style="text-align:center;">Daftar anggota kosong.</td></tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <div style="margin-top:15px;">{{ $anggota->links() }}</div>
+    </div>
 </div>
 
 {{-- Popup Konfirmasi Hapus --}}

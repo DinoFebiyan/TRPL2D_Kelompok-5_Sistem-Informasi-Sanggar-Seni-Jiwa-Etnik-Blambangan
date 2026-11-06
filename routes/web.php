@@ -115,6 +115,12 @@ Route::prefix('admin')->middleware(['admin.auth'])->group(function () {
     Route::delete('/kelola-profil/hapus-pelatih/{id}', [ProfilController::class, 'hapusPelatih'])->name('admin.hapus-pelatih');
     Route::get('/kelola-profil/edit-pelatih/{id}', [ProfilController::class, 'editPelatih'])->name('admin.edit-pelatih');
     Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('admin.update-pelatih');
+    Route::get('/kelola-profil/tambah-anggota', [ProfilController::class, 'tambahAnggota'])->name('admin.tambah-anggota');
+    Route::post('/kelola-profil/store-anggota', [ProfilController::class, 'storeAnggota'])->name('admin.store-anggota');
+    Route::delete('/kelola-profil/hapus-anggota/{id}', [ProfilController::class, 'hapusAnggota'])->name('admin.hapus-anggota');
+    Route::get('/kelola-profil/edit-anggota/{id}', [ProfilController::class, 'editAnggota'])->name('admin.edit-anggota');
+    Route::put('/kelola-profil/update-anggota/{id}', [ProfilController::class, 'updateAnggota'])->name('admin.update-anggota');
+
 
     // Pengaturan
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('admin.pengaturan');
@@ -193,6 +199,11 @@ Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () 
     Route::delete('/kelola-profil/hapus-pelatih/{id}', [ProfilController::class, 'hapusPelatih'])->name('superadmin.hapus-pelatih');
     Route::get('/kelola-profil/edit-pelatih/{id}', [ProfilController::class, 'editPelatih'])->name('superadmin.edit-pelatih');
     Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('superadmin.update-pelatih');
+    Route::get('/kelola-profil/tambah-anggota', [ProfilController::class, 'tambahAnggota'])->name('superadmin.tambah-anggota');
+    Route::post('/kelola-profil/store-anggota', [ProfilController::class, 'storeAnggota'])->name('superadmin.store-anggota');
+    Route::delete('/kelola-profil/hapus-anggota/{id}', [ProfilController::class, 'hapusAnggota'])->name('superadmin.hapus-anggota');
+    Route::get('/kelola-profil/edit-anggota/{id}', [ProfilController::class, 'editAnggota'])->name('superadmin.edit-anggota');
+    Route::put('/kelola-profil/update-anggota/{id}', [ProfilController::class, 'updateAnggota'])->name('superadmin.update-anggota');
 
     // Pengaturan Sistem
     Route::get('/pengaturan-sistem', [PengaturanSistemController::class, 'index'])->name('superadmin.pengaturan-sistem.index');
