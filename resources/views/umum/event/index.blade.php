@@ -638,7 +638,7 @@
                         </a>
                     @empty
                         <div class="empty-state-box" style="text-align: center; padding: 50px 20px; color: #7f8c8d; border: 1px dashed #DDD; border-radius: 16px;">
-                            <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Event belum tersedia</p>
+                            <p style="font-size: 1.1rem; font-weight: 600; margin: 0;">Belum ada event tersedia</p>
                         </div>
                     @endforelse
                 </div>

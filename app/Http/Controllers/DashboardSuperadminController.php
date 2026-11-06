@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Berita;
 use App\Models\Event;
 use App\Models\Katalog;
+use App\Models\User;
 use App\Models\LogAktivitas;
 use Carbon\Carbon;
 
@@ -12,14 +13,13 @@ class DashboardSuperadminController extends Controller
 {
     public function index()
     {
-        // Set lokal bahasa Indonesia untuk tanggal jika diperlukan
         Carbon::setLocale('id');
 
         // 1. Query untuk 4 Kartu Metrik Utama di Bagian Atas
         $eventMendatangCount = Event::where('status', 'belum selesai')->count();
         $beritaTayangCount = Berita::where('status', 'tayang')->count();
         $totalKatalogCount = Katalog::count();
-        $totalLogAktivitas = LogAktivitas::count();
+        $totalAdmin = User::where('peran', 'admin')->count();
 
         // 2. Query untuk Tabel Kiri: 5 Event Terdekat yang Belum Selesai
         $upcomingEvents = Event::where('status', 'belum selesai')
@@ -38,7 +38,7 @@ class DashboardSuperadminController extends Controller
             'eventMendatangCount',
             'beritaTayangCount',
             'totalKatalogCount',
-            'totalLogAktivitas',
+            'totalAdmin',
             'upcomingEvents',
             'recentActivities'
         ));

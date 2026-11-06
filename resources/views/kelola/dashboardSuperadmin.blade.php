@@ -264,6 +264,26 @@
         margin-top: 4px;
     }
 
+    .stat-card {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+        min-width: 0;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s; /* Tambahkan transisi */
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(91, 26, 26, 0.05);
+        border-color: #d4aeae;
+    }
+
     /* ==========================================
        RESPONSIF
        ========================================== */
@@ -342,34 +362,41 @@
 <div class="dashboard-wrapper">
     {{-- STATS GRID --}}
     <div class="stats-grid">
-        <div class="stat-card">
+        {{-- Card Total Event (Mengarah ke kelola event) --}}
+        <a href="{{ url('/superadmin/kelola-event') }}" class="stat-card" style="text-decoration: none; color: inherit;">
             <div class="stat-info">
                 <p>Total Event</p>
                 <h2>{{ $eventMendatangCount ?? 0 }}</h2>
             </div>
             <div class="stat-icon emas"><i class="fas fa-calendar-alt"></i></div>
-        </div>
-        <div class="stat-card">
+        </a>
+
+        {{-- Card Total Katalog (Mengarah ke kelola katalog) --}}
+        <a href="{{ url('/superadmin/kelola-katalog') }}" class="stat-card" style="text-decoration: none; color: inherit;">
             <div class="stat-info">
                 <p>Total Katalog</p>
                 <h2>{{ $totalKatalogCount ?? 0 }}</h2>
             </div>
             <div class="stat-icon merah"><i class="fas fa-book"></i></div>
-        </div>
-        <div class="stat-card">
+        </a>
+
+        {{-- Card Total Berita (Mengarah ke kelola berita) --}}
+        <a href="{{ url('/superadmin/kelola-berita') }}" class="stat-card" style="text-decoration: none; color: inherit;">
             <div class="stat-info">
                 <p>Total Berita</p>
                 <h2>{{ $beritaTayangCount ?? 0 }}</h2>
             </div>
             <div class="stat-icon emas"><i class="fas fa-newspaper"></i></div>
-        </div>
-        <div class="stat-card">
+        </a>
+
+        {{-- Card Total Admin (Mengarah ke kelola admin) --}}
+        <a href="{{ url('/superadmin/kelola-admin') }}" class="stat-card" style="text-decoration: none; color: inherit;">
             <div class="stat-info">
-                <p>Log Aktivitas</p>
-                <h2>{{ $totalLogAktivitas ?? 0 }}</h2>
+                <p>Total Admin</p>
+                <h2>{{ $totalAdmin ?? 0 }}</h2>
             </div>
-            <div class="stat-icon merah"><i class="fas fa-history"></i></div>
-        </div>
+            <div class="stat-icon merah"><i class="fas fa-user-shield"></i></div>
+        </a>
     </div>
 
     {{-- DUA KOLOM DATA UTAMA --}}
