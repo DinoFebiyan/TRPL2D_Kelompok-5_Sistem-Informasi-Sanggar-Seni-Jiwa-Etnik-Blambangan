@@ -38,7 +38,7 @@ class LogAktivitasController extends Controller
 
         // Jalankan pagination
         $logs = $query->latest()->paginate(15)->withQueryString();
-
+        $logs->withPath(url('log-aktivitas'));
         // FIX SINKRONISASI VARIABEL: Menggunakan nama variabel persis sesuai yang diminta code view Blade Anda
         $totalaktivitas = LogAktivitas::count();
         $tambahaktivitas = LogAktivitas::where('aktivitas', 'like', '%Menambahkan%')->count();

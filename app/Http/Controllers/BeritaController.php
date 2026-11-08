@@ -86,7 +86,7 @@ class BeritaController extends Controller
         }
 
         $beritas = $query->latest()->paginate(10)->withQueryString();
-
+        $beritas->withPath(url('berita'));
         // Hitung total statistik riil data murni database
         $totalBerita = Berita::count();
         $ditayangkan = Berita::where('status', 'tayang')->count();

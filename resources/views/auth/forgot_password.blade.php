@@ -5,7 +5,15 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Lupa Password – Sanggar Tari JEB</title>
-
+{{-- 🟢 KODE FAVICON DINAMIS (DB & ASSET) --}}
+    @php
+        $globalProfil = \App\Models\ProfilSanggar::with('logo')->first();
+        $faviconUrl = ($globalProfil && $globalProfil->logo && $globalProfil->logo->path) 
+            ? asset('storage/' . $globalProfil->logo->path) 
+            : asset('img/images-landing-page/galeri/logo-jeb.jpg');
+    @endphp
+    
+<link rel="icon" type="image/jpeg" href="{{ $faviconUrl }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link

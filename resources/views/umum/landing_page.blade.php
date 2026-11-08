@@ -913,7 +913,7 @@
           <h4>{{ $profil->nama_pembina ?? 'Adlin Mustika Alam S.,Sn.' }}</h4>
           <div class="role-title">Pembina Sanggar JEB</div>
           <p>"{{ $profil->sambutan_pembina ?? 'Tari Tradisional adalah jiwa dari identitas budaya kita. Bersama kami, lestarikan dan rayakan kekayaan seni Nusantara.' }}"</p>
-        </div>=
+        </div>
       </div>
       <div class="center-action">
         <a href="{{ route('umum.profil') }}" class="btn-dark-pill">Profil Lengkap Sanggar</a>
