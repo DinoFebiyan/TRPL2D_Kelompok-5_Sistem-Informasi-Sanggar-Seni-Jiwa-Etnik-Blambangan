@@ -17,50 +17,65 @@ class ProfilController extends Controller
     {
         $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
 
-        if (! $profil) {$profil = new ProfilSanggar;
+        if (! $profil) {
+            $profil = new ProfilSanggar;
         }
 
-        $search =$request->input('search');
-        $peranFilters =$request->input('peran', []); // Array peran ['pengurus', 'pelatih', 'anggota']
-
-        $personelQuery = Personel::with(['galeri' => function ($q) {$q->where('kategori', 'profil');
-        }]);
-
-        // Filter berdasarkan pencarian nama, NIA, jabatan, dll.
-        if (! empty($search)) {$personelQuery->where(function ($q) use ($search) {
-                $q->where('nama', 'like', '\%' .$search . '%')
-                  ->orWhere('nia', 'like', '%' . $search . '%')
-                  ->orWhere('jabatan', 'like', '%' . $search . '%')
-                  ->orWhere('deskripsi', 'like', '%' . $search . '%')
-                  ->orWhere('prestasi', 'like', '%' . $search . '%');
-            });
-        }
-
-        // Filter berdasarkan kategori peran (Checkbox)
-        if (! empty($peranFilters)) {
-            $personelQuery->whereIn('peran',$peranFilters);
-        }
+        $search = $request->input('search');
+        $peranFilters = $request->input('peran', []); // Array peran ['pengurus', 'pelatih', 'anggota']
 
         $isFiltered = !empty($search) || !empty($peranFilters);
 
         if ($isFiltered) {
-            // Jika sedang melakukan pencarian/filter, tampilkan dalam satu pagination hasil pencarian
-            $personels = $personelQuery->latest()->paginate(10)->withQueryString();$pengurus = collect();
-            $pelatih = collect();$anggota = collect();
+            $personelQuery = Personel::with(['galeri' => function ($q) {
+                $q->where('kategori', 'profil');
+            }]);
+
+            // Filter berdasarkan pencarian nama, NIA, jabatan, dll.
+            if (! empty($search)) {
+                $personelQuery->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', '%' . $search . '%')
+                      ->orWhere('nia', 'like', '%' . $search . '%')
+                      ->orWhere('jabatan', 'like', '%' . $search . '%')
+                      ->orWhere('deskripsi', 'like', '%' . $search . '%')
+                      ->orWhere('prestasi', 'like', '%' . $search . '%');
+                });
+            }
+
+            // Filter berdasarkan kategori peran (Checkbox)
+            if (! empty($peranFilters)) {
+                $personelQuery->whereIn('peran', $peranFilters);
+            }
+
+            // Jika sedang melakukan pencarian/filter, gunakan pagination tunggal
+            $personels = $personelQuery->latest()->paginate(10)->withQueryString();
+            $pengurus = collect();
+            $pelatih = collect();
+            $anggota = collect();
         } else {
-            // Tampilan normal: pisah per section
+            // Tampilan normal: kembalikan paginate(10) per section seperti semula agar fungsi ->links() berjalan normal
             $personels = null;
-            $pengurus = Personel::with(['galeri' => function ($q) {$q->where('kategori', 'profil');
-            }])->where('peran', 'pengurus')->get();
+            $pengurus = Personel::with(['galeri' => function ($q) {
+                $q->where('kategori', 'profil');
+            }])->where('peran', 'pengurus')->paginate(10);
 
-            $pelatih = Personel::with(['galeri' => function ($q) {$q->where('kategori', 'profil');
-            }])->where('peran', 'pelatih')->get();
+            $pelatih = Personel::with(['galeri' => function ($q) {
+                $q->where('kategori', 'profil');
+            }])->where('peran', 'pelatih')->paginate(10);
 
-            $anggota = Personel::with(['galeri' => function ($q) {$q->where('kategori', 'profil');
-            }])->where('peran', 'anggota')->get();
+            $anggota = Personel::with(['galeri' => function ($q) {
+                $q->where('kategori', 'profil');
+            }])->where('peran', 'anggota')->paginate(10);
         }
 
-        return view('profil.index', compact('profil', 'pengurus', 'pelatih', 'anggota', 'personels', 'isFiltered'));
+        $role = auth()->user()->peran;
+        if ($role === 'superadmin') {
+            return view('kelola.profil.indexSuperadmin', compact('profil', 'pengurus', 'pelatih', 'anggota', 'personels', 'isFiltered'));
+        } elseif ($role === 'admin') {
+            return view('kelola.profil.indexAdmin', compact('profil', 'pengurus', 'pelatih', 'anggota', 'personels', 'isFiltered'));
+        } else {
+            abort(403, 'Anda tidak memiliki akses.');
+        }
     }
 
     public function edit()
