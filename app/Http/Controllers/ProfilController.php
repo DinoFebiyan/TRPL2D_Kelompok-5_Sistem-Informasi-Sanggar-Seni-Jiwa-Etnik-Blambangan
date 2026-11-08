@@ -49,6 +49,7 @@ class ProfilController extends Controller
 
             // Jika sedang melakukan pencarian/filter, gunakan pagination tunggal
             $personels = $personelQuery->latest()->paginate(10)->withQueryString();
+            $personels->withPath($routeTarget);
             $pengurus = collect();
             $pelatih = collect();
             $anggota = collect();
@@ -57,15 +58,15 @@ class ProfilController extends Controller
             $personels = null;
             $pengurus = Personel::with(['galeri' => function ($q) {
                 $q->where('kategori', 'profil');
-            }])->where('peran', 'pengurus')->paginate(10);
+            }])->where('peran', 'pengurus')->paginate(10)->withPath($routeTarget);
 
             $pelatih = Personel::with(['galeri' => function ($q) {
                 $q->where('kategori', 'profil');
-            }])->where('peran', 'pelatih')->paginate(10);
+            }])->where('peran', 'pelatih')->paginate(10)->withPath($routeTarget);
 
             $anggota = Personel::with(['galeri' => function ($q) {
                 $q->where('kategori', 'profil');
-            }])->where('peran', 'anggota')->paginate(10);
+            }])->where('peran', 'anggota')->paginate(10)->withPath($routeTarget);
         }
 
         $role = auth()->user()->peran;

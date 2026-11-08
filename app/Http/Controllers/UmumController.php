@@ -78,6 +78,7 @@ class UmumController extends Controller
         }
 
         $beritas = $query->latest()->paginate(12)->withQueryString();
+        $beritas->withPath(route('umum.berita'));
 
         return view('umum.berita.index', compact('beritas', 'profil'));
     }
@@ -118,6 +119,7 @@ class UmumController extends Controller
 
         $allEvents = $query->clone()->orderBy('tanggal', 'desc')->get();
         $events = $query->orderBy('tanggal', 'desc')->paginate(3)->withQueryString();
+        $events->withPath(route('umum.event'));
 
         return view('umum.event.index', [
             'events' => $events,
@@ -159,6 +161,7 @@ class UmumController extends Controller
         }
 
         $katalogs = $query->latest()->paginate(12)->withQueryString();
+        $katalogs->withPath(route('umum.katalog'));
 
         return view('umum.katalog.index', compact('katalogs', 'profil'));
     }
@@ -206,6 +209,7 @@ class UmumController extends Controller
         }
 
         $galeriData = $query->latest()->paginate(12)->withQueryString();
+        $galeriData->withPath(route('umum.galeri'));
 
         return view('umum.galeri.index', compact('galeriData', 'profil'));
     }
@@ -260,6 +264,7 @@ class UmumController extends Controller
         if ($isFiltered) {
             // Jika sedang melakukan pencarian/filter, tampilkan dalam satu pagination hasil pencarian
             $personels = $personelQuery->latest()->paginate(10)->withQueryString();
+            $personels->withPath(route('umum.profil'));
             $pengurus = collect();
             $pelatih = collect();
             $anggota = collect();
