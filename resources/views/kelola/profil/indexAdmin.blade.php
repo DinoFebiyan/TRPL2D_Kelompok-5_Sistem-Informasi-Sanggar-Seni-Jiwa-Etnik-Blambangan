@@ -313,31 +313,50 @@
         <div class="table-responsive-wrapper">
             <table class="prof-table">
                 <thead>
-                    <tr><th>Foto</th><th>Nama Lengkap</th><th>Instagram</th><th>No HP</th><th>Status</th><th>Aksi</th></tr>
+                    <tr>
+                        <th>No</th>
+                        <th>Foto</th>
+                        <th>NIA</th> <!-- 👈 Kolom Baru -->
+                        <th>Nama Lengkap</th>
+                        <th>Jabatan / Peran</th>
+                        <th>Masa Bakti / Sejak</th> <!-- 👈 Kolom Baru -->
+                        <th>No HP</th>
+                        <th>Status</th>
+                        <th>Aksi</th>
+                    </tr>
                 </thead>
                 <tbody>
-                    @forelse($anggota as $item)
+                    @foreach($pengurus as $index => $p)
                     <tr>
+                        <td>{{ $index + 1 }}</td>
                         <td>
-                            <div class="prof-foto-frame">
-                                <img src="{{ $item->galeri->isNotEmpty() ? asset('storage/' . $item->galeri->first()->path) : 'https://ui-avatars.com/api/?name='.urlencode($item->nama) }}">
-                            </div>
+                            @if($p->galeri && $p->galeri->isNotEmpty())
+                                <img src="{{ asset('storage/' . $p->galeri->first()->path) }}" alt="Foto" style="width: 45px; height: 45px; object-fit: cover; border-radius: 50%;">
+                            @else
+                                <span class="text-muted">Tidak ada foto</span>
+                            @endif
                         </td>
-                        <td style="font-weight:600">{{ $item->nama }}</td>
-                        <td>{{ $item->instagram ?? '-' }}</td>
-                        <td>{{ $item->no_handphone }}</td>
-                        <td><span class="{{ $item->status == 'aktif' ? 'badge-aktif' : 'badge-nonaktif' }}">{{ ucfirst($item->status) }}</span></td>
+                        <td><strong>{{ $p->nia }}</strong></td> <!-- 👈 Menampilkan NIA -->
+                        <td>{{ $p->nama }}</td>
+                        <td>{{ $p->jabatan }}</td>
+                        <td>{{ $p->masa_bakti ?? '-' }}</td> <!-- 👈 Menampilkan Masa Bakti / Periode -->
+                        <td>{{ $p->no_handphone }}</td>
                         <td>
-                            <a href="{{ route('superadmin.edit-anggota', $item->id) }}" class="btn-aksi-edit">Edit</a>
-                            <button class="btn-aksi-hapus" onclick="showPopupHapus('delete-anggota-{{ $item->id }}')">Hapus</button>
-                            <form id="delete-anggota-{{ $item->id }}" action="{{ route('superadmin.hapus-anggota', $item->id) }}" method="POST" style="display:none;">
-                                @csrf @method('DELETE')
+                            <span class="badge {{ $p->status == 'aktif' ? 'bg-success' : 'bg-secondary' }}">
+                                {{ ucfirst($p->status) }}
+                            </span>
+                        </td>
+                        <td>
+                            <!-- Tombol Aksi (Edit / Hapus) tetap seperti sebelumnya -->
+                            <a href="{{ route(auth()->user()->peran . '.edit-pengurus', $p->id) }}" class="btn btn-sm btn-warning">Edit</a>
+                            <form action="{{ route(auth()->user()->peran . '.hapus-pengurus', $p->id) }}" method="POST" style="display:inline;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Yakin ingin menghapus data ini?')">Hapus</button>
                             </form>
                         </td>
                     </tr>
-                    @empty
-                    <tr><td colspan="7" style="text-align:center;">Daftar anggota kosong.</td></tr>
-                    @endforelse
+                    @endforeach
                 </tbody>
             </table>
         </div>

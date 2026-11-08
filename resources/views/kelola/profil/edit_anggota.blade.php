@@ -111,6 +111,29 @@
                     <label for="hp">No Handphone</label>
                     <input type="text" id="hp" name="no_hp" value="{{ old('no_hp', $anggota->no_handphone) }}" placeholder="Masukkan no handphone anggota..." required>
                 </div>
+                <!-- Input Nomor Induk Anggota (NIA) - Wajib -->
+                <div class="form-group">
+                    <label for="nia">Nomor Induk Anggota (NIA)</label>
+                    <input type="text" id="nia" name="nia" value="{{ old('nia', $pengurus->nia ?? $pelatih->nia ?? $anggota->nia ?? '') }}" placeholder="Masukkan NIA..." required>
+                </div>
+
+                <!-- Input Masa Bakti / Periode / Bergabung Sejak - Opsional -->
+                <div class="form-group">
+                    <label for="masa_bakti">Masa Bakti / Periode / Bergabung Sejak</label>
+                    <input type="text" id="masa_bakti" name="masa_bakti" value="{{ old('masa_bakti', $pengurus->masa_bakti ?? $pelatih->masa_bakti ?? $anggota->masa_bakti ?? '') }}" placeholder="Contoh: 2023 - Sekarang atau Tahun 2024">
+                </div>
+
+                <!-- Input Deskripsi - Opsional -->
+                <div class="form-group">
+                    <label for="deskripsi">Deskripsi Singkat</label>
+                    <textarea id="deskripsi" name="deskripsi" rows="4" style="width: 100%; padding: 12px 20px; border: 1px solid #A87C7C; border-radius: 16px; font-family: 'Poppins', sans-serif;" placeholder="Masukkan deskripsi profil personel...">{{ old('deskripsi', $pengurus->deskripsi ?? $pelatih->deskripsi ?? $anggota->deskripsi ?? '') }}</textarea>
+                </div>
+
+                <!-- Input Prestasi - Opsional -->
+                <div class="form-group">
+                    <label for="prestasi">Prestasi</label>
+                    <textarea id="prestasi" name="prestasi" rows="3" style="width: 100%; padding: 12px 20px; border: 1px solid #A87C7C; border-radius: 16px; font-family: 'Poppins', sans-serif;" placeholder="Masukkan daftar prestasi...">{{ old('prestasi', $pengurus->prestasi ?? $pelatih->prestasi ?? $anggota->prestasi ?? '') }}</textarea>
+                </div>
 
                 <div class="form-group">
                     <label for="status">Status</label>
