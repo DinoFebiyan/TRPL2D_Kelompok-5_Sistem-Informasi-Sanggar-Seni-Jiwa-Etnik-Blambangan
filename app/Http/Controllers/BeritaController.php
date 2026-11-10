@@ -112,6 +112,34 @@ class BeritaController extends Controller
     }
 
     /**
+     * Pesan validasi berbahasa Indonesia untuk form berita (TC-BRT-002, TD-N07).
+     */
+    private function pesanValidasiBerita(): array
+    {
+        // PERBAIKAN (TC-BRT-002): pesan validasi sebelumnya bahasa Inggris bawaan Laravel,
+        // sekarang diganti pesan bahasa Indonesia sesuai test case.
+        $pesanFoto = 'Format atau ukuran foto tidak sesuai';
+
+        return [
+            'judul.required' => 'Judul tidak boleh kosong',
+            'judul.string' => 'Judul tidak valid',
+            'judul.max' => 'Judul maksimal 255 karakter',
+            'isi.required' => 'Isi berita tidak boleh kosong',
+            'isi.string' => 'Isi berita tidak valid',
+            'jenis_berita.required' => 'Jenis berita wajib dipilih',
+            'jenis_berita.in' => 'Jenis berita tidak sah',
+            'status.required' => 'Status berita wajib dipilih',
+            'status.in' => 'Status berita tidak sah',
+            'foto.required' => 'Foto berita wajib diunggah',
+            'foto.array' => 'Foto berita tidak valid',
+            'foto.*.image' => $pesanFoto,
+            'foto.*.mimes' => $pesanFoto,
+            'foto.*.max' => $pesanFoto,
+            'hapus_foto.*.exists' => 'Foto yang akan dihapus tidak ditemukan',
+        ];
+    }
+
+    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -122,8 +150,10 @@ class BeritaController extends Controller
             'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
             'status' => 'required|in:tayang,tidak ditayangkan',
             'foto' => 'required|array',
-            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
-        ]);
+            // PERBAIKAN (TD-N07): batas ukuran foto diubah dari max:4096 (4 MB) menjadi max:2048 (2 MB)
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:2048',
+        // PERBAIKAN (TC-BRT-002): pakai pesan validasi bahasa Indonesia
+        ], $this->pesanValidasiBerita());
 
         $request->merge(['isi' => SanitizeHelper::sanitize($request->isi)]);
 
@@ -205,10 +235,12 @@ class BeritaController extends Controller
             'jenis_berita' => 'required|in:Pengumuman,Prestasi,Kolaborasi,Event,Lainnya',
             'status' => 'required|in:tayang,tidak ditayangkan',
             'foto' => 'nullable|array',
-            'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+            // PERBAIKAN (TD-N07): batas ukuran foto diubah dari max:4096 (4 MB) menjadi max:2048 (2 MB)
+            'foto.*' => 'image|mimes:jpeg,png,jpg|max:2048',
             'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
-        ]);
+        // PERBAIKAN (TC-BRT-002): pakai pesan validasi bahasa Indonesia
+        ], $this->pesanValidasiBerita());
 
         $request->merge(['isi' => SanitizeHelper::sanitize($request->isi)]);
 
@@ -306,7 +338,17 @@ class BeritaController extends Controller
             'judul'        => 'nullable|string|max:255',
             'jenis_berita' => 'nullable|string',
             'prompt'       => 'nullable|string',
-            'foto.*'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            // PERBAIKAN (TC-AI-001): foto sekarang WAJIB (sebelumnya nullable, sehingga request tanpa foto tetap dikirim ke Gemini)
+            'foto'         => 'required|array|min:1',
+            'foto.*'       => 'image|mimes:jpeg,png,jpg|max:2048',
+        // PERBAIKAN (TC-AI-001): pesan validasi bahasa Indonesia sesuai test case
+        ], [
+            'foto.required' => 'Foto berita wajib diunggah',
+            'foto.array'    => 'Foto berita wajib diunggah',
+            'foto.min'      => 'Foto berita wajib diunggah',
+            'foto.*.image'  => 'Format atau ukuran foto tidak sesuai',
+            'foto.*.mimes'  => 'Format atau ukuran foto tidak sesuai',
+            'foto.*.max'    => 'Format atau ukuran foto tidak sesuai',
         ]);
 
         $judul      = trim($request->input('judul', ''));
@@ -480,10 +522,14 @@ PROMPT;
         }
 
         if (empty($hasilGenerasi)) {
+            // PERBAIKAN (TC-AI-003): detail error API hanya dicatat di log, tidak dikirim ke browser
+            \Illuminate\Support\Facades\Log::error('Gemini gagal pada semua model. ' . ($errorTerakhir ?? ''));
+
             return response()->json([
                 'success' => false,
-                'message' => 'Gagal generate dari semua model Gemini. ' . ($errorTerakhir ?? ''),
-            ], 500);
+                // PERBAIKAN (TC-AI-003): pesan informatif sesuai test case, status diganti dari 500 menjadi 503
+                'message' => 'Gagal menghasilkan draft, silakan coba lagi atau tulis berita secara manual',
+            ], 503);
         }
 
         // 7. Clean Output
@@ -498,14 +544,16 @@ PROMPT;
     } catch (\Illuminate\Validation\ValidationException $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Input tidak valid: ' . $e->getMessage(),
+            // PERBAIKAN (TC-AI-001): tampilkan pesan validasi pertama saja (sebelumnya 'Input tidak valid: ' + pesan Inggris Laravel)
+            'message' => $e->validator->errors()->first() ?: 'Input tidak valid',
         ], 422);
     } catch (\Throwable $e) {
         \Illuminate\Support\Facades\Log::error('Gemini Generate Error: ' . $e->getMessage());
 
         return response()->json([
             'success' => false,
-            'message' => 'Error Server: ' . $e->getMessage(),
+            // PERBAIKAN (keamanan): pesan exception tidak lagi dikirim ke browser, cukup tercatat di log
+            'message' => 'Terjadi kesalahan pada server, silakan coba lagi atau tulis berita secara manual',
         ], 500);
     }
 }
