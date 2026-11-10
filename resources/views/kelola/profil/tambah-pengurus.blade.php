@@ -89,11 +89,12 @@
         }
 
         .form-group input,
-        .form-group select {
+        .form-group select,
+        .form-group textarea {
             width: 100%;
             padding: 12px 20px;
             border: 1px solid #A87C7C;
-            border-radius: 30px;
+            border-radius: 16px;
             font-family: 'Poppins', sans-serif;
             font-size: 0.9rem;
             background: #fff;
@@ -101,7 +102,8 @@
             outline: none;
         }
 
-        .form-group input::placeholder {
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
             color: #b0b0b0;
         }
 
@@ -148,6 +150,7 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%238A4B4B' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
             background-position: calc(100% - 20px) center;
+            border-radius: 30px !important;
         }
 
         .select-status {
@@ -158,9 +161,6 @@
             color: #b0b0b0;
         }
 
-        /* ==========================================
-           ✅ FIX: RESPONSIVE HEADER FORM DI MOBILE
-           ========================================== */
         @media (max-width: 640px) {
             .form-header {
                 flex-direction: column !important;
@@ -168,21 +168,14 @@
                 gap: 15px !important;
                 padding: 1.2rem 1.5rem !important;
             }
-            
             .form-header h1 {
                 font-size: 1.4rem !important;
             }
-            
-            .form-header p {
-                font-size: 0.78rem !important;
-            }
-            
             .header-actions {
                 width: 100% !important;
                 display: flex !important;
                 gap: 10px !important;
             }
-            
             .btn-batal,
             .btn-simpan {
                 flex: 1 !important;
@@ -190,7 +183,6 @@
                 padding: 10px 14px !important;
                 font-size: 0.85rem !important;
             }
-
             .form-body {
                 padding: 1.5rem !important;
             }
@@ -225,18 +217,7 @@
             <form id="formTambahPengurus" action="{{ auth()->user()->peran === 'superadmin' ? route('superadmin.store-pengurus') : route('admin.store-pengurus') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
-                @if($errors->any())
-                    <div style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:8px; margin-bottom:20px; font-size:0.85rem; border-left:4px solid #dc2626;">
-                        <i class="fas fa-exclamation-circle"></i> Harap perbaiki kesalahan pada form.
-                        <ul style="margin: 5px 0 0 0; padding-left: 20px; color: #dc2626;">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                @endif
-
-                {{-- Foto Pengurus (Mendukung Multi-Upload Akumulatif) --}}
+                {{-- Foto Pengurus (Multi-Upload Akumulatif) --}}
                 <div class="form-group">
                     <label>Foto Pengurus (Bisa pilih lebih dari satu)</label>
                     <div class="custom-file-wrapper {{ $errors->has('foto') ? 'is-invalid' : '' }}">
@@ -246,6 +227,11 @@
                     </div>
                     <div class="form-helper">Format: JPG, PNG. Maks 2MB per file.</div>
                     <div id="imagePreviewContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="nia">Nomor Induk Anggota (NIA)</label>
+                    <input type="text" id="nia" name="nia" value="{{ old('nia') }}" placeholder="Masukkan Nomor Induk Anggota (NIA)..." required>
                 </div>
 
                 <div class="form-group">
@@ -265,12 +251,27 @@
 
                 <div class="form-group">
                     <label for="instagram">Instagram</label>
-                    <input type="text" id="instagram" name="instagram" value="{{ old('instagram') }}" placeholder="Masukkan link atau username instagram pengurus...">
+                    <input type="text" id="instagram" name="instagram" value="{{ old('instagram') }}" placeholder="Contoh: @username atau link profil...">
                 </div>
 
                 <div class="form-group">
                     <label for="hp">No Handphone</label>
-                    <input type="text" id="hp" name="no_hp" value="{{ old('no_hp') }}" placeholder="Masukkan no handphone pengurus..." required>
+                    <input type="text" id="hp" name="no_hp" value="{{ old('no_hp') }}" placeholder="Masukkan nomor WhatsApp/HP aktif..." required>
+                </div>
+
+                <div class="form-group">
+                    <label for="masa_bakti">Periode / Masa Bakti</label>
+                    <input type="text" id="masa_bakti" name="masa_bakti" value="{{ old('masa_bakti') }}" placeholder="Contoh: 2023 - 2025">
+                </div>
+
+                <div class="form-group">
+                    <label for="deskripsi">Deskripsi Singkat (Opsional)</label>
+                    <textarea id="deskripsi" name="deskripsi" rows="4" placeholder="Masukkan deskripsi profil pengurus...">{{ old('deskripsi') }}</textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="prestasi">Prestasi (Opsional)</label>
+                    <textarea id="prestasi" name="prestasi" rows="3" placeholder="Masukkan daftar prestasi...">{{ old('prestasi') }}</textarea>
                 </div>
 
                 <div class="form-group">
@@ -329,25 +330,28 @@
         }
     </script>
 
-{{-- Popup --}}
+{{-- Popup Components --}}
 @include('popup.validasi')
 @include('popup.batal')
 @include('popup.simpan')
 
-{{-- =========================================================
-     VALIDASI FORM SEBELUM SIMPAN (Pengurus)
-     ========================================================= --}}
 <script>
 function validateFormPengurus() {
     const errors = [];
 
-    // 1. Foto (multiple)
+    // 1. Validasi Foto
     const fotoInput = document.getElementById('foto');
     if (!fotoInput.files || fotoInput.files.length === 0) {
         errors.push('Foto pengurus belum dipilih');
     }
 
-    // 2. Nama
+    // 2. Validasi NIA (Wajib)
+    const nia = document.getElementById('nia');
+    if (!nia.value.trim()) {
+        errors.push('Nomor Induk Anggota (NIA) belum diisi');
+    }
+
+    // 3. Validasi Nama
     const nama = document.getElementById('nama');
     if (!nama.value.trim()) {
         errors.push('Nama lengkap belum diisi');
@@ -355,13 +359,13 @@ function validateFormPengurus() {
         errors.push('Nama lengkap minimal 3 karakter');
     }
 
-    // 3. Jabatan
+    // 4. Validasi Jabatan
     const jabatan = document.getElementById('jabatan');
     if (!jabatan.value) {
         errors.push('Jabatan belum dipilih');
     }
 
-    // 4. No Handphone
+    // 5. Validasi No Handphone
     const hp = document.getElementById('hp');
     if (!hp.value.trim()) {
         errors.push('No handphone belum diisi');
@@ -369,7 +373,7 @@ function validateFormPengurus() {
         errors.push('No handphone tidak valid (8-15 digit angka)');
     }
 
-    // 5. Status
+    // 6. Validasi Status
     const status = document.getElementById('status');
     if (!status.value) {
         errors.push('Status belum dipilih');
@@ -390,9 +394,6 @@ function handleSimpanPengurus(formId) {
 }
 </script>
 
-{{-- =========================================================
-     OVERRIDE TOMBOL BATAL (redirect ke halaman kelola-profil)
-     ========================================================= --}}
 <script>
     window._urlBatalPengurus = '{{ auth()->user()->peran === "superadmin"
         ? route("superadmin.kelola-profil")
@@ -407,18 +408,17 @@ function handleSimpanPengurus(formId) {
 </script>
 
 @if ($errors->any())
-<div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Plus Jakarta Sans',sans-serif;">
+<div id="popup-server-inline" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:9999;align-items:center;justify-content:center;padding:24px;font-family:'Poppins',sans-serif;">
     <div style="background:#FFF5F5;border-radius:16px;padding:36px 28px;box-shadow:0 8px 32px rgba(0,0,0,0.18);width:100%;max-width:420px;text-align:center;">
         <div style="width:72px;height:72px;border-radius:50%;background:#FECACA;color:#E53935;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;font-weight:700;">✕</div>
-        <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Server Error</p>
-        <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Format Data Tidak Sesuai</h2>
-        <p style="font-size:13.5px;color:#475569;line-height:1.65;margin-bottom:16px;">Periksa kembali data yang Anda masukkan:</p>
+        <p style="font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#475569;margin-bottom:8px;">Form Belum Lengkap</p>
+        <h2 style="font-size:18px;font-weight:800;color:#E53935;margin-bottom:10px;">Mohon lengkapi data berikut sebelum menyimpan:</h2>
         <ul style="text-align:left;font-size:13px;color:#991b1b;margin-bottom:20px;padding-left:18px;">
             @foreach ($errors->all() as $error)
             <li style="margin-bottom:4px;">{{ $error }}</li>
             @endforeach
         </ul>
-        <button onclick="document.getElementById('popup-server-inline').style.display='none';" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#E53935;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Coba Lagi</button>
+        <button onclick="document.getElementById('popup-server-inline').style.display='none';" style="display:inline-block;padding:12px 32px;border:none;border-radius:10px;background:#00bcd4;color:#fff;font-size:14.5px;font-weight:700;font-family:inherit;cursor:pointer;width:100%;">Oke, Mengerti</button>
     </div>
 </div>
 <script>

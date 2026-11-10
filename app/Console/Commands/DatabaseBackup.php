@@ -8,14 +8,14 @@ use Illuminate\Support\Facades\File;
 class DatabaseBackup extends Command
 {
     protected $signature = 'db:sqlite-backup';
-    protected $description = 'Melakukan backup database SQLite mingguan dan menghapus backup berumur lebih dari 1 bulan';
+    protected $description = 'Melakukan backup database mingguan dan menghapus backup berumur lebih dari 1 bulan';
 
     public function handle()
     {
         $databasePath = database_path('database.sqlite');
         $backupDir = storage_path('app/backups');
 
-        // Pastikan folder backup tersedia
+        // Memastikan folder backup tersedia
         if (!File::exists($backupDir)) {
             File::makeDirectory($backupDir, 0755, true);
         }
@@ -27,9 +27,10 @@ class DatabaseBackup extends Command
         if (File::exists($databasePath)) {
             File::copy($databasePath, $backupPath);
             $this->info("Backup berhasil dibuat: {$filename}");
+            return command::SUCCESS;
         } else {
             $this->error("File database SQLite tidak ditemukan!");
-            return;
+            return command::FAILURE;
         }
 
         // 2. Pembersihan Otomatis (Hapus file yang umurnya > 1 bulan / 30 hari)

@@ -4,7 +4,15 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <title>@yield('title', 'Sanggar Tari Jiwa Etnik Blambangan')</title>
-
+{{-- 🟢 KODE FAVICON DINAMIS (DB & ASSET) --}}
+    @php
+        $globalProfil = \App\Models\ProfilSanggar::with('logo')->first();
+        $faviconUrl = ($globalProfil && $globalProfil->logo && $globalProfil->logo->path) 
+            ? asset('storage/' . $globalProfil->logo->path) 
+            : asset('img/images-landing-page/galeri/logo-jeb.jpg');
+    @endphp
+    
+<link rel="icon" type="image/jpeg" href="{{ $faviconUrl }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -672,11 +680,15 @@
 
 <nav>
     <div class="nav-container">
-        <!-- Logo di Kiri -->
-        <div class="nav-logo">
+    <!-- Logo di Kiri -->
+    <div class="nav-logo">
+        @if(isset($profil) && $profil->logo && $profil->logo->path)
+            <img src="{{ asset('storage/' . $profil->logo->path) }}" alt="Logo JEB" class="logo-img-nav" />
+        @else
             <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-nav" />
-            <span>JEB</span>
-        </div>
+        @endif
+        <span>JEB</span>
+    </div>
 
         <!-- Links di Kanan -->
         <div class="nav-links">

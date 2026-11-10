@@ -84,7 +84,7 @@ class EventController extends Controller
         }
 
         $events = $query->latest()->paginate(10)->withQueryString();
-
+        $events->withPath(route('umum.event'));
         // Menghitung data statistik real data tanpa filter
         $totalEvent = Event::count();
         $selesai = Event::where('status', 'selesai')->count();

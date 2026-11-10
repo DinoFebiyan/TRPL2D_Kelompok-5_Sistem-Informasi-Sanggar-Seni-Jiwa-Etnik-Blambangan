@@ -39,7 +39,7 @@ class AdminController extends Controller
 
         // Eksekusi pagination dengan mempertahankan parameter URL query string
         $admins = $query->with('galeri')->latest()->paginate(10)->withQueryString();
-
+        $admins->withPath(route('superadmin.kelola-admin'));
         // Statistik Card (Murni total data tanpa pengaruh filter pencarian)
         $totalAdmin = User::where('peran', 'admin')->count();
         $activeAdmins = User::where('peran', 'admin')->where('status', 'aktif')->count();

@@ -3,21 +3,34 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Personel extends Model
 {
     protected $table = 'personel';
 
-    // Bersihkan 'galeri_id' dari fillable jika Anda menggunakan sistem satu personel banyak foto di tabel galeri
-    protected $fillable = ['nama', 'jabatan', 'no_handphone', 'instagram', 'peran', 'status'];
+    // Opsi 1: Tambahkan semua kolom baru ke dalam array $fillable
+    protected $fillable = [
+        'nia',
+        'nama',
+        'jabatan',
+        'no_handphone',
+        'instagram',
+        'peran',
+        'status',
+        'deskripsi',
+        'prestasi',
+        'masa_bakti',
+        'galeri_id',
+    ];
+
+    // ATAU Opsi 2 (Alternatif): Menggunakan $guarded agar semua kolom otomatis boleh diisi
+    // protected $guarded = [];
 
     /**
-     * Hubungkan Personel ke tabel Galeri (Satu personel memiliki banyak foto)
+     * Relasi ke galeri khusus foto profil personel
      */
-    public function galeri(): HasMany
+    public function galeri()
     {
-        // Menghubungkan lewat kolom 'sumber_id' dan memfilter hanya kategori 'profil'
-        return $this->hasMany(Galeri::class, 'sumber_id', 'id')->where('kategori', 'profil');
+        return $this->hasMany(Galeri::class, 'sumber_id')->where('kategori', 'profil');
     }
 }

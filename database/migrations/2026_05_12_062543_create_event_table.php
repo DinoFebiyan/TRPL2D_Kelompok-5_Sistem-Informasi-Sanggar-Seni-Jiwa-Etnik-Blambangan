@@ -18,7 +18,6 @@ return new class extends Migration
             $table->enum('kategori', ['Latihan', 'Pertunjukan', 'Pelatihan', 'Lainnya'])->default('Lainnya');
             $table->enum('status', ['selesai', 'belum selesai'])->default('belum selesai');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
-            // $table->foreignId('galeri_id')->nullable()->constrained('galeri')->nullOnDelete();
             $table->timestamps();
         });
     }
