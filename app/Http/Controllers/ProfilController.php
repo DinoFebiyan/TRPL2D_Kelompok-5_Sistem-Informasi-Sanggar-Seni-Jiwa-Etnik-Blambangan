@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProfilController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index()
     {
         $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
@@ -37,9 +35,7 @@ class ProfilController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+   
     public function edit()
     {
         $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
@@ -51,9 +47,7 @@ class ProfilController extends Controller
         return view('kelola.profil.edit', compact('profil'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
     public function update(Request $request)
     {
         $profil = ProfilSanggar::first();
@@ -75,7 +69,7 @@ class ProfilController extends Controller
             'header_files.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
-        // 🔒 Sanitasi HTML pada semua teks yang mungkin mengandung kode berbahaya
+        
         $request->merge([
             'deskripsi' => SanitizeHelper::sanitize($request->deskripsi),
             'visi' => SanitizeHelper::sanitize($request->visi),
@@ -84,15 +78,15 @@ class ProfilController extends Controller
             'sambutan_pembina' => SanitizeHelper::sanitize($request->sambutan_pembina),
         ]);
 
-        // 🔒 Validasi MIME riil untuk logo
+      
         if ($request->hasFile('logo') && ! UploadHelper::isImageMimeValid($request->file('logo'))) {
             return back()->withErrors(['logo' => 'File logo bukan gambar yang valid.']);
         }
-        // 🔒 Validasi MIME riil untuk foto_pembina
+       
         if ($request->hasFile('foto_pembina') && ! UploadHelper::isImageMimeValid($request->file('foto_pembina'))) {
             return back()->withErrors(['foto_pembina' => 'File foto pembina bukan gambar yang valid.']);
         }
-        // 🔒 Validasi MIME riil untuk header_files
+        
         if ($request->hasFile('header_files')) {
             foreach ($request->file('header_files') as $file) {
                 if (! UploadHelper::isImageMimeValid($file)) {
@@ -101,7 +95,7 @@ class ProfilController extends Controller
             }
         }
 
-        // Simpan Logo
+       
         if ($request->hasFile('logo')) {
             $fileLogo = $request->file('logo');
             $pathLogo = $fileLogo->store('galeri', 'public');
@@ -128,7 +122,7 @@ class ProfilController extends Controller
             }
         }
 
-        // Simpan Foto Pembina
+       
         if ($request->hasFile('foto_pembina')) {
             $filePembina = $request->file('foto_pembina');
             $pathPembina = $filePembina->store('galeri', 'public');
@@ -155,21 +149,23 @@ class ProfilController extends Controller
             }
         }
 
-        // ✅ TAMBAHAN: Simpan Header Files (Multi-Upload)
+        
         if ($request->hasFile('header_files')) {
             foreach ($request->file('header_files') as $file) {
                 $path = $file->store('header', 'public');
+                $berwatermark = UploadHelper::tambahWatermark(Storage::disk('public')->path($path));
+
                 Galeri::create([
                     'sumber_id' => $profil->id,
                     'path' => $path,
                     'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'header',
-                    'is_watermark' => false,
+                    'is_watermark' => $berwatermark,
                 ]);
             }
         }
 
-        // Update data teks yang sudah disanitasi
+       
         $profil->update([
             'deskripsi' => $request->deskripsi,
             'visi' => $request->visi,
@@ -192,10 +188,7 @@ class ProfilController extends Controller
         return redirect()->route($routeName)->with('success', 'Profil sanggar berhasil diperbarui.');
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  Method untuk Pengurus (CRUD)
-    // ─────────────────────────────────────────────────────────
-
+   
     public function tambahPengurus()
     {
         return view('kelola.profil.tambah-pengurus');
@@ -213,7 +206,7 @@ class ProfilController extends Controller
             'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
 
-        // Validasi MIME riil
+       
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 if (! UploadHelper::isImageMimeValid($file)) {
@@ -301,7 +294,6 @@ class ProfilController extends Controller
             'status' => $request->status,
         ]);
 
-        // Hapus foto lama yang ditandai
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pengurus->id)
@@ -316,7 +308,6 @@ class ProfilController extends Controller
             }
         }
 
-        // Upload foto baru
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
@@ -369,10 +360,7 @@ class ProfilController extends Controller
         }
     }
 
-    // ─────────────────────────────────────────────────────────
-    //  Method untuk Pelatih (CRUD)
-    // ─────────────────────────────────────────────────────────
-
+    
     public function tambahPelatih()
     {
         return view('kelola.profil.tambah-pelatih');
@@ -469,7 +457,7 @@ class ProfilController extends Controller
             'status' => $request->status,
         ]);
 
-        // Hapus foto lama yang ditandai
+        
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pelatih->id)
@@ -484,7 +472,7 @@ class ProfilController extends Controller
             }
         }
 
-        // Upload foto baru
+        
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');

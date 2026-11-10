@@ -189,7 +189,7 @@ class UmumController extends Controller
         // 1. Logika Global Searching Kostum (Nama Tari atau Deskripsi)
         if (! empty($search)) {
             $query->where(function ($q) use ($search) {
-                $q->where('nama_tari', 'like', '%'.$search.'%')
+                $q->where('nama_katalog', 'like', '%'.$search.'%')
                     ->orWhere('deskripsi', 'like', '%'.$search.'%');
             });
         }
