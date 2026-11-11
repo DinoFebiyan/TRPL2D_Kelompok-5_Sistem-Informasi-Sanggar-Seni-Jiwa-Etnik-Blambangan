@@ -44,17 +44,10 @@ class DatabaseBackupTest extends TestCase
             'Jumlah record tidak berkurang setelah penghapusan.'
         );
 
-        dump($initialCount, $afterDeleteCount);
-
         $this->artisan('db:sqlite-restore')
             ->assertExitCode(0);
 
-            dump(
-    config('database.connections.sqlite.database')
-);
-
         $restoredCount = Event::count();
-        dump($restoredCount);
         $this->assertSame(
             $initialCount,
             $restoredCount,
