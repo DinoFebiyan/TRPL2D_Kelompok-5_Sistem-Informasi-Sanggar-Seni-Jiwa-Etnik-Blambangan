@@ -18,7 +18,6 @@ class AuthValidasiEmailAdminTest extends TestCase
             'email' => 'superadmin@gmail.com',
             'peran' => 'superadmin',
         ]);
-        dump($superadmin->toArray()); // Debugging: Menampilkan data superadmin yang dibuat
 
         // Membuat admin dengan email yang sudah terdaftar
         User::factory()->create([
@@ -32,13 +31,12 @@ class AuthValidasiEmailAdminTest extends TestCase
         $response = $this->post('/superadmin/kelola-admin/store', [
             'name' => 'Admin Baru',
             'email' => 'admin@gmail.com',
-            'password' => 'password123',
+            'password' => 'passworod123',
             'password_confirmation' => 'password123',
             'status' => 'aktif',
         ]);
 
         // Memastikan email ditolak dari variabel response dan memeriksa error pada session
         $response->assertSessionHasErrors('email');
-        dump($response->getSession()->get('errors')); // Debugging: Menampilkan error email dari session
     }
 }
