@@ -92,7 +92,7 @@ class KatalogController extends Controller
 
         // 6. Eksekusi Pagination dengan mempertahankan Query Parameters di URL Links
         $katalogs = $query->latest()->paginate(10)->withQueryString();
-
+        $katalogs->withPath(route('umum.katalog'));
         // 7. Hitung statistik card (Selalu ambil data total murni tanpa filter pencarian)
         $totalKatalog = Katalog::count();
         $tersedia = Katalog::where('status', 'tersedia')->count();

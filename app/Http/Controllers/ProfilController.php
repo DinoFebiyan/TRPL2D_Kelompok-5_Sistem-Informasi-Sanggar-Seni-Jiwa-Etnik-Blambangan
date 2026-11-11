@@ -18,20 +18,65 @@ class ProfilController extends Controller
      */
     public function index()
     {
-        $profil = ProfilSanggar::with(['logo', 'fotoPembina'])->first();
+        $profil = ProfilSanggar::with(['logo', 'fotoPembina', 'headers'])->first();
 
         if (! $profil) {
             $profil = new ProfilSanggar;
         }
 
-        $pengurus = Personel::with('galeri')->where('peran', 'pengurus')->paginate(10);
-        $pelatih = Personel::with('galeri')->where('peran', 'pelatih')->paginate(10);
+        $search = $request->input('search');
+        $peranFilters = $request->input('peran', []); // Array peran ['pengurus', 'pelatih', 'anggota']
+
+        $isFiltered = !empty($search) || !empty($peranFilters);
+
+        if ($isFiltered) {
+            $personelQuery = Personel::with(['galeri' => function ($q) {
+                $q->where('kategori', 'profil');
+            }]);
+
+            // Filter berdasarkan pencarian nama, NIA, jabatan, dll.
+            if (! empty($search)) {
+                $personelQuery->where(function ($q) use ($search) {
+                    $q->where('nama', 'like', '%' . $search . '%')
+                      ->orWhere('nia', 'like', '%' . $search . '%')
+                      ->orWhere('jabatan', 'like', '%' . $search . '%')
+                      ->orWhere('deskripsi', 'like', '%' . $search . '%')
+                      ->orWhere('prestasi', 'like', '%' . $search . '%');
+                });
+            }
+
+            // Filter berdasarkan kategori peran (Checkbox)
+            if (! empty($peranFilters)) {
+                $personelQuery->whereIn('peran', $peranFilters);
+            }
+
+            // Jika sedang melakukan pencarian/filter, gunakan pagination tunggal
+            $personels = $personelQuery->latest()->paginate(10)->withQueryString();
+            $personels->withPath($routeTarget);
+            $pengurus = collect();
+            $pelatih = collect();
+            $anggota = collect();
+        } else {
+            // Tampilan normal: kembalikan paginate(10) per section seperti semula agar fungsi ->links() berjalan normal
+            $personels = null;
+            $pengurus = Personel::with(['galeri' => function ($q) {
+                $q->where('kategori', 'profil');
+            }])->where('peran', 'pengurus')->paginate(10)->withPath($routeTarget);
+
+            $pelatih = Personel::with(['galeri' => function ($q) {
+                $q->where('kategori', 'profil');
+            }])->where('peran', 'pelatih')->paginate(10)->withPath($routeTarget);
+
+            $anggota = Personel::with(['galeri' => function ($q) {
+                $q->where('kategori', 'profil');
+            }])->where('peran', 'anggota')->paginate(10)->withPath($routeTarget);
+        }
 
         $role = auth()->user()->peran;
         if ($role === 'superadmin') {
-            return view('kelola.profil.indexSuperadmin', compact('profil', 'pengurus', 'pelatih'));
+            return view('kelola.profil.indexSuperadmin', compact('profil', 'pengurus', 'pelatih', 'anggota', 'personels', 'isFiltered'));
         } elseif ($role === 'admin') {
-            return view('kelola.profil.indexAdmin', compact('profil', 'pengurus', 'pelatih'));
+            return view('kelola.profil.indexAdmin', compact('profil', 'pengurus', 'pelatih', 'anggota', 'personels', 'isFiltered'));
         } else {
             abort(403, 'Anda tidak memiliki akses.');
         }
@@ -159,12 +204,14 @@ class ProfilController extends Controller
         if ($request->hasFile('header_files')) {
             foreach ($request->file('header_files') as $file) {
                 $path = $file->store('header', 'public');
+                $berwatermark = UploadHelper::tambahWatermark(Storage::disk('public')->path($path));
+
                 Galeri::create([
                     'sumber_id' => $profil->id,
                     'path' => $path,
                     'nama_file' => uniqid().'_'.$file->getClientOriginalName(),
                     'kategori' => 'header',
-                    'is_watermark' => false,
+                    'is_watermark' => $berwatermark,
                 ]);
             }
         }
@@ -204,11 +251,15 @@ class ProfilController extends Controller
     public function storePengurus(Request $request)
     {
         $request->validate([
+            'nia' => 'required|string|max:255',
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string',
             'instagram' => 'nullable|string|max:255',
             'no_hp' => 'nullable|string|max:20',
             'status' => 'required|in:aktif,nonaktif',
+            'deskripsi' => 'nullable|string',
+            'prestasi' => 'nullable|string',
+            'masa_bakti' => 'nullable|string|max:255',
             'foto' => 'required|array',
             'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
         ]);
@@ -223,12 +274,16 @@ class ProfilController extends Controller
         }
 
         $personel = Personel::create([
+            'nia' => $request->nia,
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
             'instagram' => $request->instagram,
             'no_handphone' => $request->no_hp,
             'status' => $request->status,
             'peran' => 'pengurus',
+            'deskripsi' => $request->deskripsi,
+            'prestasi' => $request->prestasi,
+            'masa_bakti' => $request->masa_bakti,
         ]);
 
         if ($request->hasFile('foto')) {
@@ -253,18 +308,15 @@ class ProfilController extends Controller
         }
 
         $role = auth()->user()->peran;
-        if ($role === 'superadmin') {
-            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pengurus baru beserta galeri foto berhasil disimpan.');
-        } elseif ($role === 'admin') {
-            return redirect()->route('admin.kelola-profil')->with('success', 'Data pengurus baru beserta galeri foto berhasil disimpan.');
-        } else {
-            abort(403, 'Anda tidak memiliki akses.');
-        }
+        $routeRedirect = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
+        return redirect()->route($routeRedirect)->with('success', 'Data pengurus baru berhasil disimpan.');
     }
 
     public function editPengurus(string $id)
     {
-        $pengurus = Personel::with('galeri')->findOrFail($id);
+        $pengurus = Personel::with(['galeri' => function ($q) {
+            $q->where('kategori', 'profil');
+        }])->findOrFail($id);
 
         return view('kelola.profil.edit_pengurus', compact('pengurus'));
     }
@@ -274,34 +326,43 @@ class ProfilController extends Controller
         $pengurus = Personel::findOrFail($id);
 
         $request->validate([
+            'nia' => 'required|string|max:255',
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string',
             'instagram' => 'nullable|string|max:255',
             'no_hp' => 'nullable|string|max:20',
             'status' => 'required|in:aktif,nonaktif',
+            'deskripsi' => 'nullable|string',
+            'prestasi' => 'nullable|string',
+            'masa_bakti' => 'nullable|string|max:255',
             'foto' => 'nullable|array',
             'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
             'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
+        ], [
+            'nia.required' => 'Nomor Induk Anggota (NIA) wajib diisi.',
+            'nama.required' => 'Nama lengkap wajib diisi.',
+            'jabatan.required' => 'Jabatan wajib diisi.',
         ]);
 
-        if ($request->hasFile('foto')) {
-            foreach ($request->file('foto') as $file) {
-                if (! UploadHelper::isImageMimeValid($file)) {
-                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
-                }
+        foreach ($request->file('foto', []) as $file) {
+            if (! UploadHelper::isImageMimeValid($file)) {
+                return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
             }
         }
 
         $pengurus->update([
+            'nia' => $request->nia,
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
             'instagram' => $request->instagram,
             'no_handphone' => $request->no_hp,
             'status' => $request->status,
+            'deskripsi' => $request->deskripsi,
+            'prestasi' => $request->prestasi,
+            'masa_bakti' => $request->masa_bakti,
         ]);
 
-        // Hapus foto lama yang ditandai
         if ($request->filled('hapus_foto')) {
             foreach ($request->hapus_foto as $fotoId) {
                 $fotoLama = Galeri::where('sumber_id', $pengurus->id)
@@ -316,7 +377,6 @@ class ProfilController extends Controller
             }
         }
 
-        // Upload foto baru
         if ($request->hasFile('foto')) {
             foreach ($request->file('foto') as $file) {
                 $path = $file->store('personel', 'public');
@@ -330,22 +390,9 @@ class ProfilController extends Controller
             }
         }
 
-        if (class_exists('App\Models\LogAktivitas')) {
-            LogAktivitas::create([
-                'user_id' => auth()->id(),
-                'aktivitas' => 'Memperbarui data pengurus: '.$pengurus->nama,
-                'waktu' => now(),
-            ]);
-        }
-
         $role = auth()->user()->peran;
-        if ($role === 'superadmin') {
-            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pengurus berhasil diperbarui.');
-        } elseif ($role === 'admin') {
-            return redirect()->route('admin.kelola-profil')->with('success', 'Data profil pengurus berhasil diperbarui.');
-        } else {
-            abort(403, 'Anda tidak memiliki akses.');
-        }
+        $routeRedirect = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
+        return redirect()->route($routeRedirect)->with('success', 'Data profil pengurus berhasil diperbarui.');
     }
 
     public function hapusPengurus(string $id)
@@ -360,13 +407,8 @@ class ProfilController extends Controller
         $pengurus->delete();
 
         $role = auth()->user()->peran;
-        if ($role === 'superadmin') {
-            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pengurus berhasil dihapus.');
-        } elseif ($role === 'admin') {
-            return redirect()->route('admin.kelola-profil')->with('success', 'Data pengurus berhasil dihapus.');
-        } else {
-            abort(403, 'Anda tidak memiliki akses.');
-        }
+        $routeRedirect = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
+        return redirect()->route($routeRedirect)->with('success', 'Data pengurus berhasil dihapus.');
     }
 
     // ─────────────────────────────────────────────────────────
@@ -381,30 +423,42 @@ class ProfilController extends Controller
     public function storePelatih(Request $request)
     {
         $request->validate([
+            'nia' => 'required|string|max:255',
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string',
             'instagram' => 'nullable|string|max:255',
             'no_hp' => 'nullable|string|max:20',
             'status' => 'required|in:aktif,nonaktif',
+            'deskripsi' => 'nullable|string',
+            'prestasi' => 'nullable|string',
+            'masa_bakti' => 'nullable|string|max:255',
             'foto' => 'required|array',
             'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
+        ], [
+            'nia.required' => 'Nomor Induk Anggota (NIA) wajib diisi.',
+            'nama.required' => 'Nama lengkap wajib diisi.',
+            'jabatan.required' => 'Jabatan wajib diisi.',
+            'status.required' => 'Status wajib dipilih.',
+            'foto.required' => 'Foto pelatih belum dipilih.',
         ]);
 
-        if ($request->hasFile('foto')) {
-            foreach ($request->file('foto') as $file) {
-                if (! UploadHelper::isImageMimeValid($file)) {
-                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
-                }
+        foreach ($request->file('foto', []) as $file) {
+            if (! UploadHelper::isImageMimeValid($file)) {
+                return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
             }
         }
 
         $personel = Personel::create([
+            'nia' => $request->nia,
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
             'instagram' => $request->instagram,
             'no_handphone' => $request->no_hp,
             'status' => $request->status,
             'peran' => 'pelatih',
+            'deskripsi' => $request->deskripsi,
+            'prestasi' => $request->prestasi,
+            'masa_bakti' => $request->masa_bakti,
         ]);
 
         if ($request->hasFile('foto')) {
@@ -421,18 +475,15 @@ class ProfilController extends Controller
         }
 
         $role = auth()->user()->peran;
-        if ($role === 'superadmin') {
-            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data pelatih baru berhasil disimpan.');
-        } elseif ($role === 'admin') {
-            return redirect()->route('admin.kelola-profil')->with('success', 'Data pelatih baru berhasil disimpan.');
-        } else {
-            abort(403, 'Anda tidak memiliki akses.');
-        }
+        $routeRedirect = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
+        return redirect()->route($routeRedirect)->with('success', 'Data pelatih baru berhasil disimpan.');
     }
 
     public function editPelatih(string $id)
     {
-        $pelatih = Personel::with('galeri')->findOrFail($id);
+        $pelatih = Personel::with(['galeri' => function ($q) {
+            $q->where('kategori', 'profil');
+        }])->findOrFail($id);
 
         return view('kelola.profil.edit_pelatih', compact('pelatih'));
     }
@@ -442,31 +493,41 @@ class ProfilController extends Controller
         $pelatih = Personel::findOrFail($id);
 
         $request->validate([
+            'nia' => 'required|string|max:255',
             'nama' => 'required|string|max:255',
             'jabatan' => 'required|string',
             'instagram' => 'nullable|string|max:255',
             'no_hp' => 'nullable|string|max:20',
             'status' => 'required|in:aktif,nonaktif',
+            'deskripsi' => 'nullable|string',
+            'prestasi' => 'nullable|string',
+            'masa_bakti' => 'nullable|string|max:255',
             'foto' => 'nullable|array',
             'foto.*' => 'image|mimes:jpeg,png,jpg|max:4096',
             'hapus_foto' => 'nullable|array',
             'hapus_foto.*' => 'exists:galeri,id',
+        ], [
+            'nia.required' => 'Nomor Induk Anggota (NIA) wajib diisi.',
+            'nama.required' => 'Nama lengkap wajib diisi.',
+            'jabatan.required' => 'Jabatan wajib diisi.',
         ]);
 
-        if ($request->hasFile('foto')) {
-            foreach ($request->file('foto') as $file) {
-                if (! UploadHelper::isImageMimeValid($file)) {
-                    return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
-                }
+        foreach ($request->file('foto', []) as $file) {
+            if (! UploadHelper::isImageMimeValid($file)) {
+                return back()->withErrors(['foto' => 'Salah satu file bukan gambar yang valid.']);
             }
         }
 
         $pelatih->update([
+            'nia' => $request->nia,
             'nama' => $request->nama,
             'jabatan' => $request->jabatan,
             'instagram' => $request->instagram,
             'no_handphone' => $request->no_hp,
             'status' => $request->status,
+            'deskripsi' => $request->deskripsi,
+            'prestasi' => $request->prestasi,
+            'masa_bakti' => $request->masa_bakti,
         ]);
 
         // Hapus foto lama yang ditandai
@@ -499,13 +560,8 @@ class ProfilController extends Controller
         }
 
         $role = auth()->user()->peran;
-        if ($role === 'superadmin') {
-            return redirect()->route('superadmin.kelola-profil')->with('success', 'Data profil pelatih berhasil diperbarui.');
-        } elseif ($role === 'admin') {
-            return redirect()->route('admin.kelola-profil')->with('success', 'Data profil pelatih berhasil diperbarui.');
-        } else {
-            abort(403, 'Anda tidak memiliki akses.');
-        }
+        $routeRedirect = ($role === 'superadmin') ? 'superadmin.kelola-profil' : 'admin.kelola-profil';
+        return redirect()->route($routeRedirect)->with('success', 'Data profil pelatih berhasil diperbarui.');
     }
 
     public function hapusPelatih(string $id)

@@ -309,7 +309,7 @@
 
     {{-- QUICK ACCESS --}}
     <div class="quick-grid">
-        <a class="quick-card" href="{{ url('/admin/kelola-event') }}">
+        <a class="quick-card" href="{{ url('/admin/kelola-event/tambah-event') }}">
             <div class="quick-icon"><i class="fas fa-calendar-plus" style="color: #16a34a;"></i></div>
             <div>
                 <p>Buat Event</p>
@@ -317,18 +317,18 @@
             </div>
         </a>
 
-        <a class="quick-card" href="{{ url('/admin/kelola-berita') }}">
+        <a class="quick-card" href="{{ url('/admin/kelola-berita/tambah-berita') }}">
             <div class="quick-icon"><i class="fas fa-newspaper" style="color: #ef4444;"></i></div>
             <div>
-                <p>Kelola Berita</p>
+                <p>Buat Berita</p>
                 <span>Buat berita & artikel baru</span>
             </div>
         </a>
 
-        <a class="quick-card" href="{{ url('/admin/kelola-profil') }}">
+        <a class="quick-card" href="{{ url('/admin/kelola-profil/edit-profil') }}">
             <div class="quick-icon"><i class="fas fa-id-card" style="color: #eab308;"></i></div>
             <div>
-                <p>Kelola Profil</p>
+                <p>Edit Profil</p>
                 <span>Perbarui informasi sanggar</span>
             </div>
         </a>

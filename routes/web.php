@@ -11,7 +11,6 @@ use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\PengaturanSistemController;
 use App\Http\Controllers\ProfilController;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UmumController;
 use Illuminate\Support\Facades\Route;
 
@@ -116,6 +115,12 @@ Route::prefix('admin')->middleware(['admin.auth'])->group(function () {
     Route::delete('/kelola-profil/hapus-pelatih/{id}', [ProfilController::class, 'hapusPelatih'])->name('admin.hapus-pelatih');
     Route::get('/kelola-profil/edit-pelatih/{id}', [ProfilController::class, 'editPelatih'])->name('admin.edit-pelatih');
     Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('admin.update-pelatih');
+    Route::get('/kelola-profil/tambah-anggota', [ProfilController::class, 'tambahAnggota'])->name('admin.tambah-anggota');
+    Route::post('/kelola-profil/store-anggota', [ProfilController::class, 'storeAnggota'])->name('admin.store-anggota');
+    Route::delete('/kelola-profil/hapus-anggota/{id}', [ProfilController::class, 'hapusAnggota'])->name('admin.hapus-anggota');
+    Route::get('/kelola-profil/edit-anggota/{id}', [ProfilController::class, 'editAnggota'])->name('admin.edit-anggota');
+    Route::put('/kelola-profil/update-anggota/{id}', [ProfilController::class, 'updateAnggota'])->name('admin.update-anggota');
+
 
     // Pengaturan
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('admin.pengaturan');
@@ -194,6 +199,11 @@ Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () 
     Route::delete('/kelola-profil/hapus-pelatih/{id}', [ProfilController::class, 'hapusPelatih'])->name('superadmin.hapus-pelatih');
     Route::get('/kelola-profil/edit-pelatih/{id}', [ProfilController::class, 'editPelatih'])->name('superadmin.edit-pelatih');
     Route::put('/kelola-profil/update-pelatih/{id}', [ProfilController::class, 'updatePelatih'])->name('superadmin.update-pelatih');
+    Route::get('/kelola-profil/tambah-anggota', [ProfilController::class, 'tambahAnggota'])->name('superadmin.tambah-anggota');
+    Route::post('/kelola-profil/store-anggota', [ProfilController::class, 'storeAnggota'])->name('superadmin.store-anggota');
+    Route::delete('/kelola-profil/hapus-anggota/{id}', [ProfilController::class, 'hapusAnggota'])->name('superadmin.hapus-anggota');
+    Route::get('/kelola-profil/edit-anggota/{id}', [ProfilController::class, 'editAnggota'])->name('superadmin.edit-anggota');
+    Route::put('/kelola-profil/update-anggota/{id}', [ProfilController::class, 'updateAnggota'])->name('superadmin.update-anggota');
 
     // Pengaturan Sistem
     Route::get('/pengaturan-sistem', [PengaturanSistemController::class, 'index'])->name('superadmin.pengaturan-sistem.index');
@@ -213,9 +223,9 @@ Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () 
 // BAWAAN BREEZE (JANGAN DIHAPUS)
 // =========================================================================
 Route::middleware(['auth'])->group(function () {
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile/edit', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::get('/profil/edit', [ProfilController::class, 'edit'])->name('profil.edit');
+    Route::patch('/profil/edit', [ProfilController::class, 'update'])->name('profil.update');
+    Route::delete('/profil/edit', [ProfilController::class, 'destroy'])->name('profil.destroy');
     Route::post('/upload-gambar-berita', [BeritaController::class, 'uploadGambar'])->name('berita.upload-gambar');
     Route::post('/generate-ai-berita', [BeritaController::class, 'generateAiBerita'])->name('generate.ai.berita');
     Route::get('/cek-gemini-model', function () {

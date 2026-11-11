@@ -2,6 +2,8 @@
 
 use App\Http\Middleware\AdminAuth;
 use App\Http\Middleware\SuperAdminAuth;
+use Illuminate\Database\QueryException; // PERBAIKAN (TC-BRT-008): dipakai handler error database
+use Illuminate\Database\SQLiteDatabaseDoesNotExistException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -42,6 +44,27 @@ return Application::configure(basePath: dirname(__DIR__))
                 // (popup server ditampilkan via session flash di blade)
                 return back()->withErrors($e->errors())->withInput()->with('validation_error', true);
             }
+        });
+
+        // PERBAIKAN (TC-BRT-008): sebelumnya error database tidak ditangani dan menampilkan halaman 500 mentah.
+        // Sekarang tampil pesan ramah (view error.database, status 503) tanpa stack trace.
+        // Exception tetap dicatat ke log oleh Laravel.
+        $exceptions->render(function (\Throwable $e, $request) {
+            // Request JSON (mis. endpoint AI) tetap ditangani handler bawaan
+            if ($request->expectsJson()) {
+                return null;
+            }
+
+            // Telusuri exception berantai (mis. ViewException) untuk mencari penyebab database
+            for ($t = $e; $t !== null; $t = $t->getPrevious()) {
+                if ($t instanceof QueryException
+                    || $t instanceof \PDOException
+                    || $t instanceof SQLiteDatabaseDoesNotExistException) {
+                    return response()->view('error.database', [], 503);
+                }
+            }
+
+            return null;
         });
 
         // $exceptions->render(function (\Exception $e, $request) {

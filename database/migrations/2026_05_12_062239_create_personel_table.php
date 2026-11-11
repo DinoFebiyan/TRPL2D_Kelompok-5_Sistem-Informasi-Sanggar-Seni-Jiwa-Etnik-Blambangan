@@ -10,13 +10,17 @@ return new class extends Migration
     {
         Schema::create('personel', function (Blueprint $table) {
             $table->id();
+            $table->string('nia'); // Pindahkan ke urutan yang diinginkan secara langsung
             $table->string('nama');
             $table->string('jabatan');
             $table->string('no_handphone');
             $table->string('instagram')->nullable();
             $table->string('peran');
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
-            $table->foreignId('galeri_id')->nullable()->constrained('galeri')->nullOnDelete();
+            $table->text('deskripsi')->nullable();
+            $table->text('prestasi')->nullable();
+            $table->string('masa_bakti')->nullable();
+            $table->unsignedBigInteger('galeri_id')->nullable();
             $table->timestamps();
         });
     }

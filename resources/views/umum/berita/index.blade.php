@@ -513,7 +513,8 @@
             @empty
                 <div style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 60px 0;">
                     <i class="far fa-newspaper" style="font-size: 3rem; color: #bdc3c7; margin-bottom: 15px; display: block;"></i>
-                    Belum ada data berita atau artikel yang sesuai dengan kriteria pencarian Anda.
+                    {{-- PERBAIKAN (TC-BRT-008): teks diganti dari "Belum ada data berita atau artikel yang sesuai dengan kriteria pencarian Anda." --}}
+                    Belum ada berita tersedia.
                 </div>
             @endforelse
         </div>
