@@ -30,4 +30,14 @@ class UserFactory extends Factory
             'no_handphone' => fake()->phoneNumber(),
         ];
     }
+
+    /**
+     * Tandai bahwa alamat email pengguna belum terverifikasi.
+     */
+    public function unverified(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'email_verified_at' => null,
+        ]);
+    }
 }

@@ -11,6 +11,7 @@ use App\Http\Controllers\LogAktivitasController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\PengaturanSistemController;
 use App\Http\Controllers\ProfilController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UmumController;
 use Illuminate\Support\Facades\Route;
 
@@ -226,6 +227,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/profil/edit', [ProfilController::class, 'edit'])->name('profil.edit');
     Route::patch('/profil/edit', [ProfilController::class, 'update'])->name('profil.update');
     Route::delete('/profil/edit', [ProfilController::class, 'destroy'])->name('profil.destroy');
+
+    // Profil akun pengguna (Breeze)
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile/edit', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile/edit', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
     Route::post('/upload-gambar-berita', [BeritaController::class, 'uploadGambar'])->name('berita.upload-gambar');
     Route::post('/generate-ai-berita', [BeritaController::class, 'generateAiBerita'])->name('generate.ai.berita');
     Route::get('/cek-gemini-model', function () {
