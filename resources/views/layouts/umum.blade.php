@@ -16,26 +16,26 @@
 <!-- Schema.org JSON-LD -->
 <script type="application/ld+json">
 {
-  "@context": "https://schema.org",
-  "@type": "PerformingGroup",
+  "@@context": "https://schema.org",
+  "@@type": "PerformingGroup",
   "name": "Sanggar Tari Jiwa Etnik Blambangan",
   "url": "{{ url('/') }}",
   "description": "Sanggar Tari Jiwa Etnik Blambangan adalah sanggar tari tradisional di Banyuwangi.",
   "address": {
-    "@type": "PostalAddress",
+    "@@type": "PostalAddress",
     "addressLocality": "Banyuwangi",
     "addressRegion": "Jawa Timur",
     "addressCountry": "ID"
   }
 }
 </script>
-{{-- 🟢 KODE FAVICON DINAMIS (DB & ASSET) --}}
-    @php
-        $globalProfil = \App\Models\ProfilSanggar::with('logo')->first();
-        $faviconUrl = ($globalProfil && $globalProfil->logo && $globalProfil->logo->path) 
-            ? asset('storage/' . $globalProfil->logo->path) 
-            : asset('img/images-landing-page/galeri/logo-jeb.jpg');
-    @endphp
+
+@php
+    $globalProfil = \App\Models\ProfilSanggar::with('logo')->first();
+    $faviconUrl = ($globalProfil && $globalProfil->logo && $globalProfil->logo->path) 
+        ? asset('storage/' . $globalProfil->logo->path) 
+        : asset('img/images-landing-page/galeri/logo-jeb.jpg');
+@endphp
     
 <link rel="icon" type="image/jpeg" href="{{ $faviconUrl }}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -79,7 +79,7 @@
     .slideshow-prev { left: 10px; }
     .slideshow-next { right: 10px; }
 
-    /* ✅ Cegah browser HP membesarkan sebagian teks (text autosizing) */
+    /* Cegah browser HP membesarkan sebagian teks (text autosizing) */
     html {
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
@@ -203,12 +203,7 @@
         color: var(--gold);
     }
 
-    /* ==========================================
-       ✅ MOBILE NAV — POPUP MENU (gaya menu Chrome)
-       Muncul di pojok kanan atas, sudut membulat,
-       ikon + teks, dan garis pemisah antar grup.
-       ========================================== */
-
+    /* ========== MOBILE NAV POPUP MENU ========== */
     .mobile-nav-overlay {
         display: none;
         position: fixed;
@@ -242,8 +237,6 @@
         gap: 2px;
         box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45),
                     0 2px 8px rgba(0, 0, 0, 0.3);
-
-        /* animasi buka: membesar dari pojok kanan atas */
         transform-origin: top right;
         transform: scale(0.85);
         opacity: 0;
@@ -294,7 +287,6 @@
         color: var(--gold);
     }
 
-    /* garis pemisah antar grup menu */
     .mobile-nav-divider {
         height: 1px;
         background: rgba(255, 255, 255, 0.15);
@@ -383,14 +375,6 @@
         color: rgba(255,255,255,0.5);
     }
 
-    /* ==========================================
-       CATATAN: Style isi artikel (font-size, tabel,
-       blockquote, heading) SENGAJA tidak diatur di
-       layout ini. Semuanya diatur di
-       resources/views/umum/berita/detail.blade.php
-       lewat variabel --fs / --lh pada .article-body.
-       ========================================== */
-
     /* ========== RESPONSIF DASAR ========== */
     @media (max-width: 850px) {
         .nav-links {
@@ -439,11 +423,8 @@
         }
     }
 
-    /* ==========================================
-       ✅ RESPONSIVE — MOBILE & TABLET
-       ========================================== */
+    /* ========== RESPONSIVE MOBILE & TABLET ========== */
     @media (max-width: 768px) {
-        /* Container global */
         .container,
         .detail-container,
         .katalog-wrapper,
@@ -454,7 +435,6 @@
             padding: 0 12px !important;
         }
 
-        /* Hero banner */
         .berita-banner-container {
             height: 280px !important;
         }
@@ -465,20 +445,17 @@
             font-size: 0.75rem !important;
         }
 
-        /* Judul section */
         .section-title,
         .title-maroon,
         .section-title-center {
             font-size: 1.5rem !important;
         }
 
-        /* Grid Katalog */
         .katalog-grid {
             grid-template-columns: 1fr !important;
             gap: 20px !important;
         }
 
-        /* Grid Berita */
         .berita-grid {
             grid-template-columns: 1fr !important;
             gap: 20px !important;
@@ -491,13 +468,11 @@
             font-size: 1.3rem !important;
         }
 
-        /* Galeri mosaik */
         .galeri-mosaik {
             grid-template-columns: repeat(2, 1fr) !important;
             grid-auto-rows: 160px !important;
         }
 
-        /* Grid Pengurus & Pelatih */
         .cards-grid {
             grid-template-columns: repeat(2, 1fr) !important;
             gap: 15px !important;
@@ -506,13 +481,11 @@
             height: 160px !important;
         }
 
-        /* Layout event split */
         .event-split-layout {
             grid-template-columns: 1fr !important;
             gap: 30px !important;
         }
 
-        /* Search & filter bar */
         .search-filter-wrapper {
             flex-direction: column !important;
             gap: 12px !important;
@@ -525,14 +498,12 @@
             font-size: 0.9rem !important;
         }
 
-        /* Pagination */
         .news-pagination {
             flex-direction: column !important;
             gap: 15px !important;
             align-items: center !important;
         }
 
-        /* Tombol aksi */
         .btn-dark-pill,
         .btn-gray-pill,
         .btn-dark-red-pill,
@@ -541,7 +512,6 @@
             font-size: 0.85rem !important;
         }
 
-        /* Halaman Profil Sanggar */
         .deskripsi-grid,
         .sambutan-row,
         .sejarah-row {
@@ -560,7 +530,6 @@
             padding: 1rem !important;
         }
 
-        /* Halaman Detail Event */
         .event-info-body {
             padding: 20px !important;
         }
@@ -579,7 +548,6 @@
             grid-template-columns: 1fr !important;
         }
 
-        /* Halaman Detail Berita */
         .article-container {
             padding: 2rem 16px !important;
         }
@@ -587,7 +555,6 @@
             grid-template-columns: 1fr !important;
         }
 
-        /* Halaman Detail Galeri */
         .hero-image-box {
             height: 350px !important;
         }
@@ -602,7 +569,6 @@
             grid-template-columns: repeat(2, 1fr) !important;
         }
 
-        /* Halaman Detail Katalog */
         .katalog-main-slideshow {
             height: 280px !important;
         }
@@ -612,7 +578,6 @@
             gap: 15px !important;
         }
 
-        /* Visi & Misi */
         .visi-card,
         .misi-card {
             padding: 20px !important;
@@ -623,7 +588,6 @@
             font-size: 1.3rem !important;
         }
 
-        /* Slideshow gambar */
         .slideshow-container,
         .lain-card-slideshow,
         .news-foto-wrapper,
@@ -631,29 +595,6 @@
             height: auto !important;
             aspect-ratio: 4 / 3 !important;
         }
-
-    /* Navigasi Slideshow */
-    .slideshow-nav-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(0, 0, 0, 0.5);
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        font-size: 1.5rem;
-        cursor: pointer;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s;
-    }
-    .slideshow-nav-btn:hover { background: rgba(0, 0, 0, 0.75); }
-    .slideshow-prev { left: 10px; }
-    .slideshow-next { right: 10px; }
 
         .news-detail-hero,
         .event-image-wrapper,
@@ -696,7 +637,6 @@
         }
     }
 
-    /* Untuk layar sangat kecil (<=480px) */
     @media (max-width: 480px) {
         .galeri-mosaik {
             grid-template-columns: 1fr !important;
@@ -735,7 +675,6 @@
         }
     }
 
-    /* Agar tabel (jika ada) bisa di-scroll horizontal */
     .table-responsive-wrapper {
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -748,17 +687,15 @@
 
 <nav>
     <div class="nav-container">
-    <!-- Logo di Kiri -->
-    <div class="nav-logo">
-        @if(isset($profil) && $profil->logo && $profil->logo->path)
-            <img src="{{ asset('storage/' . $profil->logo->path) }}" alt="Logo JEB" class="logo-img-nav" />
-        @else
-            <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-nav" />
-        @endif
-        <span>JEB</span>
-    </div>
+        <div class="nav-logo">
+            @if(isset($profil) && $profil->logo && $profil->logo->path)
+                <img src="{{ asset('storage/' . $profil->logo->path) }}" alt="Logo JEB" class="logo-img-nav" />
+            @else
+                <img src="{{ asset('img/images-landing-page/galeri/logo-jeb.jpg') }}" alt="Logo JEB" class="logo-img-nav" />
+            @endif
+            <span>JEB</span>
+        </div>
 
-        <!-- Links di Kanan -->
         <div class="nav-links">
             <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Beranda</a>
             <a href="{{ route('umum.profil') }}" class="{{ request()->routeIs('umum.profil') ? 'active' : '' }}">Profile Sanggar</a>
@@ -780,10 +717,8 @@
     </div>
 </nav>
 
-{{-- ✅ Overlay gelap --}}
 <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
 
-{{-- ✅ Popup menu (gaya menu Chrome) --}}
 <div class="mobile-nav" id="mobileNav" role="menu">
     <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">
         <i class="fas fa-home"></i> Beranda
@@ -821,7 +756,6 @@
     @yield('content')
 </main>
 
-{{-- Memanggil Partial Layout Footer --}}
 @include('partials.footer')
 
 <script>
@@ -873,57 +807,57 @@
     });
 </script>
 
-    <script>
-        function enhanceSlideshows() {
-            document.querySelectorAll('.slideshow-container, .header-slideshow-container, .slideshow-container-main, .slideshow-container-mini').forEach(container => {
-                if (container.querySelector('.slideshow-nav-btn')) return;
-                
+<script>
+    function enhanceSlideshows() {
+        document.querySelectorAll('.slideshow-container, .header-slideshow-container, .slideshow-container-main, .slideshow-container-mini').forEach(container => {
+            if (container.querySelector('.slideshow-nav-btn')) return;
+            
+            const images = container.querySelectorAll('img');
+            if (images.length <= 1) return;
+
+            container.style.position = 'relative';
+
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '‹';
+            prevBtn.className = 'slideshow-nav-btn slideshow-prev';
+            prevBtn.setAttribute('aria-label', 'Foto sebelumnya');
+
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '›';
+            nextBtn.className = 'slideshow-nav-btn slideshow-next';
+            nextBtn.setAttribute('aria-label', 'Foto berikutnya');
+
+            container.appendChild(prevBtn);
+            container.appendChild(nextBtn);
+
+            const showImage = (dir) => {
                 const images = container.querySelectorAll('img');
-                if (images.length <= 1) return;
+                let curr = Array.from(images).findIndex(img => img.classList.contains('active'));
+                if (curr === -1) curr = 0;
+                images[curr].classList.remove('active');
+                curr = (curr + dir + images.length) % images.length;
+                images[curr].classList.add('active');
+            };
 
-                container.style.position = 'relative';
-
-                const prevBtn = document.createElement('button');
-                prevBtn.innerHTML = '‹';
-                prevBtn.className = 'slideshow-nav-btn slideshow-prev';
-                prevBtn.setAttribute('aria-label', 'Foto sebelumnya');
-
-                const nextBtn = document.createElement('button');
-                nextBtn.innerHTML = '›';
-                nextBtn.className = 'slideshow-nav-btn slideshow-next';
-                nextBtn.setAttribute('aria-label', 'Foto berikutnya');
-
-                container.appendChild(prevBtn);
-                container.appendChild(nextBtn);
-
-                const showImage = (dir) => {
-                    const images = container.querySelectorAll('img');
-                    let curr = Array.from(images).findIndex(img => img.classList.contains('active'));
-                    if (curr === -1) curr = 0; // fallback
-                    images[curr].classList.remove('active');
-                    curr = (curr + dir + images.length) % images.length;
-                    images[curr].classList.add('active');
-                };
-
-                prevBtn.addEventListener('click', (e) => { e.preventDefault(); showImage(-1); });
-                nextBtn.addEventListener('click', (e) => { e.preventDefault(); showImage(1); });
-                
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'ArrowLeft') showImage(-1);
-                    if (e.key === 'ArrowRight') showImage(1);
-                });
-                
-                let touchStartX = 0;
-                container.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
-                container.addEventListener('touchend', e => {
-                    const diff = e.changedTouches[0].clientX - touchStartX;
-                    if (Math.abs(diff) > 50) showImage(diff > 0 ? -1 : 1);
-                });
+            prevBtn.addEventListener('click', (e) => { e.preventDefault(); showImage(-1); });
+            nextBtn.addEventListener('click', (e) => { e.preventDefault(); showImage(1); });
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') showImage(-1);
+                if (e.key === 'ArrowRight') showImage(1);
             });
-        }
-        setInterval(enhanceSlideshows, 1000);
-    </script>
-    @stack('scripts')
+            
+            let touchStartX = 0;
+            container.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+            container.addEventListener('touchend', e => {
+                const diff = e.changedTouches[0].clientX - touchStartX;
+                if (Math.abs(diff) > 50) showImage(diff > 0 ? -1 : 1);
+            });
+        });
+    }
+    setInterval(enhanceSlideshows, 1000);
+</script>
+@stack('scripts')
 
 </body>
 </html>
