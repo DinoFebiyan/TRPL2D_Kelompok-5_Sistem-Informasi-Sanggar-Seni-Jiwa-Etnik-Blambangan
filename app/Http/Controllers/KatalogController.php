@@ -49,9 +49,7 @@ class KatalogController extends Controller
         Storage::disk('public')->makeDirectory('katalog/watermark');
 
         $image->save(
-            storage_path(
-                'app/public/katalog/'. $filename
-            )
+            Storage::disk('public')->path('katalog/' . $filename)
         );
 
         return 'katalog/'.$filename;

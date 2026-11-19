@@ -37,7 +37,7 @@ class EventController extends Controller
 
         // Pastikan direktori event/watermark sudah dibuat secara manual atau via script
         // agar proses save() dari Intervention tidak gagal (Permission/Not Found).
-        $image->save(storage_path('app/public/event/' . $filename));
+        $image->save(Storage::disk('public')->path('event/' . $filename));  
 
         return 'event/' . $filename;
     }

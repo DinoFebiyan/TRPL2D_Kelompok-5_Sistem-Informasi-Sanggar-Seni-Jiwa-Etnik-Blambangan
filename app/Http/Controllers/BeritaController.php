@@ -50,10 +50,7 @@ class BeritaController extends Controller
 
         // Simpan hasil watermark
         $image->save(
-            storage_path(
-                'app/public/berita/'.
-                $filename
-            )
+            Storage::disk('public')->path('berita/'.$filename)
         );
 
         return 'berita/'.$filename;
