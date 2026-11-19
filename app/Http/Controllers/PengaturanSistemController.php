@@ -7,7 +7,9 @@ use Illuminate\Http\Request;
 use App\Models\Galeri;
 use App\Models\LogAktivitas;
 use App\Models\PengaturanSistem;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 class PengaturanSistemController extends Controller
 {
@@ -20,7 +22,15 @@ class PengaturanSistemController extends Controller
             ]);
         }
 
-        return view('kelola.pengaturan_sistem.index', compact('sistem'));
+        $backupDir = storage_path('app/backups');
+        $backups = [];
+        if (File::exists($backupDir)) {
+            $backups = collect(File::files($backupDir))->sortByDesc(function ($file) {
+                return $file->getMTime();
+            });
+        }
+
+        return view('kelola.pengaturan_sistem.index', compact('sistem', 'backups'));
     }
 
     public function edit()
@@ -109,5 +119,40 @@ class PengaturanSistemController extends Controller
         }
 
         return redirect()->route('superadmin.pengaturan-sistem.index')->with('success', 'Konfigurasi integrasi sistem berhasil disimpan.');
+    }
+
+    public function backupManual()
+    {
+        \Illuminate\Support\Facades\Artisan::call('db:backup');
+        LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Membuat backup lengkap (.zip) database & media.', 'waktu' => now()]);
+        return back()->with('success', 'Backup lengkap berhasil dibuat.');
+    }
+
+    public function restoreDatabase(Request $request)
+    {
+        $request->validate(['file' => 'required|string']);
+        $filename = basename($request->file);
+        \Illuminate\Support\Facades\Artisan::call('db:restore', ['--file' => $filename, '--force' => true]);
+        LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Restorasi lengkap database & media dari: ' . $filename, 'waktu' => now()]);
+        return back()->with('success', 'Database dan media berhasil dipulihkan.');
+    }
+
+    public function downloadBackup($filename)
+    {
+        $path = storage_path('app/backups/' . basename($filename));
+        if (!File::exists($path)) return back()->with('error', 'File tidak ditemukan.');
+        LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Unduh backup: ' . $filename, 'waktu' => now()]);
+        return response()->download($path);
+    }
+
+    public function hapusBackup($filename)
+    {
+        $path = storage_path('app/backups/' . basename($filename));
+        if (File::exists($path)) {
+            File::delete($path);
+            LogAktivitas::create(['user_id' => auth()->id(), 'aktivitas' => 'Hapus backup: ' . $filename, 'waktu' => now()]);
+            return back()->with('success', 'File berhasil dihapus.');
+        }
+        return back()->with('error', 'File tidak ditemukan.');
     }
 }

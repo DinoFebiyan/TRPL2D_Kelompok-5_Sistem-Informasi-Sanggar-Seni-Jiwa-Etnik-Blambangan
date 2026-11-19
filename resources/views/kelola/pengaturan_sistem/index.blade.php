@@ -284,6 +284,11 @@
             <i class="fas fa-check-circle"></i> {{ session('success') }}
         </div>
     @endif
+    @if(session('error'))
+        <div style="background:#fee2e2; color:#b91c1c; padding:12px 16px; border-radius:12px; margin-bottom:24px; font-size:0.85rem; border:1px solid #fecaca;">
+            <i class="fas fa-exclamation-circle"></i> {{ session('error') }}
+        </div>
+    @endif
 
     {{-- INTERFACE SLIDESHOW HEADER --}}
     <div class="settings-card">
@@ -355,6 +360,60 @@
                 <div class="value-box"><i class="fab fa-tiktok"></i> {{ $sistem->link_tiktok ?? '-' }}</div>
             </div>
         </div>
+    </div>
+
+    {{-- INTERFACE BACKUP & RESTORE --}}
+    <div class="settings-card">
+        <div class="card-header-flex">
+            <h3><i class="fas fa-database"></i> Backup & Restore Database</h3>
+            <form action="{{ route('superadmin.pengaturan-sistem.backup') }}" method="POST">
+                @csrf
+                <button type="submit" class="btn-edit-link" style="background:#5B1A1A; color:white; border:none; cursor:pointer;">
+                    <i class="fas fa-save"></i> Buat Backup Sekarang
+                </button>
+            </form>
+        </div>
+        
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px;">
+            Jadwal backup otomatis setiap minggu (Minggu, 02:00). File backup lama (>30 hari) akan dihapus otomatis.
+        </p>
+        
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem;">
+            <thead>
+                <tr style="border-bottom: 2px solid #e8dede;">
+                    <th style="text-align: left; padding: 10px;">Nama File</th>
+                    <th style="text-align: right; padding: 10px;">Ukuran</th>
+                    <th style="text-align: right; padding: 10px;">Tanggal</th>
+                    <th style="text-align: center; padding: 10px;">Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($backups as $file)
+                    <tr style="border-bottom: 1px solid #f0f0f0;">
+                        <td style="padding: 10px;">{{ $file->getFilename() }}</td>
+                        <td style="padding: 10px; text-align: right;">{{ number_format($file->getSize() / 1024 / 1024, 2) }} MB</td>
+                        <td style="padding: 10px; text-align: right;">{{ date('Y-m-d H:i:s', $file->getMTime()) }}</td>
+                        <td style="padding: 10px; text-align: center;">
+                            <a href="{{ route('superadmin.pengaturan-sistem.download', $file->getFilename()) }}" class="btn btn-sm btn-info" style="color: #0d6efd; margin-right: 5px;"><i class="fas fa-download"></i></a>
+                            <form action="{{ route('superadmin.pengaturan-sistem.restore') }}" method="POST" style="display:inline;" onsubmit="return confirm('PERINGATAN: Seluruh data (DB & Media) saat ini akan ditimpa total. Yakin?')">
+                                @csrf
+                                <input type="hidden" name="file" value="{{ $file->getFilename() }}">
+                                <button type="submit" style="background:none; border:none; color: #ffc107; cursor:pointer;" title="Restore"><i class="fas fa-undo"></i></button>
+                            </form>
+                            <form action="{{ route('superadmin.pengaturan-sistem.hapus', $file->getFilename()) }}" method="POST" style="display:inline;" onsubmit="return confirm('Yakin hapus backup ini?')">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="background:none; border:none; color: #dc3545; cursor:pointer;" title="Hapus"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 20px; color: #888;">Belum ada file backup.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 

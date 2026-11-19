@@ -4,54 +4,56 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Process;
+use ZipArchive;
 
 class DatabaseRestore extends Command
 {
-    /**
-     * Nama command.
-     */
-    protected $signature = 'db:sqlite-restore';
-
-    /**
-     * Deskripsi command.
-     */
-    protected $description = 'Restore database SQLite dari backup terbaru';
+    protected $signature = 'db:restore {--file= : Nama file zip backup} {--force : Paksa tanpa konfirmasi}';
+    protected $description = 'Restore database + media dari file .zip';
 
     public function handle()
     {
-        $backupDir = storage_path('app/backups');
-        $databasePath = database_path('database.sqlite');
+        $requestedFile = $this->option('file');
+        if (!$requestedFile) { $this->error('File harus ditentukan.'); return self::FAILURE; }
 
-        if (!File::exists($backupDir)) {
-            $this->error('Folder backup tidak ditemukan.');
-
-            return self::FAILURE;
+        $safeFilename = basename($requestedFile);
+        $zipPath = storage_path("app/backups/{$safeFilename}");
+        if (!File::exists($zipPath) || pathinfo($zipPath, PATHINFO_EXTENSION) !== 'zip') {
+            $this->error('File zip tidak ditemukan.'); return self::FAILURE;
         }
 
-        $backupFiles = File::files($backupDir);
+        if (!$this->option('force') && !$this->confirm('Restore akan menimpa data saat ini. Lanjutkan?')) return self::SUCCESS;
 
-        if (empty($backupFiles)) {
-            $this->error('Tidak ada file backup.');
+        $tempDir = storage_path('app/restore-temp-' . uniqid());
+        File::makeDirectory($tempDir, 0755, true);
 
-            return self::FAILURE;
+        $zip = new ZipArchive();
+        if ($zip->open($zipPath) !== true) { $this->error('Gagal membuka zip.'); return self::FAILURE; }
+        $zip->extractTo($tempDir);
+        $zip->close();
+
+        // 1. Restore DB
+        $connection = config('database.default');
+        if (in_array($connection, ['mysql', 'mariadb'])) {
+            $dbConfig = config("database.connections.{$connection}");
+            $sqlContent = File::get("{$tempDir}/database.sql");
+            Process::env(['MYSQL_PWD' => $dbConfig['password'] ?? ''])->input($sqlContent)->run([
+                'mysql', '-h', $dbConfig['host'] ?? '127.0.0.1', '-P', (string) ($dbConfig['port'] ?? 3306),
+                '-u', $dbConfig['username'], $dbConfig['database'],
+            ]);
+        } else {
+            File::copy("{$tempDir}/database.sqlite", config('database.connections.sqlite.database') ?: database_path('database.sqlite'));
         }
 
-        usort($backupFiles, function ($a, $b) {
-            return $b->getMTime() <=> $a->getMTime();
-        });
+        // 2. Restore Media
+        if (File::exists("{$tempDir}/storage")) {
+            File::deleteDirectory(storage_path('app/public'));
+            File::copyDirectory("{$tempDir}/storage", storage_path('app/public'));
+        }
 
-        $latestBackup = $backupFiles[0];
-
-        File::copy(
-            $latestBackup->getPathname(),
-            $databasePath
-        );
-
-        $this->info(
-            'Database berhasil direstore dari: ' .
-            $latestBackup->getFilename()
-        );
-
+        File::deleteDirectory($tempDir);
+        $this->info('Restore berhasil.');
         return self::SUCCESS;
     }
 }

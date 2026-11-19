@@ -211,6 +211,12 @@ Route::prefix('superadmin')->middleware(['superadmin.auth'])->group(function () 
     Route::get('/pengaturan-sistem/edit', [PengaturanSistemController::class, 'edit'])->name('superadmin.pengaturan-sistem.edit');
     Route::put('/pengaturan-sistem/update', [PengaturanSistemController::class, 'update'])->name('superadmin.pengaturan-sistem.update');
 
+    // Backup & Restore
+    Route::post('/pengaturan-sistem/backup', [PengaturanSistemController::class, 'backupManual'])->name('superadmin.pengaturan-sistem.backup');
+    Route::post('/pengaturan-sistem/restore', [PengaturanSistemController::class, 'restoreDatabase'])->name('superadmin.pengaturan-sistem.restore');
+    Route::get('/pengaturan-sistem/download/{filename}', [PengaturanSistemController::class, 'downloadBackup'])->name('superadmin.pengaturan-sistem.download');
+    Route::delete('/pengaturan-sistem/hapus/{filename}', [PengaturanSistemController::class, 'hapusBackup'])->name('superadmin.pengaturan-sistem.hapus');
+
     // Pengaturan
     Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('superadmin.pengaturan');
     Route::put('/pengaturan/update-profil', [PengaturanController::class, 'updateProfil'])->name('superadmin.pengaturan.update-profil');
