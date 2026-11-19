@@ -38,14 +38,15 @@
     .hero-image-box {
         position: relative;
         width: 100%;
-        height: 550px;
-        background-color: #333;
+        height: auto;
+        min-height: 200px;
+        background-color: #f3f4f6;
     }
 
     .hero-image-box img {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
+        height: auto;
+        object-fit: contain;
         display: block;
     }
 

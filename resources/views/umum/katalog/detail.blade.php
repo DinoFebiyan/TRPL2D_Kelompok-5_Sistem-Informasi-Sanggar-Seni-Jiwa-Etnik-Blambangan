@@ -44,25 +44,26 @@
     .katalog-main-slideshow {
         position: relative;
         width: 100%;
-        height: 500px;
+        height: auto;
+        min-height: 200px;
         border-radius: 15px;
         overflow: hidden;
-        background-color: #333;
+        background-color: #f3f4f6;
     }
 
     .katalog-main-slideshow img {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        position: absolute;
-        top: 0; left: 0;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        position: static;
         opacity: 0;
         transition: opacity 0.8s ease-in-out;
-        z-index: 1;
     }
 
     .katalog-main-slideshow img.active {
         opacity: 1;
+        position: relative;
     }
 
     /* Grid Katalog Lain */

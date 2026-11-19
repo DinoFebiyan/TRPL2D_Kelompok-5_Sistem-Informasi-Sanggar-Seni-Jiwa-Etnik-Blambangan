@@ -31,6 +31,29 @@
         --white: #ffffff;
     }
 
+    /* Navigasi Slideshow */
+    .slideshow-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+    .slideshow-nav-btn:hover { background: rgba(0, 0, 0, 0.75); }
+    .slideshow-prev { left: 10px; }
+    .slideshow-next { right: 10px; }
+
     /* ✅ Cegah browser HP membesarkan sebagian teks (text autosizing) */
     html {
         -webkit-text-size-adjust: 100%;
@@ -584,9 +607,29 @@
             aspect-ratio: 4 / 3 !important;
         }
 
-        /* ==========================================
-           ✅ FIX: HERO JUDUL PANJANG TIDAK KEPOTONG
-           ========================================== */
+    /* Navigasi Slideshow */
+    .slideshow-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.2s;
+    }
+    .slideshow-nav-btn:hover { background: rgba(0, 0, 0, 0.75); }
+    .slideshow-prev { left: 10px; }
+    .slideshow-next { right: 10px; }
+
         .news-detail-hero,
         .event-image-wrapper,
         .hero-section {
@@ -805,6 +848,57 @@
     });
 </script>
 
-@stack('scripts')
+    <script>
+        function enhanceSlideshows() {
+            document.querySelectorAll('.slideshow-container, .header-slideshow-container, .slideshow-container-main, .slideshow-container-mini').forEach(container => {
+                if (container.querySelector('.slideshow-nav-btn')) return;
+                
+                const images = container.querySelectorAll('img');
+                if (images.length <= 1) return;
+
+                container.style.position = 'relative';
+
+                const prevBtn = document.createElement('button');
+                prevBtn.innerHTML = '‹';
+                prevBtn.className = 'slideshow-nav-btn slideshow-prev';
+                prevBtn.setAttribute('aria-label', 'Foto sebelumnya');
+
+                const nextBtn = document.createElement('button');
+                nextBtn.innerHTML = '›';
+                nextBtn.className = 'slideshow-nav-btn slideshow-next';
+                nextBtn.setAttribute('aria-label', 'Foto berikutnya');
+
+                container.appendChild(prevBtn);
+                container.appendChild(nextBtn);
+
+                const showImage = (dir) => {
+                    const images = container.querySelectorAll('img');
+                    let curr = Array.from(images).findIndex(img => img.classList.contains('active'));
+                    if (curr === -1) curr = 0; // fallback
+                    images[curr].classList.remove('active');
+                    curr = (curr + dir + images.length) % images.length;
+                    images[curr].classList.add('active');
+                };
+
+                prevBtn.addEventListener('click', (e) => { e.preventDefault(); showImage(-1); });
+                nextBtn.addEventListener('click', (e) => { e.preventDefault(); showImage(1); });
+                
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft') showImage(-1);
+                    if (e.key === 'ArrowRight') showImage(1);
+                });
+                
+                let touchStartX = 0;
+                container.addEventListener('touchstart', e => touchStartX = e.touches[0].clientX);
+                container.addEventListener('touchend', e => {
+                    const diff = e.changedTouches[0].clientX - touchStartX;
+                    if (Math.abs(diff) > 50) showImage(diff > 0 ? -1 : 1);
+                });
+            });
+        }
+        setInterval(enhanceSlideshows, 1000);
+    </script>
+    @stack('scripts')
+
 </body>
 </html>

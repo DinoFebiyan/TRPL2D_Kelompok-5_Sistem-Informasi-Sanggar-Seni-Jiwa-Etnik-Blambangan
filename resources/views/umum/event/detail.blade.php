@@ -27,24 +27,25 @@
     .event-image-wrapper {
         position: relative;
         width: 100%;
-        height: 520px;
-        background-color: #333;
+        height: auto;
+        min-height: 200px;
+        background-color: #f3f4f6;
         overflow: hidden;
     }
 
     .event-image-wrapper img {
         width: 100%;
-        height: 100%;
-        object-fit: cover;
-        position: absolute;
-        top: 0; left: 0;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        position: static;
         opacity: 0;
         transition: opacity 0.8s ease-in-out;
-        z-index: 1;
     }
 
     .event-image-wrapper img.active {
         opacity: 1;
+        position: relative;
     }
 
     .badge-kategori {
