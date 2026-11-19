@@ -1,2 +1,7 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin
+Disallow: /superadmin
+Disallow: /login
+
+Sitemap: https://jiwaetnikblambangan.my.id/sitemap.xml

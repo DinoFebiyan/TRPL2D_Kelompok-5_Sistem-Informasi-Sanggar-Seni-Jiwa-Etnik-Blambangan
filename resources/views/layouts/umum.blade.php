@@ -4,6 +4,31 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
 <title>@yield('title', 'Sanggar Tari Jiwa Etnik Blambangan')</title>
+<meta name="description" content="@yield('meta_description', 'Sanggar Tari Jiwa Etnik Blambangan adalah sanggar tari tradisional di Banyuwangi yang melestarikan dan mengembangkan seni tari daerah.')">
+
+<!-- Open Graph Meta Tags -->
+<meta property="og:title" content="@yield('title', 'Sanggar Tari Jiwa Etnik Blambangan')">
+<meta property="og:description" content="@yield('meta_description', 'Sanggar Tari Jiwa Etnik Blambangan adalah sanggar tari tradisional di Banyuwangi.')">
+<meta property="og:image" content="@yield('og_image', asset('img/images-landing-page/galeri/logo-jeb.jpg'))">
+<meta property="og:url" content="{{ url()->current() }}">
+<meta property="og:type" content="website">
+
+<!-- Schema.org JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "PerformingGroup",
+  "name": "Sanggar Tari Jiwa Etnik Blambangan",
+  "url": "{{ url('/') }}",
+  "description": "Sanggar Tari Jiwa Etnik Blambangan adalah sanggar tari tradisional di Banyuwangi.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Banyuwangi",
+    "addressRegion": "Jawa Timur",
+    "addressCountry": "ID"
+  }
+}
+</script>
 {{-- 🟢 KODE FAVICON DINAMIS (DB & ASSET) --}}
     @php
         $globalProfil = \App\Models\ProfilSanggar::with('logo')->first();

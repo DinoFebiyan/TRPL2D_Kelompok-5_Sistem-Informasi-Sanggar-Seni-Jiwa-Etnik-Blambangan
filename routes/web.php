@@ -13,6 +13,7 @@ use App\Http\Controllers\PengaturanSistemController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\UmumController;
+use App\Http\Controllers\SitemapController;
 use Illuminate\Support\Facades\Route;
 
 // =========================================================================
@@ -28,6 +29,7 @@ Route::get('/katalog/{id}', [UmumController::class, 'katalogDetail'])->name('umu
 Route::get('/galeri', [UmumController::class, 'galeri'])->name('umum.galeri');
 Route::get('/galeri/{id}', [UmumController::class, 'galeriDetail'])->name('umum.galeri-detail');
 Route::get('/profil-sanggar', [UmumController::class, 'profil'])->name('umum.profil');
+Route::get('/sitemap.xml', [SitemapController::class, 'index']);
 
 // =========================================================================
 // 2. AUTH & REDIRECTION ROLE
