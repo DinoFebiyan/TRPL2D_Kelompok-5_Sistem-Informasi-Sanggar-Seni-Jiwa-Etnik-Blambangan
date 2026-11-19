@@ -13,7 +13,6 @@ class TC_EVT_002_ValidasiEventTest extends TestCase
 
     public function test_evt_002_menolak_field_wajib_kosong()
     {
-        // Prasyarat: Login sebagai admin/superadmin
         $admin = User::create([
             'name' => 'Admin Sanggar',
             'email' => 'admin@sanggar.com',
@@ -23,7 +22,6 @@ class TC_EVT_002_ValidasiEventTest extends TestCase
             'status' => 'aktif',
         ]);
 
-        // Langkah 1: Kosongkan nama dan lokasi (field wajib) lalu kirim request simpan[cite: 8]
         $response = $this->actingAs($admin)->post(route('superadmin.store-event'), [
             'nama' => '',
             'deskripsi' => 'Deskripsi uji validasi kosong.',
@@ -34,11 +32,9 @@ class TC_EVT_002_ValidasiEventTest extends TestCase
             'status' => 'belum selesai',
         ]);
 
-        // Memastikan divalidasi dan dikembalikan dengan pesan error pada field terkait
         $response->assertSessionHasErrors(['nama', 'lokasi']);
         
         // dump($response->getSession()->get('errors')->all());
-        // Langkah 4: Memastikan tidak ada data event yang tersimpan di database[cite: 8]
         $this->assertDatabaseCount('event', 0);
     }
 
@@ -53,7 +49,6 @@ class TC_EVT_002_ValidasiEventTest extends TestCase
             'status' => 'aktif',
         ]);
 
-        // Langkah 2: Isi tanggal dengan format salah (misal: 32/13/2026)[cite: 8]
         $response = $this->actingAs($admin)->post(route('superadmin.store-event'), [
             'nama' => 'Event Tanggal Salah',
             'deskripsi' => 'Deskripsi uji format tanggal.',
@@ -64,10 +59,8 @@ class TC_EVT_002_ValidasiEventTest extends TestCase
             'status' => 'belum selesai',
         ]);
 
-        // Memastikan tanggal tidak valid ditolak oleh validasi
         $response->assertSessionHasErrors(['tanggal']);
         
-        // Langkah 4: Pastikan tidak ada data event baru yang tersimpan[cite: 8]
         $this->assertDatabaseCount('event', 0);
     }
 
@@ -75,7 +68,6 @@ class TC_EVT_002_ValidasiEventTest extends TestCase
     {
         $admin = User::factory()->create();
 
-        // Langkah 3: Ubah value kategori menjadi di luar pilihan resmi (misal: 'Seminar')[cite: 8]
         $response = $this->actingAs($admin)->post(route('superadmin.store-event'), [
             'nama' => 'Event Kategori Salah',
             'deskripsi' => 'Deskripsi uji kategori invalid.',
@@ -86,11 +78,9 @@ class TC_EVT_002_ValidasiEventTest extends TestCase
             'status' => 'belum selesai',
         ]);
 
-        // Memastikan ditolak oleh validasi sisi server tanpa error 500 (mengembalikan error session)[cite: 8]
         $response->assertStatus(302);
         $response->assertSessionHasErrors(['kategori']);
         
-        // Langkah 4: Memastikan tabel event tetap kosong[cite: 8]
         $this->assertDatabaseCount('event', 0);
     }
 }

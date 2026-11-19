@@ -39,13 +39,11 @@ class TC_EVT_006_FilterStatusEventPublikTest extends TestCase
             'status' => 'selesai',
         ]);
 
-        // Langkah 1: Pilih filter status 'Belum selesai'
         $responseFilter1 = $this->get('/event?search=&status%5B%5D=belum+selesai');
         $responseFilter1->assertStatus(200);
         $responseFilter1->assertSee('Latihan Rutin Mingguan');
         $responseFilter1->assertDontSee('Festival Tari 2025');
         
-        // Langkah 2: Pilih filter status 'Selesai'
         $responseFilter2 = $this->get('/event?search=&status%5B%5D=selesai');
         $responseFilter2->assertStatus(200);
         $responseFilter2->assertSee('Festival Tari 2025');
@@ -53,19 +51,16 @@ class TC_EVT_006_FilterStatusEventPublikTest extends TestCase
         // dump($responseFilter2->content());
         // dump($responseFilter2->status());
 
-        // Langkah 3: Pilih status 'Belum selesai' lalu isi pencarian dengan kata kunci 'Latihan'
         $responseComb1 = $this->get('/event?search=Latihan&status%5B%5D=belum+selesai');
         $responseComb1->assertStatus(200);
         $responseComb1->assertSee('Latihan Rutin Mingguan');
 
-        // Langkah 4: Pilih status 'Selesai' dengan kata kunci yang sama ('Latihan') -> Kombinasi kosong
         $responseComb2 = $this->get('/event?search=Latihan&status%5B%5D=selesai');
         $responseComb2->assertStatus(200);
         $responseComb2->assertDontSee('Latihan Rutin Mingguan');
         $responseComb2->assertDontSee('Festival Tari 2025');
         $responseComb2->assertSee('Belum ada event tersedia'); 
 
-        // Langkah 5: Reset filter dan pencarian
         $responseReset = $this->get('/event');
         $responseReset->assertStatus(200);
         $responseReset->assertSee('Latihan Rutin Mingguan');

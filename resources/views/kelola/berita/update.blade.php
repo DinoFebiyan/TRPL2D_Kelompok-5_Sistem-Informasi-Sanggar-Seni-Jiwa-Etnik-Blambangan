@@ -507,7 +507,7 @@
     </script>
 
     {{-- Memuat Library Resmi TinyMCE dari CDN Cloud --}}
-    <script src="https://cdn.tiny.cloud/1/ug7pj020bty002h7qm1sroe2u6xjk3uz3u7kb0ctdgxrgysr/tinymce/7/tinymce.min.js"
+    <script src="https://cdn.tiny.cloud/1/bno1xwfvj9ifgx0new4nfkoog2p1u3wspabzqvi32jmqbwdh/tinymce/8/tinymce.min.js"
         referrerpolicy="origin"></script>
 
     <script>
